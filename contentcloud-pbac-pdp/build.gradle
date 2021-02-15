@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api "io.projectreactor:reactor-core:${projectReactorVersion}"
+
+}
