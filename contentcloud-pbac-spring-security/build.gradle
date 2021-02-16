@@ -7,8 +7,23 @@ repositories {
 }
 
 dependencies {
-    implementation "org.springframework.security:spring-security-core:${springSecurityVersion}"
-    implementation "org.springframework.security:spring-security-web:${springSecurityVersion}"
 
-    implementation project(":contentcloud-pbac-pdp")
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
+    implementation platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+
+    implementation "org.springframework.security:spring-security-core"
+    implementation "org.springframework.security:spring-security-web"
+
+    implementation project(':contentcloud-pbac-pdp')
+    implementation project(':contentcloud-pbac-predicates-json')
+
+    //testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+test {
+    useJUnitPlatform()
 }

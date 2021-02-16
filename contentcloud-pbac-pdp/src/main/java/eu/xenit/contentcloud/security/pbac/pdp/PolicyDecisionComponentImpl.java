@@ -11,7 +11,7 @@ public class PolicyDecisionComponentImpl implements PolicyDecisionComponent {
     }
 
     @Override
-    public Mono<PolicyDecision> authorize() {
-        return null;
+    public <TPrincipal> Mono<PolicyDecision> authorize(Mono<TPrincipal> principal, RequestContext requestContext) {
+        return this.client.conditional(principal, requestContext);
     }
 }

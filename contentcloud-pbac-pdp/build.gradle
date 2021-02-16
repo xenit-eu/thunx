@@ -9,4 +9,5 @@ repositories {
 dependencies {
     api "io.projectreactor:reactor-core:${projectReactorVersion}"
 
+    api project (":contentcloud-pbac-predicates")
 }

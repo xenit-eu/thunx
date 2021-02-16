@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface PolicyDecisionComponent {
 
-    Mono<PolicyDecision> authorize(/* TODO args */);
+    <TPrincipal> Mono<PolicyDecision> authorize(Mono<TPrincipal> principal, RequestContext requestContext);
 }

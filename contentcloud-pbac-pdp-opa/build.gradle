@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
 
 repositories {
@@ -7,5 +7,17 @@ repositories {
 }
 
 dependencies {
-    implementation project(":contentcloud-pbac-pdp")
+    api project(":contentcloud-pbac-predicates")
+    api project(":contentcloud-pbac-pdp")
+
+    implementation 'eu.xenit.contentcloud.abac:opa-async-java-client'
+
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
+
+test {
+    useJUnitPlatform()
 }
