@@ -16,8 +16,8 @@ dependencies {
     implementation "org.springframework.security:spring-security-core"
     implementation "org.springframework.security:spring-security-web"
 
-    implementation project(':contentcloud-pbac-pdp')
-    implementation project(':contentcloud-pbac-predicates-json')
+    implementation project(':contentcloud-abac-pdp')
+    implementation project(':contentcloud-abac-predicates-json')
 
     //testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

@@ -7,8 +7,8 @@ repositories {
 }
 
 dependencies {
-    api project(":contentcloud-pbac-predicates")
-    api project(":contentcloud-pbac-pdp")
+    api project(":contentcloud-abac-predicates")
+    api project(":contentcloud-abac-pdp")
 
     implementation 'eu.xenit.contentcloud.abac:opa-async-java-client'
 

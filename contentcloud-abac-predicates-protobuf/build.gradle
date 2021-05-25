@@ -7,5 +7,5 @@ repositories {
 }
 
 dependencies {
-    implementation project(":contentcloud-pbac-predicates")
+    implementation project(":contentcloud-abac-predicates")
 }

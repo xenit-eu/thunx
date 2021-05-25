@@ -1,13 +1,13 @@
-rootProject.name = 'contentcloud-pbac'
+rootProject.name = 'contentcloud-abac'
 
-include 'contentcloud-pbac-predicates'
-include 'contentcloud-pbac-pdp'
-include 'contentcloud-pbac-pdp-opa'
-include 'contentcloud-pbac-spring-security'
+include 'contentcloud-abac-predicates'
+include 'contentcloud-abac-pdp'
+include 'contentcloud-abac-pdp-opa'
+include 'contentcloud-abac-spring-security'
 
-include 'contentcloud-pbac-predicates-json'
-include 'contentcloud-pbac-predicates-protobuf'
-include 'contentcloud-pbac-predicates-querydsl'
+include 'contentcloud-abac-predicates-json'
+include 'contentcloud-abac-predicates-protobuf'
+include 'contentcloud-abac-predicates-querydsl'
 
 includeBuild('../opa-async-java-client') {
     dependencySubstitution {

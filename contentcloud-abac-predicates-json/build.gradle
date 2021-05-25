@@ -12,7 +12,7 @@ dependencies {
 
     implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
 
-    implementation project(":contentcloud-pbac-predicates")
+    implementation project(":contentcloud-abac-predicates")
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     testImplementation 'org.assertj:assertj-core'
