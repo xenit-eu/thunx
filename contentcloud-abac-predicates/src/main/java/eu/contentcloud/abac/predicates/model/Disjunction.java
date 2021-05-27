@@ -36,7 +36,7 @@ public class Disjunction implements BooleanExpression {
     }
 
     @Override
-    public Collection<Expression<?>> getTerms() {
+    public List<Expression<?>> getTerms() {
         return new ArrayList<>(this.getPredicates());
     }
 }

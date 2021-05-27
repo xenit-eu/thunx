@@ -1,6 +1,7 @@
 package eu.contentcloud.abac.predicates.model;
 
 import java.util.Collection;
+import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,7 @@ public interface FunctionExpression<T> extends Expression<T> {
 
     Operator getOperator();
 
-    Collection<Expression<?>> getTerms();
+    List<Expression<?>> getTerms();
 
     default <R> R accept(ExpressionVisitor<R> visitor) {
         return visitor.visit(this);

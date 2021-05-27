@@ -1,8 +1,10 @@
 package eu.contentcloud.abac.predicates.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Data;
@@ -40,6 +42,15 @@ public class SymbolicReference implements Expression<Object> {
         return new SymbolicReference(new SymbolicRefSubject(variable), Arrays.asList(path));
     }
 
+    public static SymbolicReference of(String varName, Consumer<PathBuilder> pathCallback) {
+        Objects.requireNonNull(varName, "variable cannot be null");
+
+        var pathBuilder = new PathBuilder();
+        pathCallback.accept(pathBuilder);
+
+        return new SymbolicReference(new SymbolicRefSubject(Variable.named(varName)),  pathBuilder.getPath());
+    }
+
     public static SymbolicReference of(Variable variable, Stream<PathElement> path) {
         Objects.requireNonNull(variable, "variable cannot be null");
 
@@ -52,6 +63,25 @@ public class SymbolicReference implements Expression<Object> {
 
     public static PathElement var(String variable) {
         return new VariablePathElement(variable);
+    }
+
+    public static class PathBuilder {
+
+        private List<PathElement> path = new ArrayList<>();
+
+        public PathBuilder path(String path) {
+            this.path.add(new StringPathElement(path));
+            return this;
+        }
+
+        public PathBuilder var(String variable) {
+            this.path.add(new VariablePathElement(variable));
+            return this;
+        }
+
+        public List<PathElement> getPath() {
+            return this.path;
+        }
     }
 
     @Override
@@ -67,6 +97,18 @@ public class SymbolicReference implements Expression<Object> {
     public interface PathElement {
 
         <T> T accept(ExpressionVisitor<T> visitor);
+    }
+
+    public abstract static class PathElementVisitor<T> implements ExpressionVisitor<T> {
+        @Override
+        public final T visit(FunctionExpression<?> functionExpression) {
+            return null;
+        }
+
+        @Override
+        public final T visit(SymbolicReference symbolicReference) {
+            return null;
+        }
     }
 
     @Data

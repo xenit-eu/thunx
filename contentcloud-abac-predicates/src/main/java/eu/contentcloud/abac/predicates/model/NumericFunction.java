@@ -23,7 +23,7 @@ public class NumericFunction implements FunctionExpression<Number> {
     private final Expression<?> rightTerm;
 
     @Override
-    public Collection<Expression<?>> getTerms() {
+    public List<Expression<?>> getTerms() {
         return List.of(this.leftTerm, this.rightTerm);
     }
 

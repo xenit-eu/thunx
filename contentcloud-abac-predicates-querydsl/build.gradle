@@ -7,5 +7,23 @@ repositories {
 }
 
 dependencies {
-    implementation project(":contentcloud-abac-predicates")
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
+
+    api project(":contentcloud-abac-predicates")
+    api 'com.querydsl:querydsl-core'
+
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+}
+
+test {
+    useJUnitPlatform()
 }

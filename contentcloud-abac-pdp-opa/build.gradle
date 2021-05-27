@@ -4,13 +4,15 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/releases' }
+//    maven { url 'https://oss.sonatype.org/service/local/repositories/releases/content/' }
 }
 
 dependencies {
     api project(":contentcloud-abac-predicates")
     api project(":contentcloud-abac-pdp")
 
-    implementation 'eu.contentcloud.abac:opa-async-java-client'
+    implementation 'eu.xenit.contentcloud.abac:opa-async-java-client:0.1.0'
 
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
