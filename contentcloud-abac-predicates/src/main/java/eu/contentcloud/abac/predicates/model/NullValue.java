@@ -1,9 +1,18 @@
 package eu.contentcloud.abac.predicates.model;
 
-class NullValue extends Scalar<Void> {
+import lombok.EqualsAndHashCode;
 
-    protected NullValue() {
-        super(null);
+@EqualsAndHashCode
+class NullValue implements Scalar<Void> {
+
+    protected static NullValue INSTANCE = new NullValue();
+
+    private NullValue() {
+    }
+
+    @Override
+    public Void getValue() {
+        return null;
     }
 
     @Override

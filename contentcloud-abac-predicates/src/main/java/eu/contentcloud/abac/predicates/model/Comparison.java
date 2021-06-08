@@ -1,14 +1,15 @@
 package eu.contentcloud.abac.predicates.model;
 
-import java.util.Collection;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class Comparison implements BooleanExpression {
+@EqualsAndHashCode
+public class Comparison implements BooleanOperation {
 
     @Getter
     @NonNull
@@ -21,6 +22,7 @@ public class Comparison implements BooleanExpression {
     @Getter
     @NonNull
     private final Expression<?> rightTerm;
+
 
     @Override
     public List<Expression<?>> getTerms() {
@@ -45,15 +47,32 @@ public class Comparison implements BooleanExpression {
 
     public static Comparison greaterOrEquals(List<Expression<?>> terms) {
         if (terms.size() != 2) {
-            throw new IllegalArgumentException("Expected 2 terms, but got "+terms.size());
+            throw new IllegalArgumentException("Expected 2 terms, but got " + terms.size());
         }
         return greaterOrEquals(terms.get(0), terms.get(1));
     }
+
+    public static <E> Comparison lessOrEquals(Expression<?> left, Expression<?> right) {
+        return new Comparison(Operator.LESS_THEN_OR_EQUAL_TO, left, right);
+    }
+
+    public static Comparison lessOrEquals(@NonNull List<Expression<?>> terms) {
+        assertTermSizeIsTwo(terms);
+        return lessOrEquals(terms.get(0), terms.get(1));
+    }
+
 
     @Override
     public boolean canBeResolved() {
         return this.leftTerm.canBeResolved() && this.rightTerm.canBeResolved();
     }
 
+    private static void assertTermSizeIsTwo(List<Expression<?>> terms) {
+        if (terms.size() == 2) {
+            return;
+        }
+        throw new IllegalArgumentException("Expected 2 terms, but got " + terms.size());
+
+    }
 
 }

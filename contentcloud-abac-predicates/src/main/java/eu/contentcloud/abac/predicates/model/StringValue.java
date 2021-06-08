@@ -1,9 +1,17 @@
 package eu.contentcloud.abac.predicates.model;
 
-class StringValue extends Scalar<String> {
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@EqualsAndHashCode
+class StringValue implements Scalar<String> {
+
+    @Getter
+    private String value;
 
     protected StringValue(String value) {
-        super(value);
+
+        this.value = value;
     }
 
     @Override

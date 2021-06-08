@@ -33,9 +33,11 @@ public class ExpressionJsonConverter {
         }
     }
 
-    public Expression<?> decode(String json) throws JsonProcessingException {
+    public Expression<?> decode(String json) throws JsonProcessingException, InvalidExpressionDataException {
         var dto = this.objectMapper.readValue(json, JsonExpressionDto.class);
+
         return dto.toExpression();
+
     }
 
     private static class JsonEncoderVisitor implements ExpressionVisitor<JsonExpressionDto> {

@@ -1,53 +1,46 @@
 package eu.contentcloud.abac.predicates.model;
 
-public abstract class Scalar<T> implements Expression<T> {
+import java.math.BigDecimal;
 
+public interface Scalar<T> extends Expression<T> {
 
-    private final T value;
-
-    protected Scalar(T value) {
-        this.value = value;
-    }
-
-    public T getValue() {
-        return this.value;
-    }
+    T getValue();
 
     @Override
-    public boolean canBeResolved() {
+    default boolean canBeResolved() {
         return true;
     }
 
     @Override
-    public T resolve() {
-        return value;
+    default T resolve() {
+        return this.getValue();
     }
 
-    public <R> R accept(ExpressionVisitor<R> visitor) {
+    default <R> R accept(ExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
 
-    public static NumberValue of(Number number) {
+    static NumberValue of(BigDecimal number) {
         return new NumberValue(number);
     }
 
-    public static NumberValue of(double number) {
-        return new NumberValue(number);
+    static NumberValue of(double number) {
+        return of(BigDecimal.valueOf(number));
     }
 
-    public static NumberValue of(long number) {
-        return new NumberValue(number);
+    static NumberValue of(long number) {
+        return of(BigDecimal.valueOf(number));
     }
 
-    public static StringValue of(String value) {
+    static StringValue of(String value) {
         return new StringValue(value);
     }
 
-    public static BooleanValue of(boolean value) {
+    static BooleanValue of(boolean value) {
         return new BooleanValue(value);
     }
 
-    public static NullValue nullValue() {
-        return new NullValue();
+    static NullValue nullValue() {
+        return NullValue.INSTANCE;
     }
 }

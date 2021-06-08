@@ -1,9 +1,17 @@
 package eu.contentcloud.abac.predicates.model;
 
-class NumberValue extends Scalar<Number> {
+import java.math.BigDecimal;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-    NumberValue(Number value) {
-        super(value);
+@EqualsAndHashCode
+class NumberValue implements Scalar<Number> {
+
+    @Getter
+    private BigDecimal value;
+
+    NumberValue(BigDecimal value) {
+        this.value = value;
     }
 
     @Override

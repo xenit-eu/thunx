@@ -49,18 +49,27 @@ class ReactivePolicyAuthorizationManagerTest {
 
     @Test
     void conditionalAccess() {
-        var authorizationManager = new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl(policySaysMaybe()));
+        var thunk = Comparison.areEqual(Scalar.of(42), Variable.named("foo"));
+        var pdpClient = policySaysMaybe(thunk);
+
+        var authorizationManager = new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl(pdpClient));
 
         var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost"));
         var context = new AuthorizationContext(exchange);
 
+        // the authorization manager returns a Mono<Void>
+        // the access here is conditional:
+        // - mono should complete normally
+        // - context should be updated with an 'ABAC_POLICY_PREDICATE' attribute
         StepVerifier.create(authorizationManager.verify(authentication(), context))
                 .expectComplete()
                 .verify();
 
-        Expression<Boolean> obj = context.getExchange().getAttribute(
+        Expression<Boolean> predicateAttr = context.getExchange().getAttribute(
                 ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
-        assertThat(obj).isNotNull();
+        assertThat(predicateAttr)
+                .isNotNull()
+                .isEqualTo(Comparison.areEqual(Scalar.of(42), Variable.named("foo")));
     }
 
     private static Mono<Authentication> authentication() {
@@ -85,13 +94,11 @@ class ReactivePolicyAuthorizationManagerTest {
         };
     }
 
-    private static PolicyDecisionPointClient policySaysMaybe() {
+    private static PolicyDecisionPointClient policySaysMaybe(Expression<Boolean> expression) {
         return new PolicyDecisionPointClient() {
             @Override
             public <TPrincipal> Mono<PolicyDecision> conditional(TPrincipal principal, RequestContext requestContext) {
-                return Mono.just(PolicyDecisions.conditional(
-                        Comparison.areEqual(Scalar.of(42), Variable.named("foo"))
-                ));
+                return Mono.just(PolicyDecisions.conditional(expression));
             }
         };
     }

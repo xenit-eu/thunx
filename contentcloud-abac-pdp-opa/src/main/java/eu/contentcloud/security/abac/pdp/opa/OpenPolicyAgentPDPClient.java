@@ -20,26 +20,28 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
 
     @Override
     public <TPrincipal> Mono<PolicyDecision> conditional(TPrincipal principal, RequestContext requestContext) {
+        // TODO query & input parameters
         return Mono.fromCompletionStage(() -> opaClient.compile(new PartialEvaluationRequest(null, null, null)))
                 .map(response -> {
                     // list of possible partially evaluated queries from OPA
                     // we need to convert this to a single boolean expression
-                    var querySet = response.getResult().getQueries();
-
-                    var converter = new QuerySetToPbacExpressionConverter();
-                    return converter.convert(querySet);
+                    var opaQuerySet = response.getResult().getQueries();
+                    return opaQuerySet;
                 })
-                .map(expression -> {
+                .map(opaQuerySet -> {
+                    var converter = new QuerySetToThunkExpressionConverter();
+                    return converter.convert(opaQuerySet);
+                })
+                .map(thunkExpression -> {
                     // if the expression can be resolved right now, there is no remaining predicate
-                    if (expression.canBeResolved()) {
-                        return expression.resolve() ? PolicyDecisions.allowed() : PolicyDecisions.denied();
+                    if (thunkExpression.canBeResolved()) {
+                        return thunkExpression.resolve() ? PolicyDecisions.allowed() : PolicyDecisions.denied();
                     } else {
                         // there is a remaining predicate
-                        return PolicyDecisions.conditional(expression);
+                        return PolicyDecisions.conditional(thunkExpression);
                     }
                 });
     }
-
 
 
 }

@@ -1,8 +1,8 @@
 package eu.contentcloud.security.abac.pdp.opa;
 
-import eu.contentcloud.abac.predicates.model.Comparison;
 import eu.contentcloud.abac.opa.rego.ast.Query;
 import eu.contentcloud.abac.opa.rego.ast.QuerySet;
+import eu.contentcloud.abac.opa.rego.ast.RegoVisitor;
 import eu.contentcloud.abac.opa.rego.ast.Term;
 import eu.contentcloud.abac.opa.rego.ast.Term.ArrayTerm;
 import eu.contentcloud.abac.opa.rego.ast.Term.Bool;
@@ -12,11 +12,10 @@ import eu.contentcloud.abac.opa.rego.ast.Term.Numeric;
 import eu.contentcloud.abac.opa.rego.ast.Term.Ref;
 import eu.contentcloud.abac.opa.rego.ast.Term.Text;
 import eu.contentcloud.abac.opa.rego.ast.Term.Var;
-import eu.contentcloud.abac.opa.rego.ast.RegoVisitor;
-import eu.contentcloud.abac.predicates.model.NumericFunction;
-import eu.contentcloud.abac.predicates.model.Conjunction;
-import eu.contentcloud.abac.predicates.model.Disjunction;
+import eu.contentcloud.abac.predicates.model.Comparison;
 import eu.contentcloud.abac.predicates.model.Expression;
+import eu.contentcloud.abac.predicates.model.LogicalOperation;
+import eu.contentcloud.abac.predicates.model.NumericFunction;
 import eu.contentcloud.abac.predicates.model.Scalar;
 import eu.contentcloud.abac.predicates.model.SymbolicReference;
 import eu.contentcloud.abac.predicates.model.Variable;
@@ -25,7 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class QuerySetToPbacExpressionConverter {
+public class QuerySetToThunkExpressionConverter {
 
     public Expression<Boolean> convert(QuerySet querySet) {
         if (querySet == null || querySet.size() == 0) {
@@ -33,7 +32,8 @@ public class QuerySetToPbacExpressionConverter {
         }
 
         // query-set is a disjunction (OR a list of terms)
-        return Disjunction.of(querySet.stream().map(this::convert));
+        var terms = querySet.stream().map(this::convert).collect(Collectors.toList());
+        return LogicalOperation.disjunction(terms);
     }
 
 
@@ -50,9 +50,15 @@ public class QuerySetToPbacExpressionConverter {
                         throw new UnsupportedOperationException(msg);
                     }
                 })
-                .map(expr -> (Expression<Boolean>) expr);
+                .map(expr -> (Expression<Boolean>) expr)
+                .collect(Collectors.toList());
 
-        return Conjunction.of(expressions);
+        // Optimize: if there is a single expression, unwrap the conjunction
+        if (expressions.size() == 1) {
+            return expressions.get(0);
+        }
+
+        return LogicalOperation.conjunction(expressions);
     }
 
     Expression<?> convert(eu.contentcloud.abac.opa.rego.ast.Expression expression) {
@@ -197,7 +203,7 @@ public class QuerySetToPbacExpressionConverter {
                     if (val instanceof Term.Text) {
                         return SymbolicReference.path(((Text) val).getValue());
                     } else if (val instanceof Var) {
-                        return SymbolicReference.var(((Var) val).getValue());
+                        return SymbolicReference.pathVar(((Var) val).getValue());
                     }
                     throw new RuntimeException(String.format("ref-arg of type %s not implemented", val.getClass().getName()));
                 }));
@@ -222,8 +228,9 @@ public class QuerySetToPbacExpressionConverter {
         }
 
         @Override
-        public Expression<?> visit(Numeric numberValue) {
-            return Scalar.of(numberValue.getValue());
+        public Expression<?> visit(Numeric numeric) {
+            // numeric uses BigDecimal internally
+            return Scalar.of(numeric.getValue());
         }
 
         @Override

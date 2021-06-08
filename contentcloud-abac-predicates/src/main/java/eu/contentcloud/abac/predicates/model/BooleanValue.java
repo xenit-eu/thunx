@@ -1,9 +1,18 @@
 package eu.contentcloud.abac.predicates.model;
 
-class BooleanValue extends Scalar<Boolean> {
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+
+@EqualsAndHashCode(callSuper = false)
+class BooleanValue implements Scalar<Boolean> {
+
+    @Getter
+    @NonNull
+    private Boolean value;
 
     protected BooleanValue(Boolean value) {
-        super(value);
+        this.value = value;
     }
 
     @Override

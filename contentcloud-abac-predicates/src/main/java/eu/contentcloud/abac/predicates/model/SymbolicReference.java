@@ -8,9 +8,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class SymbolicReference implements Expression<Object> {
 
@@ -36,6 +38,9 @@ public class SymbolicReference implements Expression<Object> {
     }
 
 
+    public static SymbolicReference of(String variable, PathElement ... path) {
+        return of(Variable.named(variable), path);
+    }
     public static SymbolicReference of(Variable variable, PathElement ... path) {
         Objects.requireNonNull(variable, "variable cannot be null");
 
@@ -51,25 +56,58 @@ public class SymbolicReference implements Expression<Object> {
         return new SymbolicReference(new SymbolicRefSubject(Variable.named(varName)),  pathBuilder.getPath());
     }
 
+    /**
+     * Parse the reference and split by '.' while assuming all path-elements are string-types
+     *
+     * @param reference
+     * @return
+     */
+    public static SymbolicReference parse(String reference) {
+        Objects.requireNonNull(reference, "variable cannot be null");
+        var parts = reference.split("\\.");
+        var subject = parts[0];
+
+        return of(Variable.named(subject), Arrays.stream(parts).skip(1).map(part -> path(part)));
+    }
+
     public static SymbolicReference of(Variable variable, Stream<PathElement> path) {
         Objects.requireNonNull(variable, "variable cannot be null");
 
-        return new SymbolicReference(new SymbolicRefSubject(variable), path.collect(Collectors.toList()));
+        return SymbolicReference.of(variable, path.collect(Collectors.toList()));
+    }
+
+    public static SymbolicReference of(Variable variable, List<PathElement> path) {
+        Objects.requireNonNull(variable, "variable cannot be null");
+
+        return new SymbolicReference(new SymbolicRefSubject(variable), path);
     }
 
     public static PathElement path(String path) {
         return new StringPathElement(path);
     }
 
-    public static PathElement var(String variable) {
+    public static PathElement pathVar(String variable) {
         return new VariablePathElement(variable);
+    }
+
+    public static PathElement path(Expression<?> expr) {
+        // figure out what type of 'path' this is and convert that to a PathElement
+        // for now only String & Var are supported
+
+        if (expr instanceof StringValue) {
+            return path(((StringValue) expr).getValue());
+        } else if (expr instanceof Variable) {
+            return pathVar(((Variable) expr).getName());
+        }
+
+        throw new IllegalArgumentException(String.format("Expression '%s' not supported as path element", expr));
     }
 
     public static class PathBuilder {
 
         private List<PathElement> path = new ArrayList<>();
 
-        public PathBuilder path(String path) {
+        public PathBuilder string(String path) {
             this.path.add(new StringPathElement(path));
             return this;
         }

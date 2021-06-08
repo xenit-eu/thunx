@@ -1,37 +1,34 @@
 package eu.contentcloud.security.abac.predicates.converters.json;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import eu.contentcloud.abac.predicates.model.Expression;
 import eu.contentcloud.abac.predicates.model.Scalar;
+import eu.contentcloud.security.abac.predicates.converters.json.InvalidExpressionDataException.InvalidExpressionTypeException;
+import eu.contentcloud.security.abac.predicates.converters.json.InvalidExpressionDataException.InvalidExpressionValueException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Value;
 
-@Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(callSuper = false)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 class JsonScalarDto<T> implements JsonExpressionDto {
-
-    enum ScalarType {
-        STRING,
-        NUMBER,
-        BOOL,
-        NULL
-    }
 
     static final Map<Class<?>, String> SCALAR_TYPES = Map.of(
             String.class, "string",
@@ -40,60 +37,82 @@ class JsonScalarDto<T> implements JsonExpressionDto {
             Void.class, "null");
 
     private String type;
-//    private T value;
 
-//    @JsonSerialize(using = EitherSerializer.class)
-    private Either<String, Number, Boolean, Void> value;
-
-    public Object getValue() {
-        return this.value.map(
-                string -> string,
-                number -> number,
-                bool -> bool,
-                nothing -> null);
-    }
+    @JsonInclude(Include.NON_NULL)
+    private T value;
 
     public static JsonScalarDto of(@NonNull String string) {
-        return new JsonScalarDto(SCALAR_TYPES.get(String.class), Either.first(string));
+        return new JsonScalarDto(SCALAR_TYPES.get(String.class), string);
     }
 
     public static JsonScalarDto of(@NonNull Number number) {
-        return new JsonScalarDto(SCALAR_TYPES.get(Number.class), Either.second(number));
+        return new JsonScalarDto(SCALAR_TYPES.get(Number.class), number);
     }
 
     public static JsonScalarDto of(@NonNull Boolean bool) {
-        return new JsonScalarDto(SCALAR_TYPES.get(Boolean.class), Either.third(bool));
+        return new JsonScalarDto(SCALAR_TYPES.get(Boolean.class), bool);
     }
 
-    private static JsonScalarDto nullValue() {
-        return new JsonScalarDto(SCALAR_TYPES.get(Void.class), Either.fourth(null));
+    public static JsonScalarDto nullValue() {
+        return new JsonScalarDto(SCALAR_TYPES.get(Void.class), null);
     }
 
     @JsonCreator
-    public static JsonScalarDto of(@JsonProperty("type") String type, @JsonProperty("value") Object value) {
-        return null;
+    public static JsonScalarDto of(@NonNull @JsonProperty("type") String type, @JsonProperty("value") Object value) {
+        return new JsonScalarDto(type, value);
     }
 
     @Override
-    public Expression<?> toExpression() {
-//        switch (this.getType()) {
-//            case "string":
-//                return Scalar.of((String) this.getValue());
-//            case "number":
-//                return Scalar.of((Number) this.getValue());
-//            case "bool":
-//                return Scalar.of(this.getValue().equals(true));
-//            case "null":
-//                return Scalar.nullValue();
-//            default:
-//                throw new UnsupportedOperationException("type '" + this.getType() + "' not supported");
-//        }
-        return this.value.map(
-                string -> Scalar.of(string),
-                number -> Scalar.of(number),
-                bool -> Scalar.of(bool),
-                nothing -> Scalar.nullValue()
-        );
+    public Expression<?> toExpression() throws InvalidExpressionDataException {
+        switch (this.getType()) {
+            case "string":
+                if (this.value instanceof String) {
+                    return Scalar.of((String) this.value);
+                }
+                throw new InvalidExpressionValueException(this.value, String.class);
+            case "number":
+                if (this.value instanceof BigDecimal) {
+                    return Scalar.of((BigDecimal) this.value);
+                }
+                if (this.value instanceof Integer) {
+                    return Scalar.of((Integer) this.value);
+                }
+                if (this.value instanceof Long) {
+                    return Scalar.of((Long) this.value);
+                }
+                if (this.value instanceof Float) {
+                    return Scalar.of((Float) this.value);
+                }
+                if (this.value instanceof Double) {
+                    return Scalar.of((Double) this.value);
+                }
+                throw new InvalidExpressionValueException(this.value, Number.class);
+            case "bool":
+                if (this.value instanceof Boolean) {
+                    return Scalar.of(Boolean.TRUE.equals(this.value));
+                }
+                throw new InvalidExpressionValueException(this.value, Boolean.class);
+            case "null":
+                if (this.value != null) {
+                    throw new InvalidExpressionValueException(this.value, Void.class);
+                }
+                return Scalar.nullValue();
+            default:
+                String message = String.format("Scalar type '%s' is not supported", this.getType());
+                throw new UnsupportedOperationException(message);
+        }
+    }
+
+    private static ScalarTypes getValidScalarType(String type) throws InvalidExpressionDataException {
+        try {
+            return ScalarTypes.valueOf(type);
+        } catch (IllegalArgumentException iae) {
+            throw new InvalidExpressionTypeException(type, String.format("Scalar type '%s' is not valid", type));
+        }
+    }
+
+    enum ScalarTypes {
+        STRING, NUMBER, BOOLEAN, NULL
     }
 
     static class Either<A, B, C, D> {

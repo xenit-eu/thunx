@@ -8,18 +8,22 @@ import eu.contentcloud.abac.predicates.model.Expression;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = As.PROPERTY,
-        property = "type")
+        include = As.EXISTING_PROPERTY,
+        property = "type",
+        visible = true,
+        defaultImpl = UnknownTypeExpressionDto.class)
 @JsonSubTypes({
         @Type(value = JsonFunctionDto.class, name = "function"),
         @Type(value = JsonScalarDto.class, name = "string"),
         @Type(value = JsonScalarDto.class, name = "number"),
-        @Type(value = JsonScalarDto.class, name = "boolean"),
+        @Type(value = JsonScalarDto.class, name = "bool"),
         @Type(value = JsonScalarDto.class, name = "null"),
         @Type(value = JsonVariableDto.class, name = "var"),
         @Type(value = JsonSymbolicReferenceDto.class, name = "ref")
 })
 public interface JsonExpressionDto {
 
-    <T> Expression<T> toExpression();
+    String getType();
+
+    <T> Expression<? extends T> toExpression() throws InvalidExpressionDataException;
 }

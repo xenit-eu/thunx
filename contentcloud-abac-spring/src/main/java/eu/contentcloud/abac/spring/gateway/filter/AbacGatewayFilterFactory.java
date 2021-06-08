@@ -61,9 +61,9 @@ public class AbacGatewayFilterFactory extends AbstractGatewayFilterFactory<AbacG
     }
 
     void addAbacContextHeader(ServerWebExchange exchange) {
-        Expression<Boolean> abacExpression = exchange.getAttribute(ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
-        if (abacExpression != null) {
-            var data = this.encoder.encode(abacExpression);
+        Expression<Boolean> thunkExpression = exchange.getAttribute(ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
+        if (thunkExpression != null) {
+            var data = this.encoder.encode(thunkExpression);
             var encoded = Base64.getEncoder().encodeToString(data);
             exchange.getRequest()
                     .mutate()
