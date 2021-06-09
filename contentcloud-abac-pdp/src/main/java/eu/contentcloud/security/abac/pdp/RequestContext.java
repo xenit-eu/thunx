@@ -22,6 +22,8 @@ public interface RequestContext {
 
     /**
      * Return a read-only map with parsed and decoded query parameter values.
+     *
+     * @return a map of all query parameters
      */
     Map<String, List<String>> getQueryParams();
 
@@ -53,7 +55,7 @@ public interface RequestContext {
      *
      * @param name a @{code String} specifying the name of the parameter
      *
-     * @return an @{code Optional} of @{code String}> representing the single/first value of the parameter
+     * @return an @{code Optional} of @{code String} representing the single/first value of the parameter
      *
      * @see #getQueryParams(String)
      */
