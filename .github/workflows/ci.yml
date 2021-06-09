@@ -16,3 +16,11 @@ jobs:
           java-version: 11
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Publish
+        if: ${{ github.ref == 'refs/heads/main' || startswith(github.ref, 'refs/tags/') }}
+        run: ./gradlew publish
+        env:
+          SIGNING_PRIVATE_KEY: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
+          ORG_GRADLE_PROJECT_sonatype_username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatype_password: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

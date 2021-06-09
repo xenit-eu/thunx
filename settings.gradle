@@ -1,3 +1,7 @@
+plugins {
+    id "eu.xenit.enterprise-conventions.oss" version "0.2.0"
+}
+
 rootProject.name = 'contentcloud-abac'
 
 include 'contentcloud-abac-predicates'

@@ -1,0 +1,57 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            from components.java
+        }
+
+        all {
+            pom {
+                url = 'https://github.com/xenit-eu/contentcloud-abac'
+                name = "opa-java-client"
+                description = project.description
+
+                scm {
+                    connection = 'scm:git:git@github.com:xenit-eu/contentcloud-abac.git'
+                    developerConnection = 'scm:git:git@github.com:xenit-eu/contentcloud-abac.git'
+                    url = 'https://github.com/xenit-eu/contentcloud-abac.git'
+                }
+
+                developers {
+                    developer {
+                        id = "xenit"
+                        name = "Xenit Solutions NV"
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+
+
+    repositories {
+        if (version.version.isSignificant()) {
+            sonatypeMavenCentral {
+                credentials {
+                    username = project.findProperty('sonatype_username')
+                    password = project.findProperty('sonatype_password')
+                }
+            }
+        } else {
+            sonatypeSnapshots {
+                credentials {
+                    username = project.findProperty('sonatype_username')
+                    password = project.findProperty('sonatype_password')
+                }
+            }
+        }
+    }
+}
