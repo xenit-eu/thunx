@@ -1,3 +1,12 @@
+plugins {
+    id "org.ajoberstar.reckon" version "0.13.0"
+}
+
+reckon {
+    scopeFromProp()
+    snapshotFromProp()
+}
+
 ext {
     springBootBomVersion = '2.4.6'
     springCloudVersion = '2020.0.2'
