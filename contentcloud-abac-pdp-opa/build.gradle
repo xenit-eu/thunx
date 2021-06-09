@@ -2,6 +2,8 @@ plugins {
     id 'java-library'
 }
 
+apply from: "${rootDir}/gradle/publish.gradle"
+
 repositories {
     mavenCentral()
     // maven { url 'https://oss.sonatype.org/content/repositories/releases' }
