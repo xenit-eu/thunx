@@ -12,3 +12,13 @@ ext {
     springCloudVersion = '2020.0.2'
     projectReactorVersion = '3.4.2'
 }
+
+// publish all java projects, with sources and javadoc
+configure(subprojects) {
+    plugins.withType(JavaPlugin) {
+        java {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
