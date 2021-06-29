@@ -1,9 +1,9 @@
 package eu.contentcloud.abac.predicates.model;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -20,12 +20,12 @@ public interface FunctionExpression<T> extends Expression<T> {
     }
 
 
-
     @RequiredArgsConstructor
     @AllArgsConstructor
     enum Operator {
         // Comparison operators
-        EQUALS("eq", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::areEqual),
+        EQUALS("eq", Boolean.class,  (FunctionExpressionFactory<Boolean>) Comparison::areEqual,
+                values -> values.distinct().count() <= 1),
         NOT_EQUAL_TO("neq", Boolean.class),
         GREATER_THAN("gt", Boolean.class),
         GREATER_THAN_OR_EQUAL_TO("gte", Boolean.class),
@@ -33,8 +33,14 @@ public interface FunctionExpression<T> extends Expression<T> {
         LESS_THEN_OR_EQUAL_TO("lte", Boolean.class),
 
         // Logical operator
-        AND("and", Boolean.class),
-        OR("or", Boolean.class),
+        AND("and", Boolean.class, (FunctionExpressionFactory<Boolean>) LogicalOperation::uncheckedConjunction,
+                values -> {
+                    return values.allMatch(Boolean.TRUE::equals);
+                }),
+        OR("or", Boolean.class, (FunctionExpressionFactory<Boolean>) LogicalOperation::uncheckedDisjunction,
+                values -> {
+            return values.anyMatch(Boolean.TRUE::equals);
+        }),
         NOT("not", Boolean.class),
 
         // Numeric operators
@@ -42,8 +48,7 @@ public interface FunctionExpression<T> extends Expression<T> {
         MINUS("minus", Number.class),
         DIVIDE("div", Number.class),
         MULTIPLY("mul", Number.class),
-        MODULUS("mod", Number.class)
-        ;
+        MODULUS("mod", Number.class);
 
         @Getter
         @NonNull
@@ -53,8 +58,11 @@ public interface FunctionExpression<T> extends Expression<T> {
         @NonNull
         private final Class<?> type;
 
+        // TODO remove getter, expose create method directly and delegate to the factory instead
         @Getter
-        private FunctionExpressionFactory factory;
+        private FunctionExpressionFactory<?> factory;
+
+        private FunctionExpressionEvaluator<?> evaluator;
 
         public static Operator resolve(@NonNull String key) {
             return Arrays.stream(Operator.values())
@@ -65,10 +73,25 @@ public interface FunctionExpression<T> extends Expression<T> {
                         return new IllegalArgumentException(message);
                     });
         }
+
+        public <T> T eval(Stream<Object> values) {
+            if (this.evaluator == null) {
+                throw new UnsupportedOperationException("Operator '"+this.getKey()+"' does not support eval");
+            }
+            return (T) this.evaluator.eval(values);
+        }
+
     }
 
     @FunctionalInterface
     interface FunctionExpressionFactory<T> {
-        FunctionExpression<T> create(List<Expression<?>> terms);
+
+        FunctionExpression create(List<Expression<?>> terms);
+    }
+
+    @FunctionalInterface
+    interface FunctionExpressionEvaluator<T> {
+
+        T eval(Stream<Object> values);
     }
 }

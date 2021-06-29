@@ -15,6 +15,7 @@ import eu.contentcloud.abac.predicates.model.LogicalOperation;
 import eu.contentcloud.abac.predicates.model.Scalar;
 import eu.contentcloud.abac.predicates.model.SymbolicReference;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AssertFactory;
@@ -23,6 +24,21 @@ import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.Test;
 
 class QuerySetToThunkExpressionConverterTest {
+
+    @Test
+    void querySetNull_meansAccessDenied() {
+        var result = new QuerySetToThunkExpressionConverter().convert((QuerySet) null);
+
+        assertThat(result).isNotNull().isEqualTo(Scalar.of(false));
+    }
+
+    @Test
+    void querySetWithEmptyQueryArray_meansAccessGranted() {
+        var querySet = new QuerySet(new Query());
+        var result = new QuerySetToThunkExpressionConverter().convert(querySet);
+
+        assertThat(result).isNotNull().isEqualTo(Scalar.of(true));
+    }
 
     @Test
     void opaExpression_singleQuery_singleExpr() {

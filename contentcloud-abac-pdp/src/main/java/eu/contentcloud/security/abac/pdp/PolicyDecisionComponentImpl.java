@@ -12,6 +12,6 @@ public class PolicyDecisionComponentImpl implements PolicyDecisionComponent {
 
     @Override
     public <TPrincipal> Mono<PolicyDecision> authorize(Mono<TPrincipal> principal, RequestContext requestContext) {
-        return this.client.conditional(principal, requestContext);
+        return principal.flatMap(user -> this.client.conditional(user, requestContext));
     }
 }

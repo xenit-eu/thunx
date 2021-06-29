@@ -11,6 +11,8 @@ public interface BooleanOperation extends FunctionExpression<Boolean> {
     }
 
     default Boolean resolve() {
-       throw new UnsupportedOperationException("resolve not implemented");
+        String msg = String.format("resolve() not supported by %s (canBeResolved:%s)",
+                this.getClass().getSimpleName(), this.canBeResolved());
+        throw new UnsupportedOperationException(msg);
     }
 }

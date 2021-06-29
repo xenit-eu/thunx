@@ -27,19 +27,31 @@ import java.util.stream.Collectors;
 public class QuerySetToThunkExpressionConverter {
 
     public Expression<Boolean> convert(QuerySet querySet) {
+        // if the query-set is empty, that means that under NO conditions, the expression can be true
         if (querySet == null || querySet.size() == 0) {
-            throw new IllegalArgumentException("did not expect empty query set");
+            return Scalar.of(false);
         }
 
-        // query-set is a disjunction (OR a list of terms)
-        var terms = querySet.stream().map(this::convert).collect(Collectors.toList());
-        return LogicalOperation.disjunction(terms);
+        // query-set is a disjunction (OR-list of terms)
+        var queries = querySet.stream().map(this::convert);
+
+        // optimization: if the query-set contains only 1 query, no need to wrap that in a disjunction
+        if (querySet.size() == 1) {
+            return queries.findFirst().orElseThrow();
+        }
+
+        return LogicalOperation.disjunction(queries);
     }
 
 
     public Expression<Boolean> convert(Query query) {
-        // a query is a conjunction (AND a list of terms)
-        // this _should_ be a boolean expression, or this would not make sense ?
+        // a query is a conjunction (AND-list of terms)
+
+        // optimization: if query has 0 terms, it means the condition is satisfied
+        // OPA uses this when there is an unconditional ALLOW as a result on a partial-eval-query
+        if (query.size() == 0) {
+            return Scalar.of(true);
+        }
 
         var expressions = query.stream()
                 .map(this::convert)

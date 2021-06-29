@@ -1,5 +1,6 @@
 package eu.contentcloud.abac.predicates.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,11 @@ public class LogicalOperation implements BooleanOperation {
         return disjunction(terms.stream());
     }
 
+    public static LogicalOperation uncheckedDisjunction(List<Expression<?>> terms) {
+        return disjunction(terms.stream().map(expr -> (Expression<Boolean>) expr));
+    }
+    
+
     public static LogicalOperation disjunction(Expression<Boolean> ... terms) {
         return disjunction(Arrays.stream(terms));
     }
@@ -42,6 +48,10 @@ public class LogicalOperation implements BooleanOperation {
         return conjunction(terms.stream());
     }
 
+    public static LogicalOperation uncheckedConjunction(List<Expression<?>> terms) {
+        return conjunction(terms.stream().map(expr -> (Expression<Boolean>) expr));
+    }
+
     public static LogicalOperation negation(Expression<Boolean> term) {
         return new LogicalOperation(Operator.NOT, Stream.of(term));
     }
@@ -51,6 +61,11 @@ public class LogicalOperation implements BooleanOperation {
         return this.terms.stream().allMatch(t -> t.canBeResolved());
     }
 
+    @Override
+    public Boolean resolve() {
+        return this.operator.eval(this.terms.stream().map(term -> term.resolve()));
+    }
+            
     @Override
     public Operator getOperator() {
         return this.operator;

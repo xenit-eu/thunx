@@ -43,7 +43,7 @@ class JsonFunctionDto implements JsonExpressionDto {
         var factory = op.getFactory();
         if (factory == null) {
             // NOT implemented yet ?
-            throw new UnsupportedOperationException("not implemented");
+            throw new UnsupportedOperationException("factory for operator " + op.getKey() + " is not implemented");
         }
 
         // convert all the terms

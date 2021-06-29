@@ -85,7 +85,7 @@ This repository has several modules:
 
 ## Getting Started
 
-### Prerequisites
+### Requirements
 
 * Java 11+
 
