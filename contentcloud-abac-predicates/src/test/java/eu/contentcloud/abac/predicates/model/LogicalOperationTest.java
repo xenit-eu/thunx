@@ -39,4 +39,20 @@ class LogicalOperationTest {
         assertThat(conjunction).isEqualTo(LogicalOperation.conjunction(rule1, rule2));
     }
 
+    @Test
+    void resolvableDisjunction() {
+        var disjunction = LogicalOperation.disjunction(Scalar.of(true));
+        
+        assertThat(disjunction.canBeResolved()).isEqualTo(true);
+        assertThat(disjunction.resolve()).isEqualTo(true);
+    }
+
+    @Test
+    void resolvableConjunction() {
+        var conjunction = LogicalOperation.conjunction(Scalar.of(true));
+
+        assertThat(conjunction.canBeResolved()).isEqualTo(true);
+        assertThat(conjunction.resolve()).isEqualTo(true);
+    }
+
 }
