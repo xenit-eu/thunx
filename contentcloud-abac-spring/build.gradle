@@ -25,11 +25,14 @@ dependencies {
 
     api project(':contentcloud-abac-pdp')
 
+    implementation project(":contentcloud-abac-pdp-opa")
+    implementation "org.springframework.security:spring-security-core"
+
     // Spring Cloud Gateway dependencies
     compileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
-    compileOnly "org.springframework.security:spring-security-core"
-    compileOnly "org.springframework.security:spring-security-web"
-    implementation project(":contentcloud-abac-pdp-opa")
+    compileOnly 'org.springframework.security:spring-security-web'
+    compileOnly 'org.springframework.security:spring-security-oauth2-core'
+
 
     // Spring Data dependencies
     compileOnly project(':contentcloud-abac-predicates-querydsl')
@@ -48,12 +51,16 @@ dependencies {
     testCompileOnly 'org.springframework.security:spring-security-web'
     testCompileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
 
+
     testRuntimeOnly 'org.springframework.cloud:spring-cloud-gateway-server'
     testRuntimeOnly "org.springframework.security:spring-security-web"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.25.0'
+
+    testImplementation 'org.springframework.security:spring-security-oauth2-core'
+
 }
 
 test {

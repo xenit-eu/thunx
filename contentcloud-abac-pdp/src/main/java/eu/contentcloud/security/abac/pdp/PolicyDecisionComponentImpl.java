@@ -1,6 +1,6 @@
 package eu.contentcloud.security.abac.pdp;
 
-import reactor.core.publisher.Mono;
+import java.util.concurrent.CompletableFuture;
 
 public class PolicyDecisionComponentImpl implements PolicyDecisionComponent {
 
@@ -11,7 +11,7 @@ public class PolicyDecisionComponentImpl implements PolicyDecisionComponent {
     }
 
     @Override
-    public <TPrincipal> Mono<PolicyDecision> authorize(Mono<TPrincipal> principal, RequestContext requestContext) {
-        return principal.flatMap(user -> this.client.conditional(user, requestContext));
+    public CompletableFuture<PolicyDecision> authorize(AuthenticationContext authContext, RequestContext requestContext) {
+        return this.client.conditional(authContext, requestContext);
     }
 }

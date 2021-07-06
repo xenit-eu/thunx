@@ -1,8 +1,9 @@
 package eu.contentcloud.security.abac.pdp;
 
-import reactor.core.publisher.Mono;
+import java.util.concurrent.CompletableFuture;
 
 public interface PolicyDecisionPointClient {
 
-    <TPrincipal> Mono<PolicyDecision> conditional(TPrincipal principal, RequestContext requestContext);
+    CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext, RequestContext requestContext);
+
 }

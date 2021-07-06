@@ -1,9 +1,9 @@
 package eu.contentcloud.security.abac.pdp;
 
-import reactor.core.publisher.Mono;
+import java.util.concurrent.CompletableFuture;
 
 public interface PolicyDecisionComponent {
 
     // TODO refactor to use CompletableFuture instead
-    <TPrincipal> Mono<PolicyDecision> authorize(Mono<TPrincipal> principal, RequestContext requestContext);
+    CompletableFuture<PolicyDecision> authorize(AuthenticationContext principal, RequestContext requestContext);
 }
