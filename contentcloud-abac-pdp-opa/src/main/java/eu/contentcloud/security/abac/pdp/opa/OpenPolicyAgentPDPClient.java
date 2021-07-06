@@ -1,16 +1,17 @@
 package eu.contentcloud.security.abac.pdp.opa;
 
-import eu.contentcloud.security.abac.pdp.PolicyDecision;
-import eu.contentcloud.security.abac.pdp.PolicyDecisionPointClient;
-import eu.contentcloud.security.abac.pdp.RequestContext;
 import eu.contentcloud.opa.client.OpaClient;
 import eu.contentcloud.opa.client.api.CompileApi.PartialEvaluationRequest;
+import eu.contentcloud.security.abac.pdp.AuthenticationContext;
+import eu.contentcloud.security.abac.pdp.PolicyDecision;
+import eu.contentcloud.security.abac.pdp.PolicyDecisionPointClient;
 import eu.contentcloud.security.abac.pdp.PolicyDecisions;
+import eu.contentcloud.security.abac.pdp.RequestContext;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import reactor.core.publisher.Mono;
+import java.util.concurrent.CompletableFuture;
 
 public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
 
@@ -26,23 +27,24 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
     }
 
     @Override
-    public <TPrincipal> Mono<PolicyDecision> conditional(TPrincipal principal, RequestContext requestContext) {
+    public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext, RequestContext requestContext) {
         // TODO how can we define 'unknowns' in a generic way ?
         // WARNING: do NOT list 'input' as unknown, or it will ignore the whole 'input' object itself
         // WARNING: do NOT list 'data' as unknown, or it will ignore the policy that is loaded in OPA itself
-        return Mono.fromCompletionStage(() -> {
-            var request = new PartialEvaluationRequest(this.queryProvider.createQuery(requestContext),
-                    createInput(principal, requestContext), List.of());
-            return opaClient.compile(request);
-        })
-                .map(response -> {
+        var request = new PartialEvaluationRequest(
+                this.queryProvider.createQuery(requestContext),
+                createInput(authContext, requestContext), List.of());
+
+        return opaClient.compile(request)
+                .thenApply(response ->
+                {
                     // list of possible partially evaluated queries from OPA
                     // we need to convert this to a single boolean expression
                     var opaQuerySet = response.getResult().getQueries();
                     var converter = new QuerySetToThunkExpressionConverter();
                     return converter.convert(opaQuerySet);
                 })
-                .map(thunkExpression -> {
+                .thenApply(thunkExpression -> {
                     // if the expression can be resolved right now, there is no remaining predicate
                     if (thunkExpression.canBeResolved()) {
                         return thunkExpression.resolve() ? PolicyDecisions.allowed() : PolicyDecisions.denied();
@@ -53,17 +55,14 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
                 });
     }
 
-    static <TPrincipal> Map<String, Object> createInput(TPrincipal principal, RequestContext requestContext) {
-        // TODO map principal
+    static Map<String, Object> createInput(AuthenticationContext authContext, RequestContext requestContext) {
         return Map.of(
                 "path", uriToPathArray(requestContext.getURI()),
                 "method", requestContext.getHttpMethod(),
-                "user", Map.of(
-                        "admin", false,
-                        "brokers", List.of(),
-                        "insurers", List.of()
-                ),
-                "principal", principal);
+                "queryParams", requestContext.getQueryParams(),
+                "auth", authContext,
+                "user", authContext.getUser() // temp for backwards compat with existing policies
+        );
     }
 
     static String[] uriToPathArray(URI uri) {

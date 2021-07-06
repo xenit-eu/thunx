@@ -8,7 +8,7 @@ import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import eu.contentcloud.abac.predicates.model.Comparison;
 import eu.contentcloud.abac.predicates.model.Scalar;
 import eu.contentcloud.abac.predicates.model.Variable;
-import eu.contentcloud.abac.spring.authorization.ReactivePolicyAuthorizationManager;
+import eu.contentcloud.abac.spring.security.ReactivePolicyAuthorizationManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;

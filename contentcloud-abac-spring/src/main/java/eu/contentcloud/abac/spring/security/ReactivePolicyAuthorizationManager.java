@@ -1,11 +1,13 @@
-package eu.contentcloud.abac.spring.authorization;
+package eu.contentcloud.abac.spring.security;
 
+import eu.contentcloud.security.abac.pdp.AuthenticationContext;
 import eu.contentcloud.security.abac.pdp.PolicyDecision;
 import eu.contentcloud.security.abac.pdp.PolicyDecisionComponent;
 import eu.contentcloud.security.abac.pdp.RequestContext;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -25,7 +27,13 @@ public class ReactivePolicyAuthorizationManager implements ReactiveAuthorization
     @Override
     public Mono<AuthorizationDecision> check(
             Mono<Authentication> authentication, AuthorizationContext authzContext) {
-        return policyDecisionComponent.authorize(authentication, mapRequestContext(authzContext))
+        return authentication.map(auth -> AuthenticationContextMapper.fromAuthentication(auth))
+                .flatMap(authContext ->
+                {
+                    var policyDecisionFuture = policyDecisionComponent
+                            .authorize(authContext, mapRequestContext(authzContext));
+                    return Mono.fromCompletionStage(policyDecisionFuture);
+                })
                 .map((PolicyDecision policyDecision) -> {
                     // policyDecision outcome has 3 cases:
                     // - true
@@ -46,7 +54,11 @@ public class ReactivePolicyAuthorizationManager implements ReactiveAuthorization
                 });
     }
 
-    private static RequestContext mapRequestContext(AuthorizationContext context) {
+    static AuthenticationContext mapAuthenticationContext(@NonNull Authentication authentication) {
+        return AuthenticationContextMapper.fromAuthentication(authentication);
+    }
+
+    static RequestContext mapRequestContext(AuthorizationContext context) {
         return new RequestContext() {
 
             @Override

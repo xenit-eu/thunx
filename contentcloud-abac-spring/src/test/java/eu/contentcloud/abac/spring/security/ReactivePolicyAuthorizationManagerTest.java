@@ -1,7 +1,8 @@
-package eu.contentcloud.abac.spring.authorization;
+package eu.contentcloud.abac.spring.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.contentcloud.security.abac.pdp.AuthenticationContext;
 import eu.contentcloud.security.abac.pdp.PolicyDecision;
 import eu.contentcloud.security.abac.pdp.PolicyDecisionComponentImpl;
 import eu.contentcloud.security.abac.pdp.PolicyDecisionPointClient;
@@ -11,6 +12,7 @@ import eu.contentcloud.abac.predicates.model.Comparison;
 import eu.contentcloud.abac.predicates.model.Expression;
 import eu.contentcloud.abac.predicates.model.Scalar;
 import eu.contentcloud.abac.predicates.model.Variable;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -25,7 +27,8 @@ class ReactivePolicyAuthorizationManagerTest {
 
     @Test
     void accessGranted() {
-        var authorizationManager = new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl(policySaysYes()));
+        var authorizationManager = new ReactivePolicyAuthorizationManager(
+                new PolicyDecisionComponentImpl(policySaysYes()));
 
         var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost"));
         var context = new AuthorizationContext(exchange);
@@ -37,7 +40,8 @@ class ReactivePolicyAuthorizationManagerTest {
 
     @Test
     void accessDenied() {
-        var authorizationManager = new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl(policySaysNo()));
+        var authorizationManager = new ReactivePolicyAuthorizationManager(
+                new PolicyDecisionComponentImpl(policySaysNo()));
 
         var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost"));
         var context = new AuthorizationContext(exchange);
@@ -79,8 +83,9 @@ class ReactivePolicyAuthorizationManagerTest {
     private static PolicyDecisionPointClient policySaysYes() {
         return new PolicyDecisionPointClient() {
             @Override
-            public <TPrincipal> Mono<PolicyDecision> conditional(TPrincipal principal, RequestContext requestContext) {
-                return Mono.just(PolicyDecisions.allowed());
+            public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext,
+                    RequestContext requestContext) {
+                return CompletableFuture.completedFuture(PolicyDecisions.allowed());
             }
         };
     }
@@ -88,8 +93,9 @@ class ReactivePolicyAuthorizationManagerTest {
     private static PolicyDecisionPointClient policySaysNo() {
         return new PolicyDecisionPointClient() {
             @Override
-            public <TPrincipal> Mono<PolicyDecision> conditional(TPrincipal principal, RequestContext requestContext) {
-                return Mono.just(PolicyDecisions.denied());
+            public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext,
+                    RequestContext requestContext) {
+                return CompletableFuture.completedFuture(PolicyDecisions.denied());
             }
         };
     }
@@ -97,8 +103,9 @@ class ReactivePolicyAuthorizationManagerTest {
     private static PolicyDecisionPointClient policySaysMaybe(Expression<Boolean> expression) {
         return new PolicyDecisionPointClient() {
             @Override
-            public <TPrincipal> Mono<PolicyDecision> conditional(TPrincipal principal, RequestContext requestContext) {
-                return Mono.just(PolicyDecisions.conditional(expression));
+            public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext,
+                    RequestContext requestContext) {
+                return CompletableFuture.completedFuture(PolicyDecisions.conditional(expression));
             }
         };
     }

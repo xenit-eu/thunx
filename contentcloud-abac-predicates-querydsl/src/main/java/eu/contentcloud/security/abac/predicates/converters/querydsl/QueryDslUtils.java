@@ -1,7 +1,5 @@
 package eu.contentcloud.security.abac.predicates.converters.querydsl;
 
-import com.querydsl.core.types.Operator;
-import com.querydsl.core.types.Ops;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
 import eu.contentcloud.abac.predicates.model.Expression;

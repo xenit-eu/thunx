@@ -1,6 +1,6 @@
 package eu.contentcloud.abac.spring.gateway.filter;
 
-import eu.contentcloud.abac.spring.authorization.ReactivePolicyAuthorizationManager;
+import eu.contentcloud.abac.spring.security.ReactivePolicyAuthorizationManager;
 import eu.contentcloud.abac.predicates.model.Expression;
 import eu.contentcloud.security.abac.predicates.converters.json.ExpressionJsonConverter;
 import java.nio.charset.StandardCharsets;
