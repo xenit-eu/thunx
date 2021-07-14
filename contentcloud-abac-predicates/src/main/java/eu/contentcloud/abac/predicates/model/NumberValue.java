@@ -18,4 +18,9 @@ class NumberValue implements Scalar<Number> {
     public Class<? extends Number> getResultType() {
         return Number.class;
     }
+
+    @Override
+    public String toString() {
+        return this.getValue().toString();
+    }
 }

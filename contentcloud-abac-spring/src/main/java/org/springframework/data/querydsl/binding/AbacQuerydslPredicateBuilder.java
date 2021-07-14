@@ -26,14 +26,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-public class XenitQuerydslPredicateBuilder {
+public class AbacQuerydslPredicateBuilder {
 
     private final ConversionService conversionService;
     private final MultiValueBinding<Path<? extends Object>, Object> defaultBinding;
     private final Map<PathInformation, Path<?>> paths;
     private final EntityPathResolver resolver;
 
-    public XenitQuerydslPredicateBuilder(ConversionService conversionService, EntityPathResolver resolver) {
+    public AbacQuerydslPredicateBuilder(ConversionService conversionService, EntityPathResolver resolver) {
 
         Assert.notNull(conversionService, "ConversionService must not be null!");
 
@@ -49,16 +49,11 @@ public class XenitQuerydslPredicateBuilder {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-//        if (values.isEmpty()) {
-//            return builder.getValue();
-//        }
-
-        // abac context
         var abacContext = AbacContext.getCurrentAbacContext();
         if (abacContext != null) {
 
             Class<?> subjectType = EntityContext.getCurrentEntityContext().getJavaType();
-            PathBuilder entityPath = new PathBuilder(subjectType, toAlias(subjectType));
+            PathBuilder<?> entityPath = new PathBuilder(subjectType, toAlias(subjectType));
             Predicate queryDslPredicate = QueryDslUtils.from(abacContext, entityPath);
             Assert.notNull(queryDslPredicate, "abac expression cannot be null");
             builder.and(queryDslPredicate);

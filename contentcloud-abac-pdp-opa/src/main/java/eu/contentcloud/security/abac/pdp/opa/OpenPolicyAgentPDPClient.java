@@ -33,7 +33,8 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
         // WARNING: do NOT list 'data' as unknown, or it will ignore the policy that is loaded in OPA itself
         var request = new PartialEvaluationRequest(
                 this.queryProvider.createQuery(requestContext),
-                createInput(authContext, requestContext), List.of());
+                createInput(authContext, requestContext),
+                List.of("input.entity"));
 
         return opaClient.compile(request)
                 .thenApply(response ->

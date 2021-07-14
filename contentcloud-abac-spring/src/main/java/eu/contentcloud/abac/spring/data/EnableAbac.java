@@ -1,6 +1,6 @@
 package eu.contentcloud.abac.spring.data;
 
-import eu.contentcloud.abac.spring.data.rest.webmvc.AbacConfiguration;
+import eu.contentcloud.abac.spring.data.rest.AbacConfiguration;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

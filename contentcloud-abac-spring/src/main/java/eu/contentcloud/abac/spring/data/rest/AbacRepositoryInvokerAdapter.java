@@ -1,4 +1,4 @@
-package eu.contentcloud.abac.spring.data.querydsl;
+package eu.contentcloud.abac.spring.data.rest;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
@@ -26,14 +26,14 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.Assert;
 
-public class XenitQuerydslRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
+public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
 
     private QuerydslPredicateExecutor<Object> executor;
     private Predicate predicate;
 
     private ConversionService conversionService = new DefaultFormattingConversionService();
 
-    public XenitQuerydslRepositoryInvokerAdapter(RepositoryInvoker delegate, QuerydslPredicateExecutor<Object> executor, Predicate predicate) {
+    public AbacRepositoryInvokerAdapter(RepositoryInvoker delegate, QuerydslPredicateExecutor<Object> executor, Predicate predicate) {
         super(delegate, executor, predicate);
         this.executor = executor;
         this.predicate = predicate;

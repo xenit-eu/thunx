@@ -55,4 +55,15 @@ class LogicalOperationTest {
         assertThat(conjunction.resolve()).isEqualTo(true);
     }
 
+    @Test
+    void conjunction_toString() {
+        // rules: document.security <= 5 AND user.clothing.coat.color == "blue"
+        var rule1 = Comparison.lessOrEquals(SymbolicReference.of("document.security"), Scalar.of(5));
+        var rule2 = Comparison.areEqual(SymbolicReference.parse("user.clothing.coat.color"), Scalar.of("blue"));
+        var conjunction = LogicalOperation.conjunction(rule1, rule2);
+
+        assertThat(conjunction).hasToString("AND(LTE(document.security, 5), EQ(user.clothing.coat.color, 'blue'))");
+
+    }
+
 }

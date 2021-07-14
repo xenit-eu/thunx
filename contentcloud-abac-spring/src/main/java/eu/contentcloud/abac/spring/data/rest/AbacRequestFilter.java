@@ -1,7 +1,8 @@
-package eu.contentcloud.abac.spring.data.rest.webmvc;
+package eu.contentcloud.abac.spring.data.rest;
 
 import static java.lang.String.format;
 
+import eu.contentcloud.abac.encoding.AbacExpressionDecoder;
 import eu.contentcloud.abac.predicates.model.Expression;
 import eu.contentcloud.abac.spring.data.context.AbacContext;
 import eu.contentcloud.abac.spring.data.context.EntityContext;
@@ -24,11 +25,14 @@ import org.springframework.web.util.UrlPathHelper;
 
 public class AbacRequestFilter implements Filter {
 
+    private final AbacExpressionDecoder thunkDecoder;
+
     private final Repositories repos;
     private final EntityManager em;
     private final PlatformTransactionManager tm;
 
-    public AbacRequestFilter(Repositories repos, EntityManager em, PlatformTransactionManager tm) {
+    public AbacRequestFilter(AbacExpressionDecoder thunkDecoder, Repositories repos, EntityManager em, PlatformTransactionManager tm) {
+        this.thunkDecoder = thunkDecoder;
         this.repos = repos;
         this.em = em;
         this.tm = tm;
@@ -45,7 +49,7 @@ public class AbacRequestFilter implements Filter {
         String[] pathElements = path.split("/");
         RepositoryInformation ri = RepositoryUtils.findRepositoryInformation(repos, pathElements[1]);
         if (ri == null) {
-            ri = RepositoryUtils.findRepositoryInformation(repos, pathElements[2]);
+            ri = RepositoryUtils.findRepositoryInformation(repos, pathElements[2]); // Toon: why is this case here ?
         }
         if (ri == null) {
             throw new IllegalStateException(format("Unable to resolve entity class: %s", path));
@@ -59,14 +63,11 @@ public class AbacRequestFilter implements Filter {
 
         EntityManagerContext.setCurrentEntityContext(em, tm);
 
-        // Emad
         String abacContext = request.getHeader("X-ABAC-Context");
         if (abacContext != null) {
             byte[] abacContextBytes = Base64.getDecoder().decode(abacContext);
             // which (version of?) decoder should we use ? -> get that info from JWT or other header ?
-            Expression<Boolean> abacExpression = null;
-//                PDisjunction pDisjunction = PDisjunction.newBuilder().mergeFrom(abacContextProtobytes).build();
-//                Disjunction disjunction = ProtobufUtils.to(pDisjunction, "");
+            Expression<Boolean> abacExpression = this.thunkDecoder.decoder(abacContextBytes);
             AbacContext.setCurrentAbacContext(abacExpression);
         }
 

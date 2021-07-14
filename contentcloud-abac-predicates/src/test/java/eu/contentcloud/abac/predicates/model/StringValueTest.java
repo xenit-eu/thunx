@@ -17,4 +17,9 @@ class StringValueTest {
         assertThat(Scalar.of("foo"))
                 .isNotEqualTo(Scalar.of("bar"));
     }
+
+    @Test
+    void stringValue_toString() {
+        assertThat(Scalar.of("foo")).hasToString("'foo'");
+    }
 }

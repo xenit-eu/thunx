@@ -15,6 +15,11 @@ class StringValue implements Scalar<String> {
     }
 
     @Override
+    public String toString() {
+        return "'" + this.getValue() + "'";
+    }
+
+    @Override
     public Class<? extends String> getResultType() {
         return String.class;
     }
