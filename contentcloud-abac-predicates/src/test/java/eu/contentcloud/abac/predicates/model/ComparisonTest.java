@@ -26,4 +26,13 @@ class ComparisonTest {
         assertThat(comparison.getRightTerm()).isNotNull();
     }
 
+    @Test
+    void comparison_toString() {
+        // rule: user.clothing.coat.color == "blue"
+        var comparison = Comparison.areEqual(SymbolicReference.parse("user.clothing.coat.color"), Scalar.of("blue"));
+
+        assertThat(comparison).hasToString("EQ(user.clothing.coat.color, 'blue')");
+
+    }
+
 }

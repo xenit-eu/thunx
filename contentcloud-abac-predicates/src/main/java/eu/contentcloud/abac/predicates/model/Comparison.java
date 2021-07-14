@@ -1,6 +1,8 @@
 package eu.contentcloud.abac.predicates.model;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -72,7 +74,11 @@ public class Comparison implements BooleanOperation {
             return;
         }
         throw new IllegalArgumentException("Expected 2 terms, but got " + terms.size());
+    }
 
+    @Override
+    public String toString() {
+        return this.toDebugString();
     }
 
 }

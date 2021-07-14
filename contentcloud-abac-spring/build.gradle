@@ -28,6 +28,8 @@ dependencies {
     implementation project(":contentcloud-abac-pdp-opa")
     implementation "org.springframework.security:spring-security-core"
 
+    implementation project(':contentcloud-abac-predicates-json')
+
     // Spring Cloud Gateway dependencies
     compileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
     compileOnly 'org.springframework.security:spring-security-web'
@@ -46,7 +48,7 @@ dependencies {
     compileOnly 'com.querydsl:querydsl-core'
 
 
-    implementation project(':contentcloud-abac-predicates-json')
+
 
     testCompileOnly 'org.springframework.security:spring-security-web'
     testCompileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'

@@ -1,4 +1,4 @@
-package eu.contentcloud.abac.spring.data.rest.webmvc;
+package eu.contentcloud.abac.spring.data.rest;
 
 import java.util.Iterator;
 import java.util.Optional;

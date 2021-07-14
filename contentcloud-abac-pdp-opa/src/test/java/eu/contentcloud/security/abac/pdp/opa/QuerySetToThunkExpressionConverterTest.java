@@ -79,28 +79,28 @@ class QuerySetToThunkExpressionConverterTest {
     @Test
     void partialEval_multiQuery_singleExpr() {
         // input.user.groups = [ "group-a", "group-b" ]
-        // data.documents[_].group IS IN [ "group-a", "group-b" ]
+        // input.entity.group IS IN [ "group-a", "group-b" ]
+        //
         // OPA partial eval turns this into a disjunction:
-        // data.documents[_].group == "group-a" OR data.documents[_].group == "group-b"
+        // input.entity.group == "group-a" OR input.entity.group == "group-b"
         var opaQuerySet = new QuerySet(
                 new Query(new Expression(0, List.of(
                         new Ref(List.of(new Term.Var("eq"))),
                         new Term.Text("group-a"),
                         new Ref(List.of(
-                                new Term.Var("data"),
-                                new Term.Text("documents"),
-                                new Term.Var("$11"),
+                                new Term.Var("input"),
+                                new Term.Text("entity"),
                                 new Term.Text("group")))
 
-                ))), new Query(new Expression(0, List.of(
-                new Ref(List.of(new Term.Var("eq"))),
-                new Term.Text("group-b"),
-                new Ref(List.of(
-                        new Term.Var("data"),
-                        new Term.Text("documents"),
-                        new Term.Var("$11"),
-                        new Term.Text("group")))
-        ))));
+                ))),
+                new Query(new Expression(0, List.of(
+                        new Ref(List.of(new Term.Var("eq"))),
+                        new Term.Text("group-b"),
+                        new Ref(List.of(
+                                new Term.Var("input"),
+                                new Term.Text("entity"),
+                                new Term.Text("group")))
+                ))));
 
         var expr = new QuerySetToThunkExpressionConverter().convert(opaQuerySet);
         assertThat(expr).isNotNull()
@@ -109,12 +109,12 @@ class QuerySetToThunkExpressionConverterTest {
                         Comparison.areEqual(
                                 Scalar.of("group-a"),
                                 SymbolicReference
-                                        .of("data", path -> path.string("documents").var("$11").string("group"))),
+                                        .of("entity", path -> path.string("group"))),
                         Comparison.areEqual(
                                 Scalar.of("group-b"),
                                 SymbolicReference
-                                        .of("data", path -> path.string("documents").var("$11").string("group"))
-                                ))));
+                                        .of("entity", path -> path.string("group")))
+                        )));
 
     }
 

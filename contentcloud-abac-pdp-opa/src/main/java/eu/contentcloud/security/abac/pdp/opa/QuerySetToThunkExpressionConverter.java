@@ -18,6 +18,8 @@ import eu.contentcloud.abac.predicates.model.LogicalOperation;
 import eu.contentcloud.abac.predicates.model.NumericFunction;
 import eu.contentcloud.abac.predicates.model.Scalar;
 import eu.contentcloud.abac.predicates.model.SymbolicReference;
+import eu.contentcloud.abac.predicates.model.SymbolicReference.PathElement;
+import eu.contentcloud.abac.predicates.model.SymbolicReference.StringPathElement;
 import eu.contentcloud.abac.predicates.model.Variable;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +60,8 @@ public class QuerySetToThunkExpressionConverter {
                 .peek(expr -> {
                     if (!Boolean.class.isAssignableFrom(expr.getResultType())) {
                         // there are non-boolean expressions in here ?
-                        String msg = "expression is expected to be a boolean expression, but was " + expr.getResultType();
+                        var msg = String.format("Expected boolean expression, but was of type %s",
+                                expr.getResultType().getSimpleName());
                         throw new UnsupportedOperationException(msg);
                     }
                 })
@@ -132,7 +135,6 @@ public class QuerySetToThunkExpressionConverter {
             // 6. The 'term' argument for an expr-call can be another expr-call:
             // 'term' contains 'ref, ref contains expr-call.
 
-
             if (expression.getTerms().isEmpty()) {
                 throw new IllegalArgumentException("expression is empty");
             }
@@ -158,23 +160,18 @@ public class QuerySetToThunkExpressionConverter {
                 var operation = OPERATION_LOOKUP.get(functionName);
                 if (operation != null) {
                     return operation.apply(args);
-                }
-                else {
-                    throw new UnsupportedOperationException("operation "+functionName+" not supported");
+                } else {
+                    throw new UnsupportedOperationException("operation " + functionName + " not supported");
                 }
 
             } else {
-                var msg = "cannot translate fields in top level expression (index:"+expression.getIndex()+") into a proper predicate:"
+                var msg = "cannot translate fields in top level expression (index:" + expression.getIndex()
+                        + ") into a proper predicate:"
                         + expression.getTerms().stream().map(term -> term.getClass().getName())
-                            .collect(Collectors.joining(","));
+                        .collect(Collectors.joining(","));
                 throw new UnsupportedOperationException(msg);
 
             }
-
-
-
-
-
         }
 
         @Override
@@ -211,14 +208,29 @@ public class QuerySetToThunkExpressionConverter {
 
             var subject = ref.getValue().get(0).accept(this);
             if (subject instanceof Variable) {
-                return SymbolicReference.of((Variable) subject, ref.getValue().stream().skip(1).map(val -> {
+                var symbol = SymbolicReference.of((Variable) subject, ref.getValue().stream().skip(1).map(val -> {
                     if (val instanceof Term.Text) {
                         return SymbolicReference.path(((Text) val).getValue());
                     } else if (val instanceof Var) {
                         return SymbolicReference.pathVar(((Var) val).getValue());
                     }
-                    throw new RuntimeException(String.format("ref-arg of type %s not implemented", val.getClass().getName()));
+                    String msg = String.format("ref-arg of type %s not implemented", val.getClass().getName());
+                    throw new RuntimeException(msg);
                 }));
+
+                // the 'entity' unknown variable is expressed in OPA policies as 'input.entity'
+                // in the thunk-expression we lift the entity to the top-level
+                // 'input' is after all an OPA implementation detail
+                var path = symbol.getPath();
+                if ("input".equalsIgnoreCase(symbol.getSubject().getName())) {
+                    symbol = symbol.getPath().stream().findFirst()
+                            .filter(first -> first instanceof StringPathElement)
+                            .filter(first -> "entity".equalsIgnoreCase(first.toString()))
+                            .map(first -> SymbolicReference.of(Variable.named("entity"), path.stream().skip(1)))
+                            .orElse(symbol);
+                }
+
+                return symbol;
 
             } else {
                 // non-variable symbolic-references not yet implemented

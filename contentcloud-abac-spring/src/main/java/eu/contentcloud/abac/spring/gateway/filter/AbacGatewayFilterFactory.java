@@ -1,5 +1,6 @@
 package eu.contentcloud.abac.spring.gateway.filter;
 
+import eu.contentcloud.abac.encoding.AbacExpressionEncoder;
 import eu.contentcloud.abac.spring.security.ReactivePolicyAuthorizationManager;
 import eu.contentcloud.abac.predicates.model.Expression;
 import eu.contentcloud.security.abac.predicates.converters.json.ExpressionJsonConverter;
@@ -75,13 +76,4 @@ public class AbacGatewayFilterFactory extends AbstractGatewayFilterFactory<AbacG
 
     }
 
-    @FunctionalInterface
-    interface AbacExpressionEncoder {
-        byte[] encode(Expression<Boolean> expression);
-    }
-
-    @FunctionalInterface
-    interface AbacExpressionDecoder {
-        Expression<Boolean> decoder(byte[] data);
-    }
 }

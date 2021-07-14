@@ -30,18 +30,28 @@ public class SymbolicReference implements Expression<Object> {
             return subject.toPath();
         }
 
-        return String.format("%s.%s", subject, String.join("", "[" + path.toString() + "]"));
+        return String.format("%s.%s", subject, String.join("", "[" + path + "]"));
+    }
+
+    @Override
+    public String toString() {
+        if (path.isEmpty()) {
+            return subject.toPath();
+        }
+
+        return String.format("%s.%s", subject,
+                path.stream().map(Object::toString).collect(Collectors.joining(".")));
     }
 
     public <R> R accept(ExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
 
-
-    public static SymbolicReference of(String variable, PathElement ... path) {
+    public static SymbolicReference of(String variable, PathElement... path) {
         return of(Variable.named(variable), path);
     }
-    public static SymbolicReference of(Variable variable, PathElement ... path) {
+
+    public static SymbolicReference of(Variable variable, PathElement... path) {
         Objects.requireNonNull(variable, "variable cannot be null");
 
         return new SymbolicReference(new SymbolicRefSubject(variable), Arrays.asList(path));
@@ -53,14 +63,11 @@ public class SymbolicReference implements Expression<Object> {
         var pathBuilder = new PathBuilder();
         pathCallback.accept(pathBuilder);
 
-        return new SymbolicReference(new SymbolicRefSubject(Variable.named(varName)),  pathBuilder.getPath());
+        return new SymbolicReference(new SymbolicRefSubject(Variable.named(varName)), pathBuilder.getPath());
     }
 
     /**
      * Parse the reference and split by '.' while assuming all path-elements are string-types
-     *
-     * @param reference
-     * @return
      */
     public static SymbolicReference parse(String reference) {
         Objects.requireNonNull(reference, "variable cannot be null");
@@ -138,6 +145,7 @@ public class SymbolicReference implements Expression<Object> {
     }
 
     public abstract static class PathElementVisitor<T> implements ExpressionVisitor<T> {
+
         @Override
         public final T visit(FunctionExpression<?> functionExpression) {
             return null;
@@ -162,6 +170,10 @@ public class SymbolicReference implements Expression<Object> {
             this.path = path;
         }
 
+        public String toString() {
+            return this.path.getValue();
+        }
+
         @Override
         public <T> T accept(ExpressionVisitor<T> visitor) {
             return visitor.visit(this.getPath());
@@ -170,7 +182,9 @@ public class SymbolicReference implements Expression<Object> {
 
     @Data
     public static class VariablePathElement implements PathElement {
+
         private Variable variable;
+
         VariablePathElement(String varName) {
             this.variable = Variable.named(varName);
         }
@@ -184,10 +198,15 @@ public class SymbolicReference implements Expression<Object> {
     // This would be a union type, for all possible subjects of the symbolic-reference
     @Data
     private static class SymbolicRefSubject {
+
         private final Variable variable;
 
         public String toPath() {
             return variable.getName();
+        }
+
+        public String toString() {
+            return this.variable.getName();
         }
     }
 }

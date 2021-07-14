@@ -14,10 +14,9 @@ import eu.contentcloud.abac.predicates.model.Variable;
 
 class QueryDslConverter implements ExpressionVisitor<Expression<?>> {
 
-    private PathBuilder subjectPathBuilder;
+    private PathBuilder<?> subjectPathBuilder;
 
-    QueryDslConverter(PathBuilder subjectPathBuilder) {
-
+    QueryDslConverter(PathBuilder<?> subjectPathBuilder) {
         this.subjectPathBuilder = subjectPathBuilder;
     }
 
@@ -30,16 +29,19 @@ class QueryDslConverter implements ExpressionVisitor<Expression<?>> {
 
     @Override
     public Expression<?> visit(FunctionExpression<?> function) {
-        switch (function.getOperator()) {
-            case EQUALS:
-                var terms = function.getTerms().stream()
-                        .map(term -> term.accept(this))
-                        .toArray(Expression[]::new);
 
-                return Expressions.predicate(
-                        toQuerydsl(function.getOperator()),
-                        terms
-                );
+        // convert all the terms
+        var terms = function.getTerms().stream()
+                .map(term -> term.accept(this))
+                .toArray(Expression[]::new);
+
+
+
+        switch (function.getOperator()) {
+            // case of boolean expressions
+            case EQUALS:
+            case OR:
+                return Expressions.predicate(toQuerydsl(function.getOperator()), terms);
             default:
                 throw new UnsupportedOperationException(
                         "Operation '" + function.getOperator() + "' not implemented");
@@ -49,9 +51,14 @@ class QueryDslConverter implements ExpressionVisitor<Expression<?>> {
     @Override
     public Expression<?> visit(SymbolicReference symbolicReference) {
         // TODO check that symbolic-ref 'subject' matches the PathBuilder subject ?
-        var path = symbolicReference.getPath();
 
-        PathBuilder<Object> builder = this.subjectPathBuilder;
+        String subject = symbolicReference.getSubject().getName();
+        if (!"entity".equalsIgnoreCase(subject)) {
+            throw new IllegalArgumentException("Expected symbolic-ref subject named 'entity', but got '"+subject+"'");
+        }
+
+        var path = symbolicReference.getPath();
+        PathBuilder<?> builder = this.subjectPathBuilder;
         for (var elem : path) {
             var result = elem.accept(new PathElementVisitor<String>() {
                 @Override
@@ -87,6 +94,10 @@ class QueryDslConverter implements ExpressionVisitor<Expression<?>> {
         switch (operator) {
             case EQUALS:
                 return Ops.EQ;
+            case OR:
+                return Ops.OR;
+            case AND:
+                return Ops.AND;
             default:
                 throw new UnsupportedOperationException("operator '" + operator + "' is not implemented");
         }

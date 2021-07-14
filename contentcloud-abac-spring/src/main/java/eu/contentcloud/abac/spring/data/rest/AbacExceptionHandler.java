@@ -1,4 +1,4 @@
-package eu.contentcloud.abac.spring.data.rest.webmvc;
+package eu.contentcloud.abac.spring.data.rest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

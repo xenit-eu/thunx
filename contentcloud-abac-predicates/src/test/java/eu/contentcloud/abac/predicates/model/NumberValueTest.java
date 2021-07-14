@@ -30,4 +30,10 @@ class NumberValueTest {
         assertThat(Scalar.of(5L)).isNotEqualTo(Scalar.of(42L));
         assertThat(Scalar.of(5D)).isNotEqualTo(Scalar.of(42D));
     }
+
+    @Test
+    void numberValue_toString() {
+        assertThat(Scalar.of(6)).hasToString("6");
+        assertThat(Scalar.of(6.42)).hasToString("6.42");
+    }
 }
