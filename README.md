@@ -1,7 +1,7 @@
-# contentcloud-abac  
-![build](https://github.com/xenit-eu/contentcloud-abac/workflows/build/badge.svg?branch=main)
+# Thunx  
+![build](https://github.com/xenit-eu/thunx/workflows/build/badge.svg?branch=main)
 
-Content Cloud ABAC is a pluggable [Attribute Based Access Control] system.  This project provides a full integration,
+Thunx is a pluggable [Attribute Based Access Control] system.  This project provides a full integration,
 using [OpenPolicyAgent] as a policy engine, [Spring Cloud Gateway] as a policy enforcement point and [Spring Data REST]
 as an API service.
 
@@ -31,7 +31,7 @@ This approach provides the following advantages:
 
 ## Architecture overview
 
-This section describes the architecture of the ABAC system.
+This section describes the Thunx architecture.
 
 Please note all the diagrams use the [C4 model] style. A legend, included in every diagram, explains the meaning
 of each shape.
@@ -75,21 +75,39 @@ that fulfill the conditional authorization predicate.
 
 This repository has several modules:
 
-* `contentcloud-abac-pdp` is a central abstraction for a Policy Decision Point (PDP)
-* `contentcloud-abac-pdp-opa` is an implementation of the PDP abstraction, that uses [OpenPolicyAgent](https://www.openpolicyagent.org/).
-* `contentcloud-abac-predicates` is a set of (vendor-neutral) data structures to model authorization policy expressions 
-* `contentcloud-abac-predicates-json` is a JSON-serialization library for thunk-expressions
-* `contentcloud-abac-predicates-protobuf` is a protobuf-serialization library for thunk-expressions (NOT IMPLEMENTED)
-* `contentcloud-abac-predicates-querydsl` is a library to convert thunk-expressions into QueryDSL predicates
-* `contentcloud-abac-spring` provides an integration with Spring Cloud Gateway and Spring Data REST
+* `thunx-pdp` is a central abstraction for a Policy Decision Point (PDP)
+* `thunx-pdp-opa` is a PDP implementation using [OpenPolicyAgent](https://www.openpolicyagent.org/).
+* `thunx-predicates` is a set of (vendor-neutral) data structures to model authorization policy expressions 
+* `thunx-predicates-encoding-json` is a JSON-serialization library for thunk-expressions
+* `thunx-querydsl` is a library to convert thunk-expressions into QueryDSL predicates
+* `thunx-spring` provides an integration with Spring Cloud Gateway and Spring Data REST
 
 ## Getting Started
 
-### Requirements
+### Installation
 
+Requirements:
 * Java 11+
 
-### Installation
+#### Spring Cloud Gateway
+Using Gradle:
+
+```groovy
+implementation 'eu.xenit.contentcloud.thunx:thunx-spring:${thunxVersion}'
+implementation 'eu.xenit.contentcloud.thunx:thunx-pdp-opa:${thunxVersion}'
+```
+
+#### Spring Data REST Service
+
+Using Gradle:
+
+```groovy
+implementation 'eu.xenit.contentcloud.thunx:thunx-spring:${thunxVersion}'
+runtimeOnly 'eu.xenit.contentcloud.thunx:thunx-predicates-querydsl:${thunxVersion}'
+
+implementation "com.querydsl:querydsl-core"
+implementation "com.querydsl:querydsl-jpa"
+```
 
 
 ## License
