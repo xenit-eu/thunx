@@ -1,9 +1,11 @@
 # Thunx  
 ![build](https://github.com/xenit-eu/thunx/workflows/build/badge.svg?branch=main)
 
-Thunx is a pluggable [Attribute Based Access Control] system.  This project provides a full integration,
-using [OpenPolicyAgent] as a policy engine, [Spring Cloud Gateway] as a policy enforcement point and [Spring Data REST]
-as an API service.
+Thunx is a pluggable [Attribute Based Access Control] system, with and end-to-end implementation
+using:
+* [OpenPolicyAgent] as a policy engine
+* [Spring Cloud Gateway] as a policy enforcement point 
+* [Spring Data REST] as an API service
 
 This project uses a distributed authorization architecture, by applying:
 * early access decisions at the API Gateway 
@@ -11,8 +13,8 @@ This project uses a distributed authorization architecture, by applying:
 
 When the API Gateway does not have sufficient contextual information to grant or deny access,
 it delegates the policy decision to the Spring Data REST service. This API Service receives an
-access-predicate from the Gateway and rewrites the database queries to comply with the predicate,
-by converting this to a [QueryDSL] predicate.
+authorization-predicate, a __thunk__ from the API Gateway and rewrites the database queries to
+ensure the authorization-predicate is satisfied.
 
 ### Advantages
 
@@ -21,7 +23,7 @@ This approach provides the following advantages:
 * **Decoupling**: The API service does not need to be concerned with authorization logic.
 * **Performance**: Using query-rewriting instead of post-filtering can be orders of magnitude faster.
 * **Performance**: By delegating decisions to the appropriate data-context, access policies can be much more
-  fine-grained, without paying the big runtime penalty for loading data in the policy agent on demand.
+  fine-grained, without paying a big runtime penalty for loading data in the policy engine on demand.
 
 [Attribute Based Access Control]: https://en.wikipedia.org/wiki/Attribute-based_access_control
 [OpenPolicyAgent]: https://www.openpolicyagent.org/
@@ -75,11 +77,11 @@ that fulfill the conditional authorization predicate.
 
 This repository has several modules:
 
+* `thunx-model` is a set of (vendor-neutral) data structures to model authorization policy expressions
 * `thunx-pdp` is a central abstraction for a Policy Decision Point (PDP)
 * `thunx-pdp-opa` is a PDP implementation using [OpenPolicyAgent](https://www.openpolicyagent.org/).
-* `thunx-predicates` is a set of (vendor-neutral) data structures to model authorization policy expressions 
-* `thunx-predicates-encoding-json` is a JSON-serialization library for thunk-expressions
-* `thunx-querydsl` is a library to convert thunk-expressions into QueryDSL predicates
+* `thunx-encoding-json` is a JSON-serialization library for thunk-expressions
+* `thunx-predicates-querydsl` is a library to convert thunk-expressions into QueryDSL predicates
 * `thunx-spring` provides an integration with Spring Cloud Gateway and Spring Data REST
 
 ## Getting Started
