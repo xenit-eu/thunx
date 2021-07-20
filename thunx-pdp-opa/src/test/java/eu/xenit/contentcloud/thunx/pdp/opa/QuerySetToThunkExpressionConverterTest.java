@@ -6,9 +6,6 @@ import eu.xenit.contentcloud.opa.rego.ast.Expression;
 import eu.xenit.contentcloud.opa.rego.ast.Query;
 import eu.xenit.contentcloud.opa.rego.ast.QuerySet;
 import eu.xenit.contentcloud.opa.rego.ast.Term;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Numeric;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Ref;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Text;
 import eu.xenit.contentcloud.thunx.predicates.model.Comparison;
 import eu.xenit.contentcloud.thunx.predicates.model.LogicalOperation;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
@@ -39,12 +36,12 @@ class QuerySetToThunkExpressionConverterTest {
         // expr call:   gte ( 4, data.reports[_].clearance_level)
         var opaExpr = new Expression(0, List.of(
                 new Term.Ref(List.of(new Term.Var("gte"))),
-                new Numeric(4),
+                new Term.Numeric(4),
                 new Term.Ref(List.of(
                         new Term.Var("data"),
-                        new Text("reports"),
+                        new Term.Text("reports"),
                         new Term.Var("$01"),
-                        new Text("clearance_level")
+                        new Term.Text("clearance_level")
                 ))
         ));
 
@@ -78,18 +75,18 @@ class QuerySetToThunkExpressionConverterTest {
         // input.entity.group == "group-a" OR input.entity.group == "group-b"
         var opaQuerySet = new QuerySet(
                 new Query(new Expression(0, List.of(
-                        new Ref(List.of(new Term.Var("eq"))),
+                        new Term.Ref(List.of(new Term.Var("eq"))),
                         new Term.Text("group-a"),
-                        new Ref(List.of(
+                        new Term.Ref(List.of(
                                 new Term.Var("input"),
                                 new Term.Text("entity"),
                                 new Term.Text("group")))
 
                 ))),
                 new Query(new Expression(0, List.of(
-                        new Ref(List.of(new Term.Var("eq"))),
+                        new Term.Ref(List.of(new Term.Var("eq"))),
                         new Term.Text("group-b"),
-                        new Ref(List.of(
+                        new Term.Ref(List.of(
                                 new Term.Var("input"),
                                 new Term.Text("entity"),
                                 new Term.Text("group")))
@@ -117,9 +114,9 @@ class QuerySetToThunkExpressionConverterTest {
         // but if there is a single-term expression, it should be unwrapped
         var opaQuery = new Query(
                 new Expression(0,
-                        new Ref(List.of(new Term.Var("eq"))),
+                        new Term.Ref(List.of(new Term.Var("eq"))),
                         new Term.Text("group-a"),
-                        new Ref(List.of(
+                        new Term.Ref(List.of(
                                 new Term.Var("data"),
                                 new Term.Text("documents"),
                                 new Term.Var("$11"),
@@ -134,8 +131,5 @@ class QuerySetToThunkExpressionConverterTest {
                         Scalar.of("group-a"),
                         SymbolicReference.of("data", path -> path.string("documents").var("$11").string("group"))
                 ));
-
-
     }
-
 }

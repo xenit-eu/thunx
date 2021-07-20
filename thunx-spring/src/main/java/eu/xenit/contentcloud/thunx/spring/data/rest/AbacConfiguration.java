@@ -2,8 +2,8 @@ package eu.xenit.contentcloud.thunx.spring.data.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.xenit.contentcloud.thunx.encoding.ThunkExpressionDecoder;
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
-import eu.xenit.contentcloud.thunx.predicates.converters.json.ExpressionJsonConverter;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
+import eu.xenit.contentcloud.thunx.encoding.json.ExpressionJsonConverter;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import javax.persistence.EntityManager;
@@ -23,7 +23,7 @@ public class AbacConfiguration {
                 var json = new String(data, StandardCharsets.UTF_8);
                 var expression = new ExpressionJsonConverter().decode(json);
 
-                return ((Expression<Boolean>) expression);
+                return ((ThunkExpression<Boolean>) expression);
             } catch (JsonProcessingException e) {
                 throw new UncheckedIOException(e);
             }

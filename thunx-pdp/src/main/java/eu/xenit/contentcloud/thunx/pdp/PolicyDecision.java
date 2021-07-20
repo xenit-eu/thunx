@@ -1,18 +1,18 @@
 package eu.xenit.contentcloud.thunx.pdp;
 
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 
 public class PolicyDecision {
 
     private final boolean allowed;
-    private final Expression<Boolean> predicate;
+    private final ThunkExpression<Boolean> predicate;
 
     PolicyDecision(boolean allowed) {
         this.allowed = allowed;
         this.predicate = null;
     }
 
-    PolicyDecision(Expression<Boolean> predicate) {
+    PolicyDecision(ThunkExpression<Boolean> predicate) {
         this.allowed = true;
         this.predicate = predicate;
     }
@@ -21,7 +21,7 @@ public class PolicyDecision {
         return this.predicate != null;
     }
 
-    public Expression<Boolean> getPredicate() {
+    public ThunkExpression<Boolean> getPredicate() {
         return this.predicate;
     }
 

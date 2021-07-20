@@ -9,12 +9,12 @@ include 'thunx-pdp'
 include 'thunx-pdp-opa'
 include 'thunx-spring'
 
-include 'thunx-predicates-json'
+include 'thunx-encoding-json'
 include 'thunx-predicates-querydsl'
 
 //includeBuild('../opa-java-client') {
 //    dependencySubstitution {
-//        substitute module('eu.xenit.contentcloud.thunx:opa-async-java-client') with project(':opa-async-java-client')
-//        substitute module('eu.xenit.contentcloud.thunx:rego-java') with project(':rego-java')
+//        substitute module('eu.xenit.contentcloud:opa-async-java-client') with project(':opa-async-java-client')
+//        substitute module('eu.xenit.contentcloud:rego-java') with project(':rego-java')
 //    }
 //}

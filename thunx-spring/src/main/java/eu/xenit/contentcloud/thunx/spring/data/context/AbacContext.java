@@ -1,16 +1,16 @@
 package eu.xenit.contentcloud.thunx.spring.data.context;
 
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 
 public class AbacContext {
 
-    private static ThreadLocal<Expression<Boolean>> currentAbacContext = new InheritableThreadLocal<Expression<Boolean>>();
+    private static ThreadLocal<ThunkExpression<Boolean>> currentAbacContext = new InheritableThreadLocal<ThunkExpression<Boolean>>();
 
-    public static Expression<Boolean> getCurrentAbacContext() {
+    public static ThunkExpression<Boolean> getCurrentAbacContext() {
         return currentAbacContext.get();
     }
 
-    public static void setCurrentAbacContext(Expression<Boolean> expression) {
+    public static void setCurrentAbacContext(ThunkExpression<Boolean> expression) {
         currentAbacContext.set(expression);
     }
 

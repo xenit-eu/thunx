@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class SymbolicReference implements Expression<Object> {
+public class SymbolicReference implements ThunkExpression<Object> {
 
     private final SymbolicRefSubject subject;
 
@@ -43,7 +43,7 @@ public class SymbolicReference implements Expression<Object> {
                 path.stream().map(Object::toString).collect(Collectors.joining(".")));
     }
 
-    public <R> R accept(ExpressionVisitor<R> visitor) {
+    public <R> R accept(ThunkExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
 
@@ -97,7 +97,7 @@ public class SymbolicReference implements Expression<Object> {
         return new VariablePathElement(variable);
     }
 
-    public static PathElement path(Expression<?> expr) {
+    public static PathElement path(ThunkExpression<?> expr) {
         // figure out what type of 'path' this is and convert that to a PathElement
         // for now only String & Var are supported
 
@@ -141,10 +141,10 @@ public class SymbolicReference implements Expression<Object> {
 
     public interface PathElement {
 
-        <T> T accept(ExpressionVisitor<T> visitor);
+        <T> T accept(ThunkExpressionVisitor<T> visitor);
     }
 
-    public abstract static class PathElementVisitor<T> implements ExpressionVisitor<T> {
+    public abstract static class PathElementVisitor<T> implements ThunkExpressionVisitor<T> {
 
         @Override
         public final T visit(FunctionExpression<?> functionExpression) {
@@ -175,7 +175,7 @@ public class SymbolicReference implements Expression<Object> {
         }
 
         @Override
-        public <T> T accept(ExpressionVisitor<T> visitor) {
+        public <T> T accept(ThunkExpressionVisitor<T> visitor) {
             return visitor.visit(this.getPath());
         }
     }
@@ -190,7 +190,7 @@ public class SymbolicReference implements Expression<Object> {
         }
 
         @Override
-        public <T> T accept(ExpressionVisitor<T> visitor) {
+        public <T> T accept(ThunkExpressionVisitor<T> visitor) {
             return visitor.visit(this.getVariable());
         }
     }

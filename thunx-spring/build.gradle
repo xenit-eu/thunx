@@ -24,7 +24,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     api project(':thunx-pdp')
-    api project(':thunx-predicates-json')
+    api project(':thunx-encoding-json')
 
     implementation project(":thunx-pdp-opa")
     implementation "org.springframework.security:spring-security-core"

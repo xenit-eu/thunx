@@ -1,0 +1,29 @@
+package eu.xenit.contentcloud.thunx.encoding.json;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = As.EXISTING_PROPERTY,
+        property = "type",
+        visible = true,
+        defaultImpl = UnknownTypeExpressionDto.class)
+@JsonSubTypes({
+        @Type(value = JsonFunctionDto.class, name = "function"),
+        @Type(value = JsonScalarDto.class, name = "string"),
+        @Type(value = JsonScalarDto.class, name = "number"),
+        @Type(value = JsonScalarDto.class, name = "bool"),
+        @Type(value = JsonScalarDto.class, name = "null"),
+        @Type(value = JsonVariableDto.class, name = "var"),
+        @Type(value = JsonSymbolicReferenceDto.class, name = "ref")
+})
+public interface JsonExpressionDto {
+
+    String getType();
+
+    <T> ThunkExpression<? extends T> toExpression() throws InvalidExpressionDataException;
+}

@@ -15,14 +15,14 @@ public class NumericFunction implements FunctionExpression<Number> {
 
     @Getter
     @NonNull
-    private final Expression<?> leftTerm;
+    private final ThunkExpression<?> leftTerm;
 
     @Getter
     @NonNull
-    private final Expression<?> rightTerm;
+    private final ThunkExpression<?> rightTerm;
 
     @Override
-    public List<Expression<?>> getTerms() {
+    public List<ThunkExpression<?>> getTerms() {
         return List.of(this.leftTerm, this.rightTerm);
     }
 
@@ -36,11 +36,11 @@ public class NumericFunction implements FunctionExpression<Number> {
         return this.leftTerm.canBeResolved() && this.rightTerm.canBeResolved();
     }
 
-    public static NumericFunction multiply(Expression<?> left, Expression<?> right) {
+    public static NumericFunction multiply(ThunkExpression<?> left, ThunkExpression<?> right) {
         return new NumericFunction(Operator.MULTIPLY, left, right);
     }
 
-    public static NumericFunction multiply(List<Expression<?>> terms) {
+    public static NumericFunction multiply(List<ThunkExpression<?>> terms) {
         // this _could_ be actually 1..N number of terms
         // requiring N=2 for now
         Objects.requireNonNull(terms, "terms cannot be null");
@@ -51,7 +51,7 @@ public class NumericFunction implements FunctionExpression<Number> {
         return NumericFunction.multiply(terms.get(0), terms.get(1));
     }
 
-    public static NumericFunction plus(Expression<?> left, Expression<?> right) {
+    public static NumericFunction plus(ThunkExpression<?> left, ThunkExpression<?> right) {
         return new NumericFunction(Operator.PLUS, left, right);
     }
 

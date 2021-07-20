@@ -6,7 +6,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
 import eu.xenit.contentcloud.thunx.spring.data.context.AbacContext;
 import eu.xenit.contentcloud.thunx.spring.data.context.EntityContext;
-import eu.xenit.contentcloud.thunx.predicates.converters.querydsl.QueryDslUtils;
+import eu.xenit.contentcloud.thunx.predicates.querydsl.QueryDslUtils;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
