@@ -2,20 +2,19 @@ plugins {
     id "eu.xenit.enterprise-conventions.oss" version "0.2.0"
 }
 
-rootProject.name = 'contentcloud-abac'
+rootProject.name = 'thunx'
 
-include 'contentcloud-abac-predicates'
-include 'contentcloud-abac-pdp'
-include 'contentcloud-abac-pdp-opa'
-include 'contentcloud-abac-spring'
+include 'thunx-model'
+include 'thunx-pdp'
+include 'thunx-pdp-opa'
+include 'thunx-spring'
 
-include 'contentcloud-abac-predicates-json'
-include 'contentcloud-abac-predicates-protobuf'
-include 'contentcloud-abac-predicates-querydsl'
+include 'thunx-predicates-json'
+include 'thunx-predicates-querydsl'
 
 //includeBuild('../opa-java-client') {
 //    dependencySubstitution {
-//        substitute module('eu.xenit.contentcloud.abac:opa-async-java-client') with project(':opa-async-java-client')
-//        substitute module('eu.xenit.contentcloud.abac:rego-java') with project(':rego-java')
+//        substitute module('eu.xenit.contentcloud.thunx:opa-async-java-client') with project(':opa-async-java-client')
+//        substitute module('eu.xenit.contentcloud.thunx:rego-java') with project(':rego-java')
 //    }
 //}
