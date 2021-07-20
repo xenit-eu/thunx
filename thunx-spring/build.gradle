@@ -1,0 +1,69 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: "${rootDir}/gradle/publish.gradle"
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url 'https://oss.sonatype.org/content/groups/public/'
+        content {
+            includeGroup 'eu.xenit.contentcloud'
+            includeGroup 'eu.xenit.contentcloud.thunx'
+        }
+    }
+}
+
+dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
+    implementation platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    api project(':thunx-pdp')
+    api project(':thunx-encoding-json')
+
+    implementation project(":thunx-pdp-opa")
+    implementation "org.springframework.security:spring-security-core"
+
+    // Spring Cloud Gateway dependencies
+    compileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
+    compileOnly 'org.springframework.security:spring-security-web'
+    compileOnly 'org.springframework.security:spring-security-oauth2-core'
+
+
+    // Spring Data dependencies
+    compileOnly project(':thunx-predicates-querydsl')
+    compileOnly 'org.springframework.data:spring-data-jpa'
+    compileOnly 'org.springframework.data:spring-data-rest-core'
+    compileOnly 'org.springframework.data:spring-data-rest-webmvc'
+    compileOnly 'com.github.paulcwarren:spring-content-rest:1.2.2'
+//    implementation 'jakarta.transaction:jakarta.transaction-api'
+    compileOnly 'jakarta.persistence:jakarta.persistence-api'
+    compileOnly 'javax.servlet:javax.servlet-api'
+    compileOnly 'com.querydsl:querydsl-core'
+
+
+
+
+    testCompileOnly 'org.springframework.security:spring-security-web'
+    testCompileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
+
+
+    testRuntimeOnly 'org.springframework.cloud:spring-cloud-gateway-server'
+    testRuntimeOnly "org.springframework.security:spring-security-web"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.25.0'
+
+    testImplementation 'org.springframework.security:spring-security-oauth2-core'
+
+}
+
+test {
+    useJUnitPlatform()
+}

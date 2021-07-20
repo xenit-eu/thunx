@@ -1,0 +1,32 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: "${rootDir}/gradle/publish.gradle"
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://oss.sonatype.org/content/groups/public/'
+        content {
+            includeGroup 'eu.xenit.contentcloud'
+            includeGroup 'eu.xenit.contentcloud.thunx'
+        }
+    }
+}
+
+dependencies {
+    api project(":thunx-model")
+    api project(":thunx-pdp")
+
+    api 'eu.xenit.contentcloud:opa-async-java-client:0.2.0'
+
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
