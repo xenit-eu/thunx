@@ -1,6 +1,6 @@
 package eu.xenit.contentcloud.thunx.pdp;
 
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 
 public class PolicyDecisions {
 
@@ -12,7 +12,7 @@ public class PolicyDecisions {
         return new PolicyDecision(false);
     }
 
-    public static PolicyDecision conditional(Expression<Boolean> predicate) {
+    public static PolicyDecision conditional(ThunkExpression<Boolean> predicate) {
         return new PolicyDecision(predicate);
     }
 }

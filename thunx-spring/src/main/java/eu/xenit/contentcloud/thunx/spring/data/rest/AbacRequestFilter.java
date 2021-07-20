@@ -3,7 +3,7 @@ package eu.xenit.contentcloud.thunx.spring.data.rest;
 import static java.lang.String.format;
 
 import eu.xenit.contentcloud.thunx.encoding.ThunkExpressionDecoder;
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 import eu.xenit.contentcloud.thunx.spring.data.context.AbacContext;
 import eu.xenit.contentcloud.thunx.spring.data.context.EntityContext;
 import eu.xenit.contentcloud.thunx.spring.data.context.EntityManagerContext;
@@ -67,7 +67,7 @@ public class AbacRequestFilter implements Filter {
         if (abacContext != null) {
             byte[] abacContextBytes = Base64.getDecoder().decode(abacContext);
             // which (version of?) decoder should we use ? -> get that info from JWT or other header ?
-            Expression<Boolean> abacExpression = this.thunkDecoder.decoder(abacContextBytes);
+            ThunkExpression<Boolean> abacExpression = this.thunkDecoder.decoder(abacContextBytes);
             AbacContext.setCurrentAbacContext(abacExpression);
         }
 

@@ -11,13 +11,13 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-public interface FunctionExpression<T> extends Expression<T> {
+public interface FunctionExpression<T> extends ThunkExpression<T> {
 
     Operator getOperator();
 
-    List<Expression<?>> getTerms();
+    List<ThunkExpression<?>> getTerms();
 
-    default <R> R accept(ExpressionVisitor<R> visitor) {
+    default <R> R accept(ThunkExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
 
@@ -93,7 +93,7 @@ public interface FunctionExpression<T> extends Expression<T> {
     @FunctionalInterface
     interface FunctionExpressionFactory<T> {
 
-        FunctionExpression create(List<Expression<?>> terms);
+        FunctionExpression create(List<ThunkExpression<?>> terms);
     }
 
     @FunctionalInterface

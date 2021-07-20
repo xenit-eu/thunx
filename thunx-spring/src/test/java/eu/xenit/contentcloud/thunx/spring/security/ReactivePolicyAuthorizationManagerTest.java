@@ -9,7 +9,7 @@ import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisions;
 import eu.xenit.contentcloud.thunx.pdp.RequestContext;
 import eu.xenit.contentcloud.thunx.predicates.model.Comparison;
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import eu.xenit.contentcloud.thunx.predicates.model.Variable;
 import java.util.concurrent.CompletableFuture;
@@ -69,7 +69,7 @@ class ReactivePolicyAuthorizationManagerTest {
                 .expectComplete()
                 .verify();
 
-        Expression<Boolean> predicateAttr = context.getExchange().getAttribute(
+        ThunkExpression<Boolean> predicateAttr = context.getExchange().getAttribute(
                 ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
         assertThat(predicateAttr)
                 .isNotNull()
@@ -100,7 +100,7 @@ class ReactivePolicyAuthorizationManagerTest {
         };
     }
 
-    private static PolicyDecisionPointClient policySaysMaybe(Expression<Boolean> expression) {
+    private static PolicyDecisionPointClient policySaysMaybe(ThunkExpression<Boolean> expression) {
         return new PolicyDecisionPointClient() {
             @Override
             public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext,

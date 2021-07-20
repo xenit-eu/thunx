@@ -2,7 +2,7 @@ package eu.xenit.contentcloud.thunx.predicates.model;
 
 import java.math.BigDecimal;
 
-public interface Scalar<T> extends Expression<T> {
+public interface Scalar<T> extends ThunkExpression<T> {
 
     T getValue();
 
@@ -16,7 +16,7 @@ public interface Scalar<T> extends Expression<T> {
         return this.getValue();
     }
 
-    default <R> R accept(ExpressionVisitor<R> visitor) {
+    default <R> R accept(ThunkExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
 

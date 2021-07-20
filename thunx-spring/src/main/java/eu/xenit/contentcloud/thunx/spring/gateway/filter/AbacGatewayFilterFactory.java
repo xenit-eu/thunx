@@ -2,8 +2,8 @@ package eu.xenit.contentcloud.thunx.spring.gateway.filter;
 
 import eu.xenit.contentcloud.thunx.encoding.ThunkExpressionEncoder;
 import eu.xenit.contentcloud.thunx.spring.security.ReactivePolicyAuthorizationManager;
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
-import eu.xenit.contentcloud.thunx.predicates.converters.json.ExpressionJsonConverter;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
+import eu.xenit.contentcloud.thunx.encoding.json.ExpressionJsonConverter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -62,7 +62,7 @@ public class AbacGatewayFilterFactory extends AbstractGatewayFilterFactory<AbacG
     }
 
     void addAbacContextHeader(ServerWebExchange exchange) {
-        Expression<Boolean> thunkExpression = exchange.getAttribute(ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
+        ThunkExpression<Boolean> thunkExpression = exchange.getAttribute(ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
         if (thunkExpression != null) {
             var data = this.encoder.encode(thunkExpression);
             var encoded = Base64.getEncoder().encodeToString(data);

@@ -17,19 +17,19 @@ public class Comparison implements BooleanOperation {
 
     @Getter
     @NonNull
-    private final Expression<?> leftTerm;
+    private final ThunkExpression<?> leftTerm;
 
     @Getter
     @NonNull
-    private final Expression<?> rightTerm;
+    private final ThunkExpression<?> rightTerm;
 
 
     @Override
-    public List<Expression<?>> getTerms() {
+    public List<ThunkExpression<?>> getTerms() {
         return List.of(this.leftTerm, this.rightTerm);
     }
 
-    public static Comparison areEqual(List<Expression<?>> terms) {
+    public static Comparison areEqual(List<ThunkExpression<?>> terms) {
         if (terms.size() != 2) {
             throw new IllegalArgumentException("Expected 2 terms, but got " + terms.size());
         }
@@ -37,26 +37,26 @@ public class Comparison implements BooleanOperation {
         return areEqual(terms.get(0), terms.get(1));
     }
 
-    public static Comparison areEqual(Expression<?> left, Expression<?> right) {
+    public static Comparison areEqual(ThunkExpression<?> left, ThunkExpression<?> right) {
         return new Comparison(Operator.EQUALS, left, right);
     }
 
-    public static Comparison greaterOrEquals(Expression<?> left, Expression<?> right) {
+    public static Comparison greaterOrEquals(ThunkExpression<?> left, ThunkExpression<?> right) {
         return new Comparison(Operator.GREATER_THAN_OR_EQUAL_TO, left, right);
     }
 
-    public static Comparison greaterOrEquals(List<Expression<?>> terms) {
+    public static Comparison greaterOrEquals(List<ThunkExpression<?>> terms) {
         if (terms.size() != 2) {
             throw new IllegalArgumentException("Expected 2 terms, but got " + terms.size());
         }
         return greaterOrEquals(terms.get(0), terms.get(1));
     }
 
-    public static <E> Comparison lessOrEquals(Expression<?> left, Expression<?> right) {
+    public static <E> Comparison lessOrEquals(ThunkExpression<?> left, ThunkExpression<?> right) {
         return new Comparison(Operator.LESS_THEN_OR_EQUAL_TO, left, right);
     }
 
-    public static Comparison lessOrEquals(@NonNull List<Expression<?>> terms) {
+    public static Comparison lessOrEquals(@NonNull List<ThunkExpression<?>> terms) {
         assertTermSizeIsTwo(terms);
         return lessOrEquals(terms.get(0), terms.get(1));
     }
@@ -67,7 +67,7 @@ public class Comparison implements BooleanOperation {
         return this.leftTerm.canBeResolved() && this.rightTerm.canBeResolved();
     }
 
-    private static void assertTermSizeIsTwo(List<Expression<?>> terms) {
+    private static void assertTermSizeIsTwo(List<ThunkExpression<?>> terms) {
         if (terms.size() == 2) {
             return;
         }

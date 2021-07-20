@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class Variable implements Expression<Object> {
+public class Variable implements ThunkExpression<Object> {
 
     @NonNull
     private final String name;
@@ -25,7 +25,7 @@ public class Variable implements Expression<Object> {
     }
 
     @Override
-    public <R> R accept(ExpressionVisitor<R> visitor) {
+    public <R> R accept(ThunkExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
 

@@ -14,7 +14,7 @@ import eu.xenit.contentcloud.opa.rego.ast.Term.Ref;
 import eu.xenit.contentcloud.opa.rego.ast.Term.Text;
 import eu.xenit.contentcloud.opa.rego.ast.Term.Var;
 import eu.xenit.contentcloud.thunx.predicates.model.Comparison;
-import eu.xenit.contentcloud.thunx.predicates.model.Expression;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.LogicalOperation;
 import eu.xenit.contentcloud.thunx.predicates.model.NumericFunction;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class QuerySetToThunkExpressionConverter {
 
-    public Expression<Boolean> convert(QuerySet querySet) {
+    public ThunkExpression<Boolean> convert(QuerySet querySet) {
         // if the query-set is empty, that means that under NO conditions, the expression can be true
         if (querySet == null || querySet.size() == 0) {
             return Scalar.of(false);
@@ -46,7 +46,7 @@ public class QuerySetToThunkExpressionConverter {
     }
 
 
-    public Expression<Boolean> convert(Query query) {
+    public ThunkExpression<Boolean> convert(Query query) {
         // a query is a conjunction (AND-list of terms)
 
         // optimization: if query has 0 terms, it means the condition is satisfied
@@ -65,7 +65,7 @@ public class QuerySetToThunkExpressionConverter {
                         throw new UnsupportedOperationException(msg);
                     }
                 })
-                .map(expr -> (Expression<Boolean>) expr)
+                .map(expr -> (ThunkExpression<Boolean>) expr)
                 .collect(Collectors.toList());
 
         // Optimize: if there is a single expression, unwrap the conjunction
@@ -76,14 +76,14 @@ public class QuerySetToThunkExpressionConverter {
         return LogicalOperation.conjunction(expressions);
     }
 
-    Expression<?> convert(eu.xenit.contentcloud.opa.rego.ast.Expression expression) {
+    ThunkExpression<?> convert(eu.xenit.contentcloud.opa.rego.ast.Expression expression) {
         var expr = expression.accept(new PredicatesVisitor());
         return expr;
     }
 
-    static class PredicatesVisitor implements RegoVisitor<Expression<?>> {
+    static class PredicatesVisitor implements RegoVisitor<ThunkExpression<?>> {
 
-        private static Map<String, Function<List<Expression<?>>, Expression<?>>> OPERATION_LOOKUP = Map.ofEntries(
+        private static Map<String, Function<List<ThunkExpression<?>>, ThunkExpression<?>>> OPERATION_LOOKUP = Map.ofEntries(
                 Map.entry("mul", NumericFunction::multiply),
 
                 Map.entry("eq", Comparison::areEqual),
@@ -91,17 +91,17 @@ public class QuerySetToThunkExpressionConverter {
         );
 
         @Override
-        public Expression<?> visit(QuerySet queries) {
+        public ThunkExpression<?> visit(QuerySet queries) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Expression<?> visit(Query query) {
+        public ThunkExpression<?> visit(Query query) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Expression<?> visit(eu.xenit.contentcloud.opa.rego.ast.Expression expression) {
+        public ThunkExpression<?> visit(eu.xenit.contentcloud.opa.rego.ast.Expression expression) {
 
             // opa-expression grammar - bottom page https://www.openpolicyagent.org/docs/latest/policy-reference/
             //      expr            = term | expr-call | expr-infix
@@ -140,7 +140,7 @@ public class QuerySetToThunkExpressionConverter {
             }
 
             var firstTerm = expression.getTerms().get(0);
-            Expression<?> firstExpr = firstTerm.accept(this);
+            ThunkExpression<?> firstExpr = firstTerm.accept(this);
 
             // if there is a single term, just return already
             if (expression.getTerms().size() == 1) {
@@ -153,7 +153,7 @@ public class QuerySetToThunkExpressionConverter {
                 // the first symbolic-ref would be a function name
                 var functionName = ((SymbolicReference) firstExpr).toPath();
                 // lookup function names
-                List<Expression<?>> args = expression.getTerms().stream().skip(1)
+                List<ThunkExpression<?>> args = expression.getTerms().stream().skip(1)
                         .map(t -> t.accept(this))
                         .collect(Collectors.toList());
 
@@ -175,7 +175,7 @@ public class QuerySetToThunkExpressionConverter {
         }
 
         @Override
-        public Expression<?> visit(Ref ref) {
+        public ThunkExpression<?> visit(Ref ref) {
             if (ref.getValue().isEmpty()) {
                 throw new IllegalArgumentException("ref has no values");
             }
@@ -240,40 +240,40 @@ public class QuerySetToThunkExpressionConverter {
         }
 
         @Override
-        public Expression<?> visit(Call call) {
+        public ThunkExpression<?> visit(Call call) {
             // 1st term is the operator
             // 2nd..Nth term are the arguments
             return null;
         }
 
         @Override
-        public Expression<?> visit(Var var) {
+        public ThunkExpression<?> visit(Var var) {
             return Variable.named(var.getValue());
         }
 
         @Override
-        public Expression<?> visit(Numeric numeric) {
+        public ThunkExpression<?> visit(Numeric numeric) {
             // numeric uses BigDecimal internally
             return Scalar.of(numeric.getValue());
         }
 
         @Override
-        public Expression<?> visit(Text stringValue) {
+        public ThunkExpression<?> visit(Text stringValue) {
             return Scalar.of(stringValue.getValue());
         }
 
         @Override
-        public Expression<?> visit(Bool value) {
+        public ThunkExpression<?> visit(Bool value) {
             return Scalar.of(value.getValue());
         }
 
         @Override
-        public Expression<?> visit(Null nullValue) {
+        public ThunkExpression<?> visit(Null nullValue) {
             return Scalar.nullValue();
         }
 
         @Override
-        public Expression<?> visit(ArrayTerm arrayTerm) {
+        public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
             return null;
         }
     }
