@@ -9,7 +9,7 @@ import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference;
 import org.junit.jupiter.api.Test;
 
-class SolrUtilsTest {
+class NativeQueryUtilsTest {
 
     @Test
     void convert_comparison() {
@@ -21,7 +21,7 @@ class SolrUtilsTest {
         var actual = NativeQueryUtils.from(thunkExpression);
         assertThat(actual)
                 .isNotNull()
-                .hasToString("security:5");
+                .hasToString("security = 5");
 
     }
 
@@ -39,7 +39,7 @@ class SolrUtilsTest {
         var actual = NativeQueryUtils.from(thunkExpression);
         assertThat(actual)
                 .isNotNull()
-                .hasToString("a_b_c:5");
+                .hasToString("a_b_c = 5");
 
     }
 
@@ -60,7 +60,7 @@ class SolrUtilsTest {
         var actual = NativeQueryUtils.from(thunkExpression);
         assertThat(actual)
                 .isNotNull()
-                .hasToString("security:5 OR security:10 OR security:15");
+                .hasToString("security = 5 OR security = 10 OR security = 15");
 
     }
 
