@@ -46,8 +46,10 @@ dependencies {
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly 'com.querydsl:querydsl-core'
 
-
-
+    // for native query
+    compileOnly "com.querydsl:querydsl-jpa"
+    implementation project(':thunx-predicates-nativequery')
+    // for native query
 
     testCompileOnly 'org.springframework.security:spring-security-web'
     testCompileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
