@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 @DataJpaTest
 @EnableJpaRepositories(considerNestedRepositories = true, repositoryFactoryBeanClass = AbacJpaRepositoryFactoryBean.class)
 @AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "count-query-provider"})
 public class AbacQuerydslJpaPredicateExecutorTest {
 
     @ClassRule

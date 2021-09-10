@@ -3,6 +3,7 @@ package org.springframework.data.jpa.repository.support;
 import com.querydsl.core.types.Predicate;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.spy;
 @SpringBootApplication
 public class TestApplication {
 
+    @Profile("count-query-provider")
     @Bean
     public CustomCountQueryProvider countQueryProvider(EntityManager em) {
         return spy(new CustomCountQueryProvider() {
