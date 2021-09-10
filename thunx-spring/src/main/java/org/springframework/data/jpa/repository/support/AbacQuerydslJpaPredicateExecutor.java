@@ -4,8 +4,6 @@ import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
-import eu.xenit.contentcloud.thunx.spring.data.context.AbacContext;
-import eu.xenit.contentcloud.thunx.spring.data.context.EntityContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.querydsl.EntityPathResolver;
@@ -38,7 +36,7 @@ public class AbacQuerydslJpaPredicateExecutor<T> extends QuerydslJpaPredicateExe
         Assert.notNull(predicate, "Predicate must not be null!");
         Assert.notNull(pageable, "Pageable must not be null!");
 
-        final Query countQuery = countQueryProvider.createNativeCountQuery(AbacContext.getCurrentAbacContext(), entityType);
+        final Query countQuery = countQueryProvider.createNativeCountQuery(predicate, entityType);
         JPQLQuery<T> query = querydsl.applyPagination(pageable, createQuery(predicate).select(path));
 
         return PageableExecutionUtils.getPage(query.fetch(), pageable, countQueryProvider.longSupplier(countQuery));

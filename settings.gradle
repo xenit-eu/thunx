@@ -10,7 +10,6 @@ include 'thunx-pdp-opa'
 include 'thunx-spring'
 
 include 'thunx-encoding-json'
-include 'thunx-predicates-nativequery'
 include 'thunx-predicates-querydsl'
 include 'thunx-predicates-solr'
 

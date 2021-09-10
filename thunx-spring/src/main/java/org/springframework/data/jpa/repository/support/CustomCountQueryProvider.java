@@ -1,6 +1,6 @@
 package org.springframework.data.jpa.repository.support;
 
-import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
+import com.querydsl.core.types.Predicate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -10,7 +10,7 @@ public interface CustomCountQueryProvider {
 
     void setEntityManager(EntityManager em);
 
-    Query createNativeCountQuery(ThunkExpression<Boolean> expr, Class<?> javaType);
+    Query createNativeCountQuery(Predicate predicate, Class<?> javaType);
 
     LongSupplier longSupplier(Query countQuery);
 }
