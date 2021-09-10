@@ -11,7 +11,6 @@ include 'thunx-spring'
 
 include 'thunx-encoding-json'
 include 'thunx-predicates-querydsl'
-include 'thunx-predicates-solr'
 
 //includeBuild('../opa-java-client') {
 //    dependencySubstitution {
