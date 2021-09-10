@@ -42,7 +42,6 @@ class SolrConverter implements ThunkExpressionVisitor<String> {
 
     @Override
     public String visit(SymbolicReference symbolicReference) {
-        // TODO check that symbolic-ref 'subject' matches the PathBuilder subject ?
 
         String subject = symbolicReference.getSubject().getName();
         if (!"entity".equalsIgnoreCase(subject)) {
