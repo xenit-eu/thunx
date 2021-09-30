@@ -8,6 +8,7 @@ include 'thunx-model'
 include 'thunx-pdp'
 include 'thunx-pdp-opa'
 include 'thunx-spring'
+include 'thunx-spring-boot-starter'
 
 include 'thunx-encoding-json'
 include 'thunx-predicates-querydsl'
