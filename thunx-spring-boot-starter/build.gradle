@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: "${rootDir}/gradle/publish.gradle"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+//    implementation platform("org.springframework.boot:spring-boot-autoconfigure:${springBootBomVersion}")
+
+    implementation "org.springframework.boot:spring-boot-autoconfigure:${springBootBomVersion}"
+
+    api project(':thunx-spring')
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation "org.springframework.boot:spring-boot-starter-web:${springBootBomVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootBomVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-rest:${springBootBomVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-rest:${springBootBomVersion}"
+    testImplementation 'com.h2database:h2:1.4.200'
+}
