@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
@@ -39,8 +40,8 @@ public class AuthenticationContextMapper {
         var result = new HashMap<String, Object>();
 
         var principal = authentication.getPrincipal();
-        if (principal instanceof OidcUser) {
-            result.put("claims", ((OidcUser) principal).getClaims());
+        if (principal instanceof ClaimAccessor) {
+            result.put("claims", ((ClaimAccessor) principal).getClaims());
         }
 
         return result;
@@ -62,6 +63,10 @@ public class AuthenticationContextMapper {
                 });
                 return result;
             }
+        }
+
+        if (principal instanceof ClaimAccessor) {
+            return ((ClaimAccessor) principal).getClaims();
         }
 
         // fallback to check authorities on the auth-object
