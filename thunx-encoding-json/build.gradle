@@ -4,10 +4,6 @@ plugins {
 
 apply from: "${rootDir}/gradle/publish.gradle"
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"

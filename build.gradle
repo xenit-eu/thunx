@@ -13,12 +13,29 @@ ext {
     projectReactorVersion = '3.4.2'
 }
 
-// publish all java projects, with sources and javadoc
-configure(subprojects) {
-    plugins.withType(JavaPlugin) {
-        java {
+allprojects {
+    pluginManager.withPlugin('java', {
+        project.java {
+            sourceCompatibility = 11
+
             withSourcesJar()
             withJavadocJar()
         }
+
+        repositories {
+            mavenCentral()
+
+            maven {
+                url 'https://oss.sonatype.org/content/groups/public/'
+                content {
+                    includeGroup 'eu.xenit.contentcloud'
+                    includeGroup 'eu.xenit.contentcloud.thunx'
+                }
+            }
+        }
+    })
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
     }
 }

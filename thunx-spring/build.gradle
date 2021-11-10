@@ -4,18 +4,6 @@ plugins {
 
 apply from: "${rootDir}/gradle/publish.gradle"
 
-repositories {
-    mavenCentral()
-
-    maven {
-        url 'https://oss.sonatype.org/content/groups/public/'
-        content {
-            includeGroup 'eu.xenit.contentcloud'
-            includeGroup 'eu.xenit.contentcloud.thunx'
-        }
-    }
-}
-
 dependencies {
     implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
     implementation platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
