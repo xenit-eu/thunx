@@ -9,20 +9,20 @@ publishing {
 
         all {
             pom {
-                url = 'https://github.com/xenit-eu/contentcloud-abac'
-                name = "opa-java-client"
+                url = 'https://github.com/xenit-eu/thunx'
+                name = project.name
                 description = project.description
 
                 scm {
-                    connection = 'scm:git:git@github.com:xenit-eu/contentcloud-abac.git'
-                    developerConnection = 'scm:git:git@github.com:xenit-eu/contentcloud-abac.git'
-                    url = 'https://github.com/xenit-eu/contentcloud-abac.git'
+                    connection = 'scm:git:git@github.com:xenit-eu/thunx.git'
+                    developerConnection = 'scm:git:git@github.com:xenit-eu/thunx.git'
+                    url = 'https://github.com/xenit-eu/thunx.git'
                 }
 
                 developers {
                     developer {
-                        id = "xenit"
-                        name = "Xenit Solutions NV"
+                        name = "XeniT"
+                        organization = "XeniT Solutions NV"
                     }
                 }
 
