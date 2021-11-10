@@ -7,12 +7,6 @@ reckon {
     snapshotFromProp()
 }
 
-ext {
-    springBootBomVersion = '2.4.6'
-    springCloudVersion = '2020.0.2'
-    projectReactorVersion = '3.4.2'
-}
-
 allprojects {
     pluginManager.withPlugin('java', {
         project.java {
