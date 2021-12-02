@@ -1,0 +1,17 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: "${rootDir}/gradle/publish.gradle"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation "org.springframework.boot:spring-boot-autoconfigure:${springBootBomVersion}"
+
+    api project(':thunx-pdp-opa')
+    api project(':thunx-autoconfigure')
+}

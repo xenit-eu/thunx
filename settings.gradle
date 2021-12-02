@@ -8,7 +8,9 @@ include 'thunx-model'
 include 'thunx-pdp'
 include 'thunx-pdp-opa'
 include 'thunx-spring'
-include 'thunx-spring-boot-starter'
+include 'thunx-autoconfigure'
+include 'thunx-api-spring-boot-starter'
+include 'thunx-gateway-spring-boot-starter'
 
 include 'thunx-encoding-json'
 include 'thunx-predicates-querydsl'
@@ -19,3 +21,4 @@ include 'thunx-predicates-querydsl'
 //        substitute module('eu.xenit.contentcloud:rego-java') with project(':rego-java')
 //    }
 //}
+

@@ -1,0 +1,4 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+eu.xenit.contentcloud.thunx.api.autoconfigure.AbacAutoConfiguration,\
+eu.xenit.contentcloud.thunx.gateway.autoconfigure.GatewayAutoConfiguration
