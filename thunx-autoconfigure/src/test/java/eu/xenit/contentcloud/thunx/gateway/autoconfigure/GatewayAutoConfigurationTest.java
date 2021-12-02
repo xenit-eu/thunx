@@ -3,14 +3,13 @@ package eu.xenit.contentcloud.thunx.gateway.autoconfigure;
 import eu.xenit.contentcloud.opa.client.OpaClient;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
 import eu.xenit.contentcloud.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 
