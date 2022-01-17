@@ -2,6 +2,7 @@ package eu.xenit.contentcloud.thunx.gateway.autoconfigure;
 
 import eu.xenit.contentcloud.opa.client.OpaClient;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
+import eu.xenit.contentcloud.thunx.pdp.opa.OpaQueryProvider;
 import eu.xenit.contentcloud.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -30,6 +31,7 @@ public class GatewayAutoConfigurationTest {
             .withPropertyValues("opa.service.url=https://some/opa/service")
             .run((context) -> {
                 assertThat(context.getBean(OpaClient.class)).isNotNull();
+                assertThat(context.getBean(OpaQueryProvider.class)).isNotNull();
                 assertThat(context.getBean(PolicyDecisionPointClient.class)).isNotNull();
                 assertThat(context.getBean(ReactiveAuthorizationManager.class)).isNotNull();
                 assertThat(context.getBean(AbacGatewayFilterFactory.class)).isNotNull();
@@ -47,6 +49,7 @@ public class GatewayAutoConfigurationTest {
         contextRunner.withUserConfiguration(TestContextWithBeans.class)
                 .run((context) -> {
                     assertThat(context.getBean(OpaClient.class)).isSameAs(context.getBean(TestContextWithBeans.class).opaClient());
+                    assertThat(context.getBean(OpaQueryProvider.class)).isSameAs(context.getBean(TestContextWithBeans.class).customQueryProvider());
                     assertThat(context.getBean(PolicyDecisionPointClient.class)).isSameAs(context.getBean(TestContextWithBeans.class).pdpClient());
                     assertThat(context.getBean(ReactiveAuthorizationManager.class)).isSameAs(context.getBean(TestContextWithBeans.class).reactiveAuthenticationManager());
                     assertThat(context.getBean(AbacGatewayFilterFactory.class)).isSameAs(context.getBean(TestContextWithBeans.class).abacGatewayFilterFactory());
@@ -89,6 +92,11 @@ public class GatewayAutoConfigurationTest {
         @Bean
         public AbacGatewayFilterFactory abacGatewayFilterFactory() {
             return mock(AbacGatewayFilterFactory.class);
+        }
+
+        @Bean
+        public OpaQueryProvider customQueryProvider() {
+            return mock(OpaQueryProvider.class);
         }
     }
 }
