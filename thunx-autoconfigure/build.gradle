@@ -9,9 +9,9 @@ dependencies {
     compileOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
     compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
 
-    compileOnly "org.springframework.boot:spring-boot-autoconfigure:${springBootBomVersion}"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
 
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    compileOnly "org.projectlombok:lombok"
 
     compileOnly project(':thunx-spring')
     compileOnly project(':thunx-pdp-opa')
@@ -31,12 +31,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.assertj:assertj-core:3.21.0'
     testImplementation 'org.mockito:mockito-core:2.1.0'
-    testImplementation "org.springframework.boot:spring-boot-test:${springBootBomVersion}"
-    testImplementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootBomVersion}"
-    testImplementation 'com.h2database:h2:1.4.200'
-    testImplementation "org.springframework.boot:spring-boot-starter-data-rest:${springBootBomVersion}"
+    testImplementation "org.springframework.boot:spring-boot-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    testImplementation "org.springframework.boot:spring-boot-starter-data-rest"
     testImplementation 'org.springframework.security:spring-security-web'
     testImplementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+    testImplementation 'com.h2database:h2:1.4.200'
     testImplementation project(':thunx-spring')
     testImplementation project(':thunx-pdp-opa')
     testImplementation "eu.xenit.contentcloud:opa-async-java-client:0.2.0"
