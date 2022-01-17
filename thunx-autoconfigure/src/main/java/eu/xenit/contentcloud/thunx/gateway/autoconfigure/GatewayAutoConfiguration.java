@@ -4,6 +4,7 @@ import eu.xenit.contentcloud.opa.client.OpaClient;
 import eu.xenit.contentcloud.opa.client.rest.RestClientConfiguration;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionComponentImpl;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
+import eu.xenit.contentcloud.thunx.pdp.opa.OpaQueryProvider;
 import eu.xenit.contentcloud.thunx.pdp.opa.OpenPolicyAgentPDPClient;
 import eu.xenit.contentcloud.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import eu.xenit.contentcloud.thunx.spring.security.ReactivePolicyAuthorizationManager;
@@ -26,14 +27,20 @@ public class GatewayAutoConfiguration {
     public OpaClient opaClient(OpaProperties opaProperties) {
         return OpaClient.builder()
                 .httpLogging(RestClientConfiguration.LogSpecification::all)
-                .url(opaProperties.getUrl())
+                .url(opaProperties.getService().getUrl())
                 .build();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public PolicyDecisionPointClient pdpClient(OpaClient opaClient) {
-        return new OpenPolicyAgentPDPClient(opaClient, request -> "data.vfinance.brokercontent.allow == true");
+    public OpaQueryProvider propertyBasedOpaQueryProvider(OpaProperties opaProperties) {
+        return request -> opaProperties.getQuery();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PolicyDecisionPointClient pdpClient(OpaClient opaClient, OpaQueryProvider queryProvider) {
+        return new OpenPolicyAgentPDPClient(opaClient, queryProvider);
     }
 
     @Bean
