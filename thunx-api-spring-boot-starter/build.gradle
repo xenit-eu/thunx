@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: "${rootDir}/gradle/publish.gradle"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api project(':thunx-spring')
+    api project(':thunx-autoconfigure')
+}
