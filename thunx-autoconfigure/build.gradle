@@ -6,7 +6,7 @@ apply from: "${rootDir}/gradle/publish.gradle"
 
 dependencies {
 
-    compileOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
     compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
 
     implementation "org.springframework.boot:spring-boot-autoconfigure"
