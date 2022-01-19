@@ -33,7 +33,22 @@ class QueryDslUtilsTest {
         assertThat(actual)
                 .isNotNull()
                 .hasToString("document.security = 5");
+    }
 
+    @Test
+    void convert_null_comparison() {
+        // document.security == null
+        var thunkExpression = Comparison.areEqual(
+                SymbolicReference.of("entity", path -> path.string("security")),
+                Scalar.nullValue()
+        );
+
+        var document = new PathBuilder(Document.class, "document");
+
+        var actual = QueryDslUtils.from(thunkExpression, document);
+        assertThat(actual)
+                .isNotNull()
+                .hasToString("document.security = null");
     }
 
     @Test

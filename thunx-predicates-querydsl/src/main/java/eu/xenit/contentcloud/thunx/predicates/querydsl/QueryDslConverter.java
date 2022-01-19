@@ -5,11 +5,11 @@ import com.querydsl.core.types.Operator;
 import com.querydsl.core.types.Ops;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
-import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpressionVisitor;
 import eu.xenit.contentcloud.thunx.predicates.model.FunctionExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference.PathElementVisitor;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpressionVisitor;
 import eu.xenit.contentcloud.thunx.predicates.model.Variable;
 
 class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
@@ -24,6 +24,9 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
 
     @Override
     public Expression<?> visit(Scalar<?> scalar) {
+        if(scalar == Scalar.nullValue()) {
+            return Expressions.nullExpression();
+        }
         return Expressions.constant(scalar.getValue());
     }
 
