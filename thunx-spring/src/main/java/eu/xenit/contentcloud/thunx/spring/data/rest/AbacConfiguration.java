@@ -22,6 +22,7 @@ import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.data.repository.support.RepositoryInvokerFactory;
+import org.springframework.data.rest.core.mapping.ResourceMappings;
 import org.springframework.data.rest.webmvc.config.ResourceMetadataHandlerMethodArgumentResolver;
 import org.springframework.data.rest.webmvc.config.RootResourceInformationHandlerMethodArgumentResolver;
 import org.springframework.format.support.DefaultFormattingConversionService;
@@ -50,8 +51,9 @@ public class AbacConfiguration {
     }
 
     @Bean
-    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder, Repositories repos, EntityManager em, PlatformTransactionManager tm) {
-        return new AbacRequestFilter(thunkDecoder, repos, em, tm);
+    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder, ResourceMappings resourceMappings,
+            EntityManager em, PlatformTransactionManager tm) {
+        return new AbacRequestFilter(thunkDecoder, resourceMappings, em, tm);
     }
 
     @Bean
