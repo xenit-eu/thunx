@@ -20,8 +20,8 @@ public class Variable implements ThunkExpression<Object> {
     }
 
     @Override
-    public boolean canBeResolved() {
-        return false;
+    public ThunkExpression<Object> simplify() {
+        return this;
     }
 
     @Override

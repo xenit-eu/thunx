@@ -4,11 +4,7 @@ public interface ThunkExpression<T> {
 
     Class<? extends T> getResultType();
 
-    boolean canBeResolved();
-
-    default T resolve() {
-        throw new UnsupportedOperationException("cannot be resolved");
-    }
+    ThunkExpression<T> simplify();
 
     <R> R accept(ThunkExpressionVisitor<R> visitor);
 }

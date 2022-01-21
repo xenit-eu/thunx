@@ -7,13 +7,8 @@ public interface Scalar<T> extends ThunkExpression<T> {
     T getValue();
 
     @Override
-    default boolean canBeResolved() {
-        return true;
-    }
-
-    @Override
-    default T resolve() {
-        return this.getValue();
+    default ThunkExpression<T> simplify() {
+        return new ResolvedExpressionImpl<>(this);
     }
 
     default <R> R accept(ThunkExpressionVisitor<R> visitor) {

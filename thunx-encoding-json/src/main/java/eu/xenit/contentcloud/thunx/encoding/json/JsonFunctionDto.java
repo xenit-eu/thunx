@@ -1,5 +1,6 @@
 package eu.xenit.contentcloud.thunx.encoding.json;
 
+import eu.xenit.contentcloud.thunx.predicates.model.FunctionExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.FunctionExpression.Operator;
 import java.util.ArrayList;
@@ -49,6 +50,6 @@ class JsonFunctionDto implements JsonExpressionDto {
             exprTerms.add(dto.toExpression());
         }
 
-        return factory.create(exprTerms);
+        return (FunctionExpression<T>)factory.create(exprTerms);
     }
 }

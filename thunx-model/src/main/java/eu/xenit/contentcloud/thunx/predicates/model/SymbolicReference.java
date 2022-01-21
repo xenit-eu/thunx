@@ -135,8 +135,8 @@ public class SymbolicReference implements ThunkExpression<Object> {
     }
 
     @Override
-    public boolean canBeResolved() {
-        return false;
+    public ThunkExpression<Object> simplify() {
+        return this;
     }
 
     public interface PathElement {
@@ -153,6 +153,11 @@ public class SymbolicReference implements ThunkExpression<Object> {
 
         @Override
         public final T visit(SymbolicReference symbolicReference) {
+            return null;
+        }
+
+        @Override
+        public T visit(ResolvedExpression<?> resolvedExpression) {
             return null;
         }
     }
