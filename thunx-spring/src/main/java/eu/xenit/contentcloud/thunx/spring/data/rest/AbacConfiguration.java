@@ -57,7 +57,7 @@ public class AbacConfiguration {
     }
 
     @Bean
-    public FilterRegistrationBean<AbacRequestFilter> abacFilterRegistration(AbacRequestFilter filter, Repositories repos, EntityManager em, PlatformTransactionManager tm) {
+    public FilterRegistrationBean<AbacRequestFilter> abacFilterRegistration(AbacRequestFilter filter) {
         FilterRegistrationBean<AbacRequestFilter> registrationBean = new FilterRegistrationBean<>();
 
         registrationBean.setFilter(filter);
