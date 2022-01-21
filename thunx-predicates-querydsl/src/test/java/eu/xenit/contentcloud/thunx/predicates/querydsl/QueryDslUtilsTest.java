@@ -53,14 +53,17 @@ class QueryDslUtilsTest {
 
     @Test
     void convert_disjunction() {
-        // document.security == 5 OR document.security == 10
+        // document.security == 5 OR document.security == 10 OR document.security == 8
         var thunkExpression = LogicalOperation.disjunction(
                 Comparison.areEqual(
                         SymbolicReference.of("entity", path -> path.string("security")),
                         Scalar.of(5)),
                 Comparison.areEqual(
                         SymbolicReference.of("entity", path -> path.string("security")),
-                        Scalar.of(10))
+                        Scalar.of(10)),
+                Comparison.areEqual(
+                        SymbolicReference.of("entity", path -> path.string("security")),
+                        Scalar.of(8))
         );
 
         var document = new PathBuilder(Document.class, "document");
@@ -68,7 +71,7 @@ class QueryDslUtilsTest {
         var actual = QueryDslUtils.from(thunkExpression, document);
         assertThat(actual)
                 .isNotNull()
-                .hasToString("document.security = 5 || document.security = 10");
+                .hasToString("document.security = 5 || document.security = 10 || document.security = 8");
 
     }
 
