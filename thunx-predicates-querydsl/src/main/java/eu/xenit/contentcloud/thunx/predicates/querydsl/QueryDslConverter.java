@@ -1,8 +1,10 @@
 package eu.xenit.contentcloud.thunx.predicates.querydsl;
 
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Operator;
 import com.querydsl.core.types.Ops;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import eu.xenit.contentcloud.thunx.predicates.model.FunctionExpression;
@@ -11,6 +13,7 @@ import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference.PathElementVisitor;
 import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpressionVisitor;
 import eu.xenit.contentcloud.thunx.predicates.model.Variable;
+import java.util.stream.Collectors;
 
 class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
 
@@ -35,16 +38,20 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
 
         // convert all the terms
         var terms = function.getTerms().stream()
-                .map(term -> term.accept(this))
-                .toArray(Expression[]::new);
-
-
+                .map(term -> term.accept(this));
 
         switch (function.getOperator()) {
-            // case of boolean expressions
             case EQUALS:
+                var equalTerms = terms
+                        .collect(Collectors.toList());
+                if(equalTerms.size() != 2) {
+                    throw new IllegalArgumentException("Equal operation requires 2 parameters.");
+                }
+                return ExpressionUtils.eq((Expression<Object>)equalTerms.get(0), equalTerms.get(1));
             case OR:
-                return Expressions.predicate(toQuerydsl(function.getOperator()), terms);
+                return ExpressionUtils.anyOf(terms.map(term -> (Predicate)term).collect(Collectors.toList()));
+            case AND:
+                return ExpressionUtils.allOf(terms.map(term -> (Predicate)term).collect(Collectors.toList()));
             default:
                 throw new UnsupportedOperationException(
                         "Operation '" + function.getOperator() + "' not implemented");
