@@ -1,6 +1,7 @@
 package eu.xenit.contentcloud.thunx.predicates.model;
 
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -59,12 +60,6 @@ public class Comparison implements BooleanOperation {
     public static Comparison lessOrEquals(@NonNull List<ThunkExpression<?>> terms) {
         assertTermSizeIsTwo(terms);
         return lessOrEquals(terms.get(0), terms.get(1));
-    }
-
-
-    @Override
-    public boolean canBeResolved() {
-        return this.leftTerm.canBeResolved() && this.rightTerm.canBeResolved();
     }
 
     private static void assertTermSizeIsTwo(List<ThunkExpression<?>> terms) {

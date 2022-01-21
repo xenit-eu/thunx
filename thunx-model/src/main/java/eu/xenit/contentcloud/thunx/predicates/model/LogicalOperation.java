@@ -27,9 +27,12 @@ public class LogicalOperation implements BooleanOperation {
     }
 
     public static LogicalOperation uncheckedDisjunction(List<ThunkExpression<?>> terms) {
-        return disjunction(terms.stream().map(expr -> (ThunkExpression<Boolean>) expr));
+        return uncheckedDisjunction(terms.stream());
     }
-    
+
+    public static LogicalOperation uncheckedDisjunction(Stream<ThunkExpression<?>> terms) {
+        return disjunction(terms.map(expr -> (ThunkExpression<Boolean>) expr));
+    }
 
     public static LogicalOperation disjunction(ThunkExpression<Boolean>... terms) {
         return disjunction(Arrays.stream(terms));
@@ -48,23 +51,17 @@ public class LogicalOperation implements BooleanOperation {
     }
 
     public static LogicalOperation uncheckedConjunction(List<ThunkExpression<?>> terms) {
-        return conjunction(terms.stream().map(expr -> (ThunkExpression<Boolean>) expr));
+        return uncheckedConjunction(terms.stream());
+    }
+
+    public static LogicalOperation uncheckedConjunction(Stream<ThunkExpression<?>> terms) {
+        return conjunction(terms.map(expr -> (ThunkExpression<Boolean>) expr));
     }
 
     public static LogicalOperation negation(ThunkExpression<Boolean> term) {
         return new LogicalOperation(Operator.NOT, Stream.of(term));
     }
 
-    @Override
-    public boolean canBeResolved() {
-        return this.terms.stream().allMatch(t -> t.canBeResolved());
-    }
-
-    @Override
-    public Boolean resolve() {
-        return this.operator.eval(this.terms.stream().map(term -> term.resolve()));
-    }
-            
     @Override
     public Operator getOperator() {
         return this.operator;

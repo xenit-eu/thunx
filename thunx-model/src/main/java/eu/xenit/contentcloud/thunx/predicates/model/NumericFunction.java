@@ -2,6 +2,7 @@ package eu.xenit.contentcloud.thunx.predicates.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +30,6 @@ public class NumericFunction implements FunctionExpression<Number> {
     @Override
     public Class<? extends Number> getResultType() {
         return Number.class;
-    }
-
-    @Override
-    public boolean canBeResolved() {
-        return this.leftTerm.canBeResolved() && this.rightTerm.canBeResolved();
     }
 
     public static NumericFunction multiply(ThunkExpression<?> left, ThunkExpression<?> right) {
