@@ -42,9 +42,18 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         // Comparison operators
         EQUALS("eq", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::areEqual,
                 (FunctionSimplifier<Boolean>) values -> {
-                    var availableValues = values.stream().map(ResolvedExpression::maybeResult).collect(Collectors.toList());
+                    var availableValues = values.stream()
+                            .map(ResolvedExpression::maybeResolvedExpression)
+                            .collect(Collectors.toList());
                     if(availableValues.stream().allMatch(Optional::isPresent)) {
-                        return Optional.of(ResolvedExpression.always(availableValues.stream().distinct().count() <= 1));
+                        return Optional.of(ResolvedExpression.always(
+                                availableValues
+                                        .stream()
+                                        .map(Optional::get)
+                                        .map(ResolvedExpression::getResult)
+                                        .distinct()
+                                        .count() <= 1
+                        ));
                     }
                     return Optional.empty();
                 }),
@@ -105,12 +114,17 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
 
             @Override
             public Optional<ThunkExpression<Boolean>> trySimplify(List<ThunkExpression<?>> values) {
-                var hasForcingTerm = values.stream().flatMap(e -> ResolvedExpression.maybeResult(e).stream()).anyMatch(Predicate.isEqual(forcingTerm));
+                var hasForcingTerm = values.stream()
+                        .flatMap(e -> ResolvedExpression.maybeResolvedExpression(e).stream())
+                        .map(ResolvedExpression::getResult)
+                        .anyMatch(Predicate.isEqual(forcingTerm));
                 if(hasForcingTerm) {
                     return Optional.of(ResolvedExpression.always(forcingTerm));
                 }
                 var withoutIdentityTerms = values.stream()
-                        .filter(e -> ResolvedExpression.maybeResult(e).filter(Predicate.isEqual(identityTerm)).isEmpty())
+                        .filter(e -> ResolvedExpression.maybeResolvedExpression(e)
+                                .map(ResolvedExpression::getResult)
+                                .filter(Predicate.isEqual(identityTerm)).isEmpty())
                         .collect(Collectors.toList());
                 switch (withoutIdentityTerms.size()) {
                     case 0:

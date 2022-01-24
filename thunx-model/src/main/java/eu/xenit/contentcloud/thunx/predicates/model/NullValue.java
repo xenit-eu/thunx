@@ -1,8 +1,10 @@
 package eu.xenit.contentcloud.thunx.predicates.model;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @EqualsAndHashCode
+@ToString
 class NullValue implements Scalar<Void> {
 
     protected static NullValue INSTANCE = new NullValue();
