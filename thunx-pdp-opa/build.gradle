@@ -5,6 +5,9 @@ plugins {
 apply from: "${rootDir}/gradle/publish.gradle"
 
 dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
     api project(":thunx-model")
     api project(":thunx-pdp")
 
