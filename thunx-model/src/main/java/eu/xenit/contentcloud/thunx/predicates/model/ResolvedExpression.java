@@ -11,4 +11,8 @@ public interface ResolvedExpression<T> extends ThunkExpression<T> {
         }
         return Optional.empty();
     }
+
+    static ResolvedExpression<Boolean> always(boolean value) {
+        return new ResolvedExpressionImpl<>(Scalar.of(value));
+    }
 }

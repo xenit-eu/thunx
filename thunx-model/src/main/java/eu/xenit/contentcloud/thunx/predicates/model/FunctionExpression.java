@@ -44,7 +44,7 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
                 (FunctionSimplifier<Boolean>) values -> {
                     var availableValues = values.stream().map(ResolvedExpression::maybeResult).collect(Collectors.toList());
                     if(availableValues.stream().allMatch(Optional::isPresent)) {
-                        return Optional.of(new BooleanValue(availableValues.stream().distinct().count() <= 1).simplify());
+                        return Optional.of(ResolvedExpression.always(availableValues.stream().distinct().count() <= 1));
                     }
                     return Optional.empty();
                 }),
@@ -107,14 +107,14 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
             public Optional<ThunkExpression<Boolean>> trySimplify(List<ThunkExpression<?>> values) {
                 var hasForcingTerm = values.stream().flatMap(e -> ResolvedExpression.maybeResult(e).stream()).anyMatch(Predicate.isEqual(forcingTerm));
                 if(hasForcingTerm) {
-                    return Optional.of(new BooleanValue(forcingTerm).simplify());
+                    return Optional.of(ResolvedExpression.always(forcingTerm));
                 }
                 var withoutIdentityTerms = values.stream()
                         .filter(e -> ResolvedExpression.maybeResult(e).filter(Predicate.isEqual(identityTerm)).isEmpty())
                         .collect(Collectors.toList());
                 switch (withoutIdentityTerms.size()) {
                     case 0:
-                        return Optional.of(new BooleanValue(identityTerm).simplify());
+                        return Optional.of(ResolvedExpression.always(identityTerm));
                     case 1:
                         return Optional.of((ThunkExpression<Boolean>)withoutIdentityTerms.get(0));
                     default:
