@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
 
     private final OpaClient opaClient;
@@ -40,6 +42,7 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
         return opaClient.compile(request)
                 .thenApply(response ->
                 {
+                    log.trace("Partial policy evaluation request:\n{}\nResponse:\n{}", request, response);
                     // list of possible partially evaluated queries from OPA
                     // we need to convert this to a single boolean expression
                     var opaQuerySet = response.getResult().getQueries();
@@ -48,6 +51,7 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
                 })
                 .thenApply(thunkExpression -> {
                     var simplifiedExpression = thunkExpression.simplify();
+                    log.trace("Thunx expression:\n{}\nReduced to:\n{}", thunkExpression, simplifiedExpression);
                     return ResolvedExpression.maybeResult(simplifiedExpression)
                             // if the expression can be resolved right now, there is no remaining predicate
                             .map(result -> result?PolicyDecisions.allowed(): PolicyDecisions.denied())
