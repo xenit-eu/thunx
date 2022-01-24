@@ -31,10 +31,7 @@ public class Comparison implements BooleanOperation {
     }
 
     public static Comparison areEqual(List<ThunkExpression<?>> terms) {
-        if (terms.size() != 2) {
-            throw new IllegalArgumentException("Expected 2 terms, but got " + terms.size());
-        }
-
+        assertTermSizeIsTwo(terms);
         return areEqual(terms.get(0), terms.get(1));
     }
 
@@ -47,9 +44,7 @@ public class Comparison implements BooleanOperation {
     }
 
     public static Comparison greaterOrEquals(List<ThunkExpression<?>> terms) {
-        if (terms.size() != 2) {
-            throw new IllegalArgumentException("Expected 2 terms, but got " + terms.size());
-        }
+        assertTermSizeIsTwo(terms);
         return greaterOrEquals(terms.get(0), terms.get(1));
     }
 
