@@ -155,11 +155,6 @@ public class SymbolicReference implements ThunkExpression<Object> {
         public final T visit(SymbolicReference symbolicReference) {
             return null;
         }
-
-        @Override
-        public T visit(ResolvedExpression<?> resolvedExpression) {
-            return null;
-        }
     }
 
     @Data

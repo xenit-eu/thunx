@@ -7,7 +7,7 @@ import eu.xenit.contentcloud.thunx.pdp.PolicyDecision;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisions;
 import eu.xenit.contentcloud.thunx.pdp.RequestContext;
-import eu.xenit.contentcloud.thunx.predicates.model.ResolvedExpression;
+import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
                 .thenApply(thunkExpression -> {
                     var simplifiedExpression = thunkExpression.simplify();
                     log.trace("Thunx expression:\n{}\nReduced to:\n{}", thunkExpression, simplifiedExpression);
-                    return ResolvedExpression.maybeResult(simplifiedExpression)
+                    return Scalar.maybeValue(simplifiedExpression)
                             // if the expression can be resolved right now, there is no remaining predicate
                             .map(result -> result?PolicyDecisions.allowed(): PolicyDecisions.denied())
                             // there is a remaining predicate

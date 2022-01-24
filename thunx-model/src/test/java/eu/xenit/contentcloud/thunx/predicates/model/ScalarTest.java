@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-class ResolvedExpressionTest {
+class ScalarTest {
 
     @Test
-    void maybeResultWithNull() {
+    void maybeValueWithNull() {
         var expression = Comparison.areEqual(
                 SymbolicReference.parse("input.entity.deletedAt"),
                 Scalar.nullValue()
@@ -20,18 +20,18 @@ class ResolvedExpressionTest {
     }
 
     @Test
-    void maybeResultWithDirectNull() {
+    void maybeValueWithDirectNull() {
         var nullExpression = Scalar.nullValue().simplify();
 
         assertThrows(IllegalArgumentException.class, () -> {
-            ResolvedExpression.maybeResult(nullExpression);
+            Scalar.maybeValue(nullExpression);
         });
     }
 
     @Test
-    void maybeResolvedExpressionWithDirectNull() {
+    void maybeScalarWithDirectNull() {
         var nullExpression = Scalar.nullValue().simplify();
 
-        assertThat(ResolvedExpression.maybeResolvedExpression(nullExpression)).containsInstanceOf(ResolvedExpression.class);
+        assertThat(Scalar.maybeScalar(nullExpression)).contains(Scalar.nullValue());
     }
 }

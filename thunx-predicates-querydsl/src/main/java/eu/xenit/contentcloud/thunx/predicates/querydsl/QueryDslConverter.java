@@ -6,7 +6,6 @@ import com.querydsl.core.types.Ops;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import eu.xenit.contentcloud.thunx.predicates.model.FunctionExpression;
-import eu.xenit.contentcloud.thunx.predicates.model.ResolvedExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference.PathElementVisitor;
@@ -92,11 +91,6 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
     public Expression<?> visit(Variable variable) {
         // TODO could there be more variables available, than just the subject-path-builder ?
         throw new UnsupportedOperationException("converting variable to querydsl is not yet implemented");
-    }
-
-    @Override
-    public Expression<?> visit(ResolvedExpression<?> resolvedExpression) {
-        throw new UnsupportedOperationException("Converting a resolved expression is not supported");
     }
 
     public static Operator toQuerydsl(FunctionExpression.Operator operator) {
