@@ -1,7 +1,5 @@
 package eu.xenit.contentcloud.thunx.spring.data.rest;
 
-import static java.lang.String.format;
-
 import eu.xenit.contentcloud.thunx.encoding.ThunkExpressionDecoder;
 import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 import eu.xenit.contentcloud.thunx.spring.data.context.AbacContext;
@@ -16,24 +14,28 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 import org.springframework.data.repository.core.EntityInformation;
-import org.springframework.data.repository.core.RepositoryInformation;
-import org.springframework.data.repository.support.Repositories;
+import org.springframework.data.rest.core.mapping.ResourceMappings;
+import org.springframework.data.rest.core.mapping.ResourceMetadata;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.util.UrlPathHelper;
 
+@Slf4j
 public class AbacRequestFilter implements Filter {
 
     private final ThunkExpressionDecoder thunkDecoder;
+    private final ResourceMappings resourceMappings;
 
-    private final Repositories repos;
     private final EntityManager em;
     private final PlatformTransactionManager tm;
 
-    public AbacRequestFilter(ThunkExpressionDecoder thunkDecoder, Repositories repos, EntityManager em, PlatformTransactionManager tm) {
+    public AbacRequestFilter(ThunkExpressionDecoder thunkDecoder,
+            ResourceMappings resourceMappings,
+            EntityManager em, PlatformTransactionManager tm) {
         this.thunkDecoder = thunkDecoder;
-        this.repos = repos;
+        this.resourceMappings = resourceMappings;
         this.em = em;
         this.tm = tm;
     }
@@ -45,35 +47,43 @@ public class AbacRequestFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        String path = new UrlPathHelper().getLookupPathForRequest(request);
-        String[] pathElements = path.split("/");
-        RepositoryInformation ri = RepositoryUtils.findRepositoryInformation(repos, pathElements[1]);
-        if (ri == null) {
-            ri = RepositoryUtils.findRepositoryInformation(repos, pathElements[2]); // Toon: why is this case here ?
-        }
-        if (ri == null) {
-            throw new IllegalStateException(format("Unable to resolve entity class: %s", path));
-        }
-        Class<?> entityClass = ri.getDomainType();
+        String lookupPath = new UrlPathHelper().getLookupPathForRequest(request);
 
-        EntityInformation ei = JpaEntityInformationSupport.getEntityInformation(entityClass, em);
-        if (entityClass != null) {
+        Class<?> domainType = null;
+        for (ResourceMetadata resourceMapping : resourceMappings) {
+            if(lookupPath.startsWith(resourceMapping.getPath().toString())) {
+                domainType = resourceMapping.getDomainType();
+                if(domainType != null) {
+                    log.debug("Path {} is determined to map to resource type {} (via path {})", lookupPath, domainType, resourceMapping.getPath());
+                    break;
+                }
+            }
+        }
+
+
+        if (domainType != null) {
+            Class<?> entityClass = domainType;
+
+            EntityInformation ei = JpaEntityInformationSupport.getEntityInformation(entityClass, em);
             EntityContext.setCurrentEntityContext(ei);
-        }
 
-        EntityManagerContext.setCurrentEntityContext(em, tm);
+            EntityManagerContext.setCurrentEntityContext(em, tm);
 
-        String abacContext = request.getHeader("X-ABAC-Context");
-        if (abacContext != null) {
-            byte[] abacContextBytes = Base64.getDecoder().decode(abacContext);
-            // which (version of?) decoder should we use ? -> get that info from JWT or other header ?
-            ThunkExpression<Boolean> abacExpression = this.thunkDecoder.decoder(abacContextBytes);
-            AbacContext.setCurrentAbacContext(abacExpression);
+            String abacContext = request.getHeader("X-ABAC-Context");
+            if (abacContext != null) {
+                byte[] abacContextBytes = Base64.getDecoder().decode(abacContext);
+                // which (version of?) decoder should we use ? -> get that info from JWT or other header ?
+                ThunkExpression<Boolean> abacExpression = this.thunkDecoder.decoder(abacContextBytes);
+                log.debug("ABAC expression for this context is {}", abacExpression);
+                AbacContext.setCurrentAbacContext(abacExpression);
+            }
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
 
-        AbacContext.clear();
-        EntityContext.clear();
+        if(domainType != null) {
+            AbacContext.clear();
+            EntityContext.clear();
+        }
     }
 }

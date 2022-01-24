@@ -4,6 +4,7 @@ import eu.xenit.contentcloud.thunx.encoding.ThunkExpressionDecoder;
 import eu.xenit.contentcloud.thunx.spring.data.rest.AbacExceptionHandler;
 import eu.xenit.contentcloud.thunx.spring.data.rest.AbacRequestFilter;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -11,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.repository.support.Repositories;
+import org.springframework.data.rest.core.mapping.ResourceMappings;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -41,10 +43,9 @@ public class AbacAutoConfigurationTest {
             eu.xenit.contentcloud.thunx.gateway.autoconfigure.GatewayAutoConfiguration.class
     })
     public static class TestContext {
-
         @Bean
-        public Repositories repositories(ApplicationContext context) {
-            return new Repositories(context);
+        public ResourceMappings resourceMappings() {
+            return Mockito.mock(ResourceMappings.class);
         }
     }
 }
