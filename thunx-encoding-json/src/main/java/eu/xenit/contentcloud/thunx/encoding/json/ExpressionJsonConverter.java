@@ -3,7 +3,6 @@ package eu.xenit.contentcloud.thunx.encoding.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.xenit.contentcloud.thunx.predicates.model.FunctionExpression;
-import eu.xenit.contentcloud.thunx.predicates.model.ResolvedExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference;
 import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
@@ -76,10 +75,6 @@ public class ExpressionJsonConverter {
             return new JsonVariableDto(variable.getName());
         }
 
-        @Override
-        public JsonExpressionDto visit(ResolvedExpression<?> resolvedExpression) {
-            throw new IllegalArgumentException("Resolved expression is not supported.");
-        }
 
     }
 

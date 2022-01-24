@@ -43,14 +43,14 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         EQUALS("eq", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::areEqual,
                 (FunctionSimplifier<Boolean>) values -> {
                     var availableValues = values.stream()
-                            .map(ResolvedExpression::maybeResolvedExpression)
+                            .map(Scalar::maybeScalar)
                             .collect(Collectors.toList());
                     if(availableValues.stream().allMatch(Optional::isPresent)) {
-                        return Optional.of(ResolvedExpression.always(
+                        return Optional.of(Scalar.of(
                                 availableValues
                                         .stream()
                                         .map(Optional::get)
-                                        .map(ResolvedExpression::getResult)
+                                        .map(Scalar::getValue)
                                         .distinct()
                                         .count() <= 1
                         ));
@@ -115,20 +115,20 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
             @Override
             public Optional<ThunkExpression<Boolean>> trySimplify(List<ThunkExpression<?>> values) {
                 var hasForcingTerm = values.stream()
-                        .flatMap(e -> ResolvedExpression.maybeResolvedExpression(e).stream())
-                        .map(ResolvedExpression::getResult)
+                        .flatMap(e -> Scalar.maybeScalar(e).stream())
+                        .map(Scalar::getValue)
                         .anyMatch(Predicate.isEqual(forcingTerm));
                 if(hasForcingTerm) {
-                    return Optional.of(ResolvedExpression.always(forcingTerm));
+                    return Optional.of(Scalar.of(forcingTerm));
                 }
                 var withoutIdentityTerms = values.stream()
-                        .filter(e -> ResolvedExpression.maybeResolvedExpression(e)
-                                .map(ResolvedExpression::getResult)
+                        .filter(e -> Scalar.maybeScalar(e)
+                                .map(Scalar::getValue)
                                 .filter(Predicate.isEqual(identityTerm)).isEmpty())
                         .collect(Collectors.toList());
                 switch (withoutIdentityTerms.size()) {
                     case 0:
-                        return Optional.of(ResolvedExpression.always(identityTerm));
+                        return Optional.of(Scalar.of(identityTerm));
                     case 1:
                         return Optional.of((ThunkExpression<Boolean>)withoutIdentityTerms.get(0));
                     default:
