@@ -1,7 +1,6 @@
 package eu.xenit.contentcloud.thunx.predicates.model;
 
 import java.util.List;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

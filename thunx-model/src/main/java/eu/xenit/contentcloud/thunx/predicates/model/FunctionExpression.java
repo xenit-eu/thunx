@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,35 +26,11 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
                 this.getTerms().stream().map(Object::toString).collect(Collectors.joining(", ")));
     }
 
-    @Override
-    default ThunkExpression<T> simplify() {
-        return getOperator()
-                .trySimplify(getResultType(), getTerms().stream().map(ThunkExpression::simplify).collect(Collectors.toList()))
-                .map(thunkExpression -> (ThunkExpression<T>) thunkExpression)
-                .orElse(this);
-    }
-
     @RequiredArgsConstructor
     @AllArgsConstructor
     enum Operator {
         // Comparison operators
-        EQUALS("eq", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::areEqual,
-                (FunctionSimplifier<Boolean>) values -> {
-                    var availableValues = values.stream()
-                            .map(Scalar::maybeScalar)
-                            .collect(Collectors.toList());
-                    if(availableValues.stream().allMatch(Optional::isPresent)) {
-                        return Optional.of(Scalar.of(
-                                availableValues
-                                        .stream()
-                                        .map(Optional::get)
-                                        .map(Scalar::getValue)
-                                        .distinct()
-                                        .count() <= 1
-                        ));
-                    }
-                    return Optional.empty();
-                }),
+        EQUALS("eq", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::areEqual),
         NOT_EQUAL_TO("neq", Boolean.class),
         GREATER_THAN("gt", Boolean.class),
         GREATER_THAN_OR_EQUAL_TO("gte", Boolean.class),
@@ -64,10 +38,8 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         LESS_THEN_OR_EQUAL_TO("lte", Boolean.class),
 
         // Logical operator
-        AND("and", Boolean.class, (FunctionExpressionFactory<Boolean>) LogicalOperation::uncheckedConjunction,
-                new LogicalSimplifier(false, true, LogicalOperation::uncheckedConjunction)),
-        OR("or", Boolean.class, (FunctionExpressionFactory<Boolean>) LogicalOperation::uncheckedDisjunction,
-                new LogicalSimplifier(true, false, LogicalOperation::uncheckedDisjunction)),
+        AND("and", Boolean.class, (FunctionExpressionFactory<Boolean>) LogicalOperation::uncheckedConjunction),
+        OR("or", Boolean.class, (FunctionExpressionFactory<Boolean>) LogicalOperation::uncheckedDisjunction),
         NOT("not", Boolean.class),
 
         // Numeric operators
@@ -89,9 +61,6 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         @Getter
         private FunctionExpressionFactory<?> factory;
 
-        @NonNull
-        private FunctionSimplifier<?> simplifier = values -> Optional.empty();
-
         public static Operator resolve(@NonNull String key) {
             return Arrays.stream(Operator.values())
                     .filter(op -> Objects.equals(key, op.getKey()))
@@ -101,42 +70,6 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
                         return new IllegalArgumentException(message);
                     });
         }
-
-        public <T> Optional<ThunkExpression<T>> trySimplify(Class<T> type, List<ThunkExpression<?>> values) {
-            return (Optional<ThunkExpression<T>>) (Optional) simplifier.trySimplify(values);
-        }
-
-        @AllArgsConstructor
-        private static class LogicalSimplifier implements FunctionSimplifier<Boolean> {
-            private final Boolean forcingTerm;
-            private final Boolean identityTerm;
-            private final FunctionExpressionFactory<Boolean> factory;
-
-            @Override
-            public Optional<ThunkExpression<Boolean>> trySimplify(List<ThunkExpression<?>> values) {
-                var hasForcingTerm = values.stream()
-                        .flatMap(e -> Scalar.maybeScalar(e).stream())
-                        .map(Scalar::getValue)
-                        .anyMatch(Predicate.isEqual(forcingTerm));
-                if(hasForcingTerm) {
-                    return Optional.of(Scalar.of(forcingTerm));
-                }
-                var withoutIdentityTerms = values.stream()
-                        .filter(e -> Scalar.maybeScalar(e)
-                                .map(Scalar::getValue)
-                                .filter(Predicate.isEqual(identityTerm)).isEmpty())
-                        .collect(Collectors.toList());
-                switch (withoutIdentityTerms.size()) {
-                    case 0:
-                        return Optional.of(Scalar.of(identityTerm));
-                    case 1:
-                        return Optional.of((ThunkExpression<Boolean>)withoutIdentityTerms.get(0));
-                    default:
-                        return Optional.of(factory.create(withoutIdentityTerms));
-                }
-            }
-        }
-
     }
 
     @FunctionalInterface
@@ -145,9 +78,4 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         FunctionExpression<T> create(List<ThunkExpression<?>> terms);
     }
 
-    @FunctionalInterface
-    interface FunctionSimplifier<T> {
-
-        Optional<ThunkExpression<T>> trySimplify(List<ThunkExpression<?>> values);
-    }
 }

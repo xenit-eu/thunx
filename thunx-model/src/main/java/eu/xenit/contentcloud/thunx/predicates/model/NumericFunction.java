@@ -2,7 +2,6 @@ package eu.xenit.contentcloud.thunx.predicates.model;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

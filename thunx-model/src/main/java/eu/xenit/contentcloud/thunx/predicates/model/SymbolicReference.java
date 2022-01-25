@@ -134,11 +134,6 @@ public class SymbolicReference implements ThunkExpression<Object> {
         return Object.class;
     }
 
-    @Override
-    public ThunkExpression<Object> simplify() {
-        return this;
-    }
-
     public interface PathElement {
 
         <T> T accept(ThunkExpressionVisitor<T> visitor);
