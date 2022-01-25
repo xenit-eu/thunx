@@ -7,7 +7,8 @@ import eu.xenit.contentcloud.thunx.pdp.PolicyDecision;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisions;
 import eu.xenit.contentcloud.thunx.pdp.RequestContext;
-import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
+import eu.xenit.contentcloud.thunx.visitor.reducer.ThunkReducerVisitor;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -50,13 +51,14 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
                     return converter.convert(opaQuerySet);
                 })
                 .thenApply(thunkExpression -> {
-                    var simplifiedExpression = thunkExpression.simplify();
-                    log.trace("Thunx expression:\n{}\nReduced to:\n{}", thunkExpression, simplifiedExpression);
-                    return Scalar.maybeValue(simplifiedExpression)
+                    var reducedExpression = thunkExpression.accept(ThunkReducerVisitor.DEFAULT_INSTANCE)
+                            .assertResultType(Boolean.class);
+                    log.trace("Thunx expression:\n{}\nReduced to:\n{}", thunkExpression, reducedExpression);
+                    return ThunkExpression.maybeValue(reducedExpression)
                             // if the expression can be resolved right now, there is no remaining predicate
                             .map(result -> result?PolicyDecisions.allowed(): PolicyDecisions.denied())
                             // there is a remaining predicate
-                            .orElse(PolicyDecisions.conditional(simplifiedExpression));
+                            .orElse(PolicyDecisions.conditional(reducedExpression));
                 });
     }
 

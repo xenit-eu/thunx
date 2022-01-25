@@ -17,24 +17,6 @@ class ComparisonTest {
     }
 
     @Test
-    void compareEquals_simplify_non_equal() {
-        var comparison = Comparison.areEqual(Scalar.of(5), Scalar.of(3));
-        assertThat(Scalar.maybeValue(comparison.simplify())).contains(false);
-    }
-
-    @Test
-    void compareEquals_simplify_non_equal_types() {
-        var comparison = Comparison.areEqual(Scalar.of(5), Scalar.of("5"));
-        assertThat(Scalar.maybeValue(comparison.simplify())).contains(false);
-    }
-
-    @Test
-    void compareEquals_simplify_equal() {
-        var comparison = Comparison.areEqual(Scalar.of(5), Scalar.of(5));
-        assertThat(Scalar.maybeValue(comparison.simplify())).contains(true);
-    }
-
-    @Test
     void greaterOrEquals() {
         var comparison = Comparison.greaterOrEquals(Scalar.of(5), Scalar.of(3));
 

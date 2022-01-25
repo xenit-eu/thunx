@@ -12,6 +12,7 @@ include 'thunx-autoconfigure'
 include 'thunx-api-spring-boot-starter'
 include 'thunx-gateway-spring-boot-starter'
 
+include 'thunx-visitor-reducer'
 include 'thunx-encoding-json'
 include 'thunx-predicates-querydsl'
 

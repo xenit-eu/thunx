@@ -6,4 +6,5 @@ public interface ThunkExpressionVisitor<T> {
     T visit(FunctionExpression<?> functionExpression);
     T visit(SymbolicReference symbolicReference);
     T visit(Variable variable);
+
 }

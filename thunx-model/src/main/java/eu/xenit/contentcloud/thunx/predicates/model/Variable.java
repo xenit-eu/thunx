@@ -20,11 +20,6 @@ public class Variable implements ThunkExpression<Object> {
     }
 
     @Override
-    public ThunkExpression<Object> simplify() {
-        return this;
-    }
-
-    @Override
     public <R> R accept(ThunkExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
