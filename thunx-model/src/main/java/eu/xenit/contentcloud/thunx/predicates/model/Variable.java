@@ -20,11 +20,6 @@ public class Variable implements ThunkExpression<Object> {
     }
 
     @Override
-    public boolean canBeResolved() {
-        return false;
-    }
-
-    @Override
     public <R> R accept(ThunkExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }

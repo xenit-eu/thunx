@@ -31,11 +31,6 @@ public class NumericFunction implements FunctionExpression<Number> {
         return Number.class;
     }
 
-    @Override
-    public boolean canBeResolved() {
-        return this.leftTerm.canBeResolved() && this.rightTerm.canBeResolved();
-    }
-
     public static NumericFunction multiply(ThunkExpression<?> left, ThunkExpression<?> right) {
         return new NumericFunction(Operator.MULTIPLY, left, right);
     }

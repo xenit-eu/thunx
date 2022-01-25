@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'jacoco'
 }
 
 apply from: "${rootDir}/gradle/publish.gradle"
@@ -8,12 +9,10 @@ dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    api project(":thunx-model")
-    api project(":thunx-pdp")
+    implementation project(":thunx-model")
 
-    implementation project(':thunx-visitor-reducer')
-
-    api 'eu.xenit.contentcloud:opa-async-java-client:0.2.0'
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"

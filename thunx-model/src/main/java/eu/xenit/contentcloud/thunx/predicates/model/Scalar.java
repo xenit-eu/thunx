@@ -6,16 +6,6 @@ public interface Scalar<T> extends ThunkExpression<T> {
 
     T getValue();
 
-    @Override
-    default boolean canBeResolved() {
-        return true;
-    }
-
-    @Override
-    default T resolve() {
-        return this.getValue();
-    }
-
     default <R> R accept(ThunkExpressionVisitor<R> visitor) {
         return visitor.visit(this);
     }
