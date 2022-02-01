@@ -11,4 +11,6 @@ repositories {
 dependencies {
     api project(':thunx-spring')
     api project(':thunx-autoconfigure')
+
+    implementation project(":thunx-predicates-querydsl")
 }
