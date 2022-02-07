@@ -13,7 +13,6 @@ dependencies {
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-
 }
 
 test {

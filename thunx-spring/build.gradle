@@ -22,24 +22,18 @@ dependencies {
     compileOnly 'org.springframework.security:spring-security-web'
     compileOnly 'org.springframework.security:spring-security-oauth2-core'
 
-
     // Spring Data dependencies
     compileOnly project(':thunx-predicates-querydsl')
     compileOnly 'org.springframework.data:spring-data-jpa'
     compileOnly 'org.springframework.data:spring-data-rest-core'
     compileOnly 'org.springframework.data:spring-data-rest-webmvc'
     compileOnly 'com.github.paulcwarren:spring-content-rest:1.2.2'
-//    implementation 'jakarta.transaction:jakarta.transaction-api'
     compileOnly 'jakarta.persistence:jakarta.persistence-api'
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly 'com.querydsl:querydsl-core'
 
-
-
-
     testCompileOnly 'org.springframework.security:spring-security-web'
     testCompileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
-
 
     testRuntimeOnly 'org.springframework.cloud:spring-cloud-gateway-server'
     testRuntimeOnly "org.springframework.security:spring-security-web"
@@ -49,7 +43,6 @@ dependencies {
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.30.0'
 
     testImplementation 'org.springframework.security:spring-security-oauth2-core'
-
 }
 
 test {
