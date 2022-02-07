@@ -15,7 +15,7 @@ dependencies {
 
     compileOnly project(':thunx-spring')
     compileOnly project(':thunx-pdp-opa')
-    compileOnly "eu.xenit.contentcloud:opa-async-java-client:0.2.0"
+    compileOnly "eu.xenit.contentcloud:opa-async-java-client:0.3.0"
 
     compileOnly 'org.springframework.security:spring-security-web'
 
