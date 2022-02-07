@@ -13,7 +13,7 @@ dependencies {
 
     implementation project(':thunx-visitor-reducer')
 
-    api 'eu.xenit.contentcloud:opa-async-java-client:0.2.0'
+    api 'eu.xenit.contentcloud:opa-async-java-client:0.3.0'
 
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
