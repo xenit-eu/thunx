@@ -39,7 +39,6 @@ dependencies {
     testImplementation 'com.h2database:h2:1.4.200'
     testImplementation project(':thunx-spring')
     testImplementation project(':thunx-pdp-opa')
-    testImplementation "eu.xenit.contentcloud:opa-async-java-client:0.2.0"
 }
 
 test {
