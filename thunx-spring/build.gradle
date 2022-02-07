@@ -27,7 +27,7 @@ dependencies {
     compileOnly 'org.springframework.data:spring-data-jpa'
     compileOnly 'org.springframework.data:spring-data-rest-core'
     compileOnly 'org.springframework.data:spring-data-rest-webmvc'
-    compileOnly 'com.github.paulcwarren:spring-content-rest:1.2.2'
+    compileOnly 'com.github.paulcwarren:spring-content-rest:2.0.0'
     compileOnly 'jakarta.persistence:jakarta.persistence-api'
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly 'com.querydsl:querydsl-core'
