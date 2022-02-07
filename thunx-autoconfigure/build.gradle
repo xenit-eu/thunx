@@ -36,7 +36,7 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-starter-data-rest"
     testImplementation 'org.springframework.security:spring-security-web'
     testImplementation 'org.springframework.cloud:spring-cloud-starter-gateway'
-    testImplementation 'com.h2database:h2:1.4.200'
+    testImplementation 'com.h2database:h2:2.1.210'
     testImplementation project(':thunx-spring')
     testImplementation project(':thunx-pdp-opa')
 }
