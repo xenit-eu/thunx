@@ -4,12 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] (2021-02-09)
+
+### Fixed
+* Updated `opa-async-java-client` to 0.3.0:
+  * fixes _InvalidDefinitionException: Java 8 date/time type `java.time.Instant` not supported_ - see [xenit-eu/opa-java-client #3] - [#21]
+
+### Changed
+* Cleanup dependencies declaration, use platform version management were possible [#25]
+* Updated dependencies
+
+**Full Changelog**: https://github.com/xenit-eu/thunx/compare/v0.3.1...v0.3.2
+
+[xenit-eu/opa-java-client #3]: https://github.com/xenit-eu/opa-java-client/issues/3
+[#21]: https://github.com/xenit-eu/thunx/pull/21
+[#25]: https://github.com/xenit-eu/thunx/pull/25
 
 ## [0.3.1] (2021-02-01)
 
 ### Fixed
 
 * Starters: Thunx API starter now pulls in `thunx-predicates-querydsl`
+
+**Full Changelog**: https://github.com/xenit-eu/thunx/compare/v0.3.0...v0.3.1
 
 ## [0.3.0] (2021-01-31)
 
