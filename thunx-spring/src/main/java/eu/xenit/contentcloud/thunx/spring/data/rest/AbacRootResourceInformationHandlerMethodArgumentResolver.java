@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.querydsl.binding.AbacQuerydslPredicateBuilder;
 import org.springframework.data.querydsl.binding.QuerydslBindings;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
-import org.springframework.data.querydsl.binding.AbacQuerydslPredicateBuilder;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.data.repository.support.RepositoryInvokerFactory;
@@ -26,6 +26,7 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
     private final Repositories repositories;
     private final AbacQuerydslPredicateBuilder predicateBuilder;
     private final QuerydslBindingsFactory factory;
+    private final AbacRepositoryInvokerAdapterFactory repositoryInvokerAdapterFactory;
 
     /**
      * Creates a new {@link AbacRootResourceInformationHandlerMethodArgumentResolver} using the given
@@ -40,13 +41,16 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
             RepositoryInvokerFactory invokerFactory,
             ResourceMetadataHandlerMethodArgumentResolver resourceMetadataResolver,
             AbacQuerydslPredicateBuilder predicateBuilder,
-            QuerydslBindingsFactory factory) {
+            QuerydslBindingsFactory factory,
+            AbacRepositoryInvokerAdapterFactory abacRepositoryInvokerAdapterFactory
+            ) {
 
         super(repositories, invokerFactory, resourceMetadataResolver);
 
         this.repositories = repositories;
         this.predicateBuilder = predicateBuilder;
         this.factory = factory;
+        this.repositoryInvokerAdapterFactory = abacRepositoryInvokerAdapterFactory;
     }
 
     /*
@@ -65,7 +69,7 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
                 .filter(it -> QuerydslPredicateExecutor.class.isInstance(it))//
                 .map(it -> QuerydslPredicateExecutor.class.cast(it))//
                 .flatMap(it -> getRepositoryAndPredicate(it, domainType, parameters))//
-                .map(it -> getQuerydslAdapter(invoker, it.getFirst(), it.getSecond()))//
+                .map(it -> repositoryInvokerAdapterFactory.createRepositoryInvoker(invoker, domainType, it.getSecond()))//
                 .orElse(invoker);
     }
 
@@ -78,12 +82,6 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
         Predicate predicate = predicateBuilder.getPredicate(type, toMultiValueMap(parameters), bindings);
 
         return Optional.ofNullable(predicate).map(it -> Pair.of(repository, it));
-    }
-
-    @SuppressWarnings("unchecked")
-    private static RepositoryInvoker getQuerydslAdapter(RepositoryInvoker invoker,
-            QuerydslPredicateExecutor<?> repository, Predicate predicate) {
-        return new AbacRepositoryInvokerAdapter(invoker, (QuerydslPredicateExecutor<Object>) repository, predicate);
     }
 
     /**

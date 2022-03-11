@@ -6,8 +6,6 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import eu.xenit.contentcloud.thunx.spring.data.context.AbacContext;
-import eu.xenit.contentcloud.thunx.spring.data.context.EntityContext;
-import eu.xenit.contentcloud.thunx.spring.data.context.EntityManagerContext;
 import java.lang.reflect.Field;
 import java.util.Optional;
 import javax.persistence.Id;
@@ -29,13 +27,22 @@ import org.springframework.util.Assert;
 public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
 
     private QuerydslPredicateExecutor<Object> executor;
+    private PlatformTransactionManager transactionManager;
+    private Class<?> domainType;
     private Predicate predicate;
 
     private ConversionService conversionService = new DefaultFormattingConversionService();
 
-    public AbacRepositoryInvokerAdapter(RepositoryInvoker delegate, QuerydslPredicateExecutor<Object> executor, Predicate predicate) {
+    public AbacRepositoryInvokerAdapter(
+            RepositoryInvoker delegate,
+            QuerydslPredicateExecutor<Object> executor,
+            PlatformTransactionManager transactionManager,
+            Class<?> domainType,
+            Predicate predicate) {
         super(delegate, executor, predicate);
         this.executor = executor;
+        this.transactionManager = transactionManager;
+        this.domainType = domainType;
         this.predicate = predicate;
     }
 
@@ -44,8 +51,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        Class<?> subjectType = EntityContext.getCurrentEntityContext().getJavaType();
-        PathBuilder entityPath = new PathBuilder(subjectType, toAlias(subjectType));
+        PathBuilder entityPath = new PathBuilder(domainType, toAlias(domainType));
         BooleanExpression idExpr = idExpr(conversionService.convert(id, Long.class), entityPath);
         Assert.notNull(idExpr, "id expression cannot be null");
         builder.and(idExpr);
@@ -67,14 +73,12 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             return super.invokeSave(object);
         }
 
-        PlatformTransactionManager tm = EntityManagerContext.getCurrentEntityContext().getTm();
-
         TransactionStatus status = null;
         T entityToReturn = null;
         try {
 
-            if (tm != null) {
-                status = tm.getTransaction(new DefaultTransactionDefinition());
+            if (transactionManager != null) {
+                status = transactionManager.getTransaction(new DefaultTransactionDefinition());
             }
 
             T savedEntity = super.invokeSave(object);
@@ -93,11 +97,11 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             entityToReturn = fetchedEntity.get();
 
             if (status != null && status.isCompleted() == false) {
-                tm.commit(status);
+                transactionManager.commit(status);
             }
         } catch (Exception e) {
             if (status != null && status.isCompleted() == false) {
-                tm.rollback(status);
+                transactionManager.rollback(status);
             }
             throw e;
         }
@@ -135,7 +139,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     }
 
     private BooleanExpression idExpr(Object id, PathBuilder entityPath) {
-        Field idField = BeanUtils.findFieldWithAnnotation(EntityContext.getCurrentEntityContext().getJavaType(), Id.class);
+        Field idField = BeanUtils.findFieldWithAnnotation(domainType, Id.class);
         PathBuilder idPath = entityPath.get(idField.getName(), id.getClass());
         return idPath.eq(Expressions.constant(id));
     }
