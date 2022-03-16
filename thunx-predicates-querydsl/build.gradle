@@ -8,8 +8,7 @@ dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
-
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
     api project(":thunx-model")
     api 'com.querydsl:querydsl-core'
 

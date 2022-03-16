@@ -5,7 +5,6 @@ import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
 import eu.xenit.contentcloud.thunx.spring.data.context.AbacContext;
-import eu.xenit.contentcloud.thunx.spring.data.context.EntityContext;
 import eu.xenit.contentcloud.thunx.predicates.querydsl.QueryDslUtils;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
@@ -51,9 +50,8 @@ public class AbacQuerydslPredicateBuilder {
 
         var abacContext = AbacContext.getCurrentAbacContext();
         if (abacContext != null) {
-
-            Class<?> subjectType = EntityContext.getCurrentEntityContext().getJavaType();
-            PathBuilder<?> entityPath = new PathBuilder(subjectType, toAlias(subjectType));
+            var domainType = type.getType();
+            PathBuilder<?> entityPath = new PathBuilder(domainType, toAlias(domainType));
             Predicate queryDslPredicate = QueryDslUtils.from(abacContext, entityPath);
             Assert.notNull(queryDslPredicate, "abac expression cannot be null");
             builder.and(queryDslPredicate);

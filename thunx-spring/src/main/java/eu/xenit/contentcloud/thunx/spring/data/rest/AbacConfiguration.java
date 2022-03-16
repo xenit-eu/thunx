@@ -51,9 +51,8 @@ public class AbacConfiguration {
     }
 
     @Bean
-    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder, ResourceMappings resourceMappings,
-            EntityManager em, PlatformTransactionManager tm) {
-        return new AbacRequestFilter(thunkDecoder, resourceMappings, em, tm);
+    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder) {
+        return new AbacRequestFilter(thunkDecoder);
     }
 
     @Bean
@@ -80,9 +79,11 @@ public class AbacConfiguration {
                     var invokerFactory = applicationContext.getBean(RepositoryInvokerFactory.class);
                     var resourceMetadataResolver = applicationContext.getBean(ResourceMetadataHandlerMethodArgumentResolver.class);
                     var factory = applicationContext.getBean(QuerydslBindingsFactory.class);
+                    var transactionManager = applicationContext.getBean(PlatformTransactionManager.class);
 
                     var defaultConversionService = new DefaultFormattingConversionService(); // ??
                     var predicateBuilder = new AbacQuerydslPredicateBuilder(defaultConversionService, factory.getEntityPathResolver());
+                    var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(repositories, transactionManager);
 
 
                     return new AbacRootResourceInformationHandlerMethodArgumentResolver(
@@ -90,7 +91,8 @@ public class AbacConfiguration {
                             invokerFactory,
                             resourceMetadataResolver,
                             predicateBuilder,
-                            factory
+                            factory,
+                            repositoryInvokerFactory
                     );
                 }
 
