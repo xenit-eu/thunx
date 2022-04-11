@@ -6,13 +6,9 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import eu.xenit.contentcloud.thunx.spring.data.context.AbacContext;
-import java.lang.reflect.Field;
-import java.util.Optional;
-import javax.persistence.Id;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.content.commons.utils.BeanUtils;
-import org.springframework.content.commons.utils.DomainObjectUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.QuerydslRepositoryInvokerAdapter;
@@ -23,6 +19,12 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
 
@@ -139,8 +141,59 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     }
 
     private BooleanExpression idExpr(Object id, PathBuilder entityPath) {
-        Field idField = BeanUtils.findFieldWithAnnotation(domainType, Id.class);
+        Field idField = DomainObjectUtils.getIdField(domainType);
         PathBuilder idPath = entityPath.get(idField.getName(), id.getClass());
         return idPath.eq(Expressions.constant(id));
+    }
+
+
+    private static class DomainObjectUtils {
+
+        private static final boolean JAVAX_PERSISTENCE_PRESENT = ClassUtils.isPresent(
+                "javax.persistence.Id", DomainObjectUtils.class.getClassLoader());
+
+        private static final Field getIdField(Class<?> domainClass) {
+
+            Optional<Field> javaxPersistenceId = JAVAX_PERSISTENCE_PRESENT
+                    ? DomainObjectUtils.findFieldWithAnnotation(domainClass, javax.persistence.Id.class)
+                    : Optional.empty();
+
+            return javaxPersistenceId
+                    .or(() -> DomainObjectUtils.findFieldWithAnnotation(domainClass, org.springframework.data.annotation.Id.class))
+                    .orElse(null);
+        }
+
+        private static Optional<Field> findFieldWithAnnotation(Class<?> domainObjClass,
+                                                                 Class<? extends Annotation> annotationClass)
+                throws SecurityException, BeansException {
+
+            // First look for the annotation on the accessor methods
+            BeanWrapper wrapper = new BeanWrapperImpl(domainObjClass);
+            return Stream.of(wrapper.getPropertyDescriptors())
+                    .map(descriptor -> findFieldByName(domainObjClass, descriptor.getName()))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(field -> field.isAnnotationPresent(annotationClass))
+                    .findFirst()
+
+            // Otherwise look for the annotation on the fields directly
+                    .or(() -> allFields(domainObjClass)
+                            .filter(field -> field.isAnnotationPresent(annotationClass))
+                            .findFirst());
+
+
+        }
+
+        private static Optional<Field> findFieldByName(Class<?> type, String fieldName) {
+            return allFields(type)
+                    .filter(field -> field.getName().equals(fieldName))
+                    .findFirst();
+        }
+
+        private static Stream<Field> allFields(Class<?> type) {
+            return Stream.concat(
+                    Stream.of(type.getDeclaredFields()),
+                    type.getSuperclass() != null ? allFields(type.getSuperclass()) : Stream.empty());
+        }
     }
 }
