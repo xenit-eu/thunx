@@ -8,11 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* H2 should be a test-runtime-only dependency, version managed by spring boot by [@tgeens] in https://github.com/xenit-eu/thunx/pull/27
-* Remove path based entity lookup by [@vierbergenlars] in https://github.com/xenit-eu/thunx/pull/32
+* H2 is a test-runtime-only dependency, version managed by spring boot platform by [@tgeens] in https://github.com/xenit-eu/thunx/pull/27
+* Improved entity lookup by [@vierbergenlars] in https://github.com/xenit-eu/thunx/pull/32
+* Removed dependency on `spring-content-rest` by [@tgeens] in https://github.com/xenit-eu/thunx/pull/37
 
-### Dependencies
+### Dependency updates
 
+* Bump org.springframework.boot from 2.4.6 to 2.6.6 by [@tgeens] in https://github.com/xenit-eu/thunx/pull/36
 * Bump spring-content-rest from 1.2.2 to 2.0.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/22
 * Bump spring-content-rest from 2.0.0 to 2.1.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/33
 * Bump json-unit-assertj from 2.31.0 to 2.32.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/31
