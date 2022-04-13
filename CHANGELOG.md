@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] (Unreleased)
+
+### Changed
+
+* H2 is a test-runtime-only dependency, version managed by spring boot platform by [@tgeens] in https://github.com/xenit-eu/thunx/pull/27
+* Improved entity lookup by [@vierbergenlars] in https://github.com/xenit-eu/thunx/pull/32
+* Removed dependency on `spring-content-rest` by [@tgeens] in https://github.com/xenit-eu/thunx/pull/37
+
+### Dependency updates
+
+* Bump org.springframework.boot from 2.4.6 to 2.6.6 by [@tgeens] in https://github.com/xenit-eu/thunx/pull/36
+* Bump spring-content-rest from 1.2.2 to 2.0.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/22
+* Bump spring-content-rest from 2.0.0 to 2.1.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/33
+* Bump json-unit-assertj from 2.31.0 to 2.32.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/31
+* Bump json-unit-assertj from 2.32.0 to 2.33.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/34
+
 ## [0.3.2] (2021-02-09)
 
 ### Fixed
@@ -81,3 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial Release
 
 [0.1.0]: https://github.com/xenit-eu/thunx/releases/tag/v0.1.0
+
+[@dependabot]: https://github.com/dependabot
+[@vierbergenlars]: https://github.com/vierbergenlars
+[@tgeens]: https://github.com/tgeens
+
