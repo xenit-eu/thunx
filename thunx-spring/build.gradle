@@ -36,10 +36,13 @@ dependencies {
 
     testRuntimeOnly 'org.springframework.cloud:spring-cloud-gateway-server'
     testRuntimeOnly "org.springframework.security:spring-security-web"
+    testImplementation "org.springframework.data:spring-data-commons"
 
+    testImplementation 'jakarta.persistence:jakarta.persistence-api'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.33.0'
+
 
     testImplementation 'org.springframework.security:spring-security-oauth2-core'
 }

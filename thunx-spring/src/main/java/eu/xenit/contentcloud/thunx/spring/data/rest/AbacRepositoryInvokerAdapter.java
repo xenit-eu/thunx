@@ -147,12 +147,12 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     }
 
 
-    private static class DomainObjectUtils {
+    static class DomainObjectUtils {
 
         private static final boolean JAVAX_PERSISTENCE_PRESENT = ClassUtils.isPresent(
                 "javax.persistence.Id", DomainObjectUtils.class.getClassLoader());
 
-        private static final Field getIdField(Class<?> domainClass) {
+        static final Field getIdField(Class<?> domainClass) {
 
             Optional<Field> javaxPersistenceId = JAVAX_PERSISTENCE_PRESENT
                     ? DomainObjectUtils.findFieldWithAnnotation(domainClass, javax.persistence.Id.class)
