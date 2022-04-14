@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.3] (Unreleased)
+## [0.3.3] (2022-04-14)
 
 ### Changed
 
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Bump json-unit-assertj from 2.31.0 to 2.32.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/31
 * Bump json-unit-assertj from 2.32.0 to 2.33.0 by [@dependabot] in https://github.com/xenit-eu/thunx/pull/34
 
-## [0.3.2] (2021-02-09)
+## [0.3.2] (2022-02-09)
 
 ### Fixed
 * Updated `opa-async-java-client` to 0.3.0:
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#21]: https://github.com/xenit-eu/thunx/pull/21
 [#25]: https://github.com/xenit-eu/thunx/pull/25
 
-## [0.3.1] (2021-02-01)
+## [0.3.1] (2022-02-01)
 
 ### Fixed
 
@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Full Changelog**: https://github.com/xenit-eu/thunx/compare/v0.3.0...v0.3.1
 
-## [0.3.0] (2021-01-31)
+## [0.3.0] (2022-01-31)
 
 ### Added
 
