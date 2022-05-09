@@ -15,7 +15,7 @@ dependencies {
 
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.34.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.35.0'
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
