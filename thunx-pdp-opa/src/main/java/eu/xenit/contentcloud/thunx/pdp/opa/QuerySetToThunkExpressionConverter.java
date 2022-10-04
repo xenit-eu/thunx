@@ -1,25 +1,25 @@
 package eu.xenit.contentcloud.thunx.pdp.opa;
 
 
-import eu.xenit.contentcloud.opa.rego.ast.Query;
-import eu.xenit.contentcloud.opa.rego.ast.QuerySet;
-import eu.xenit.contentcloud.opa.rego.ast.RegoVisitor;
-import eu.xenit.contentcloud.opa.rego.ast.Term;
-import eu.xenit.contentcloud.opa.rego.ast.Term.ArrayTerm;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Bool;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Call;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Null;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Numeric;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Ref;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Text;
-import eu.xenit.contentcloud.opa.rego.ast.Term.Var;
+import com.contentgrid.opa.rego.ast.Query;
+import com.contentgrid.opa.rego.ast.QuerySet;
+import com.contentgrid.opa.rego.ast.RegoVisitor;
+import com.contentgrid.opa.rego.ast.Term;
+import com.contentgrid.opa.rego.ast.Term.ArrayTerm;
+import com.contentgrid.opa.rego.ast.Term.Bool;
+import com.contentgrid.opa.rego.ast.Term.Call;
+import com.contentgrid.opa.rego.ast.Term.Null;
+import com.contentgrid.opa.rego.ast.Term.Numeric;
+import com.contentgrid.opa.rego.ast.Term.Ref;
+import com.contentgrid.opa.rego.ast.Term.Text;
+import com.contentgrid.opa.rego.ast.Term.Var;
 import eu.xenit.contentcloud.thunx.predicates.model.Comparison;
-import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.LogicalOperation;
 import eu.xenit.contentcloud.thunx.predicates.model.NumericFunction;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference.StringPathElement;
+import eu.xenit.contentcloud.thunx.predicates.model.ThunkExpression;
 import eu.xenit.contentcloud.thunx.predicates.model.Variable;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +76,7 @@ public class QuerySetToThunkExpressionConverter {
         return LogicalOperation.conjunction(expressions);
     }
 
-    ThunkExpression<?> convert(eu.xenit.contentcloud.opa.rego.ast.Expression expression) {
+    ThunkExpression<?> convert(com.contentgrid.opa.rego.ast.Expression expression) {
         var expr = expression.accept(new PredicatesVisitor());
         return expr;
     }
@@ -101,7 +101,7 @@ public class QuerySetToThunkExpressionConverter {
         }
 
         @Override
-        public ThunkExpression<?> visit(eu.xenit.contentcloud.opa.rego.ast.Expression expression) {
+        public ThunkExpression<?> visit(com.contentgrid.opa.rego.ast.Expression expression) {
 
             // opa-expression grammar - bottom page https://www.openpolicyagent.org/docs/latest/policy-reference/
             //      expr            = term | expr-call | expr-infix

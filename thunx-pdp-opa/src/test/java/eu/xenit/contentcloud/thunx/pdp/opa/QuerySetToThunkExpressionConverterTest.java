@@ -2,10 +2,10 @@ package eu.xenit.contentcloud.thunx.pdp.opa;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import eu.xenit.contentcloud.opa.rego.ast.Expression;
-import eu.xenit.contentcloud.opa.rego.ast.Query;
-import eu.xenit.contentcloud.opa.rego.ast.QuerySet;
-import eu.xenit.contentcloud.opa.rego.ast.Term;
+import com.contentgrid.opa.rego.ast.Expression;
+import com.contentgrid.opa.rego.ast.Query;
+import com.contentgrid.opa.rego.ast.QuerySet;
+import com.contentgrid.opa.rego.ast.Term;
 import eu.xenit.contentcloud.thunx.predicates.model.Comparison;
 import eu.xenit.contentcloud.thunx.predicates.model.LogicalOperation;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;

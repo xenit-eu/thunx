@@ -18,9 +18,10 @@ allprojects {
 
         repositories {
             mavenCentral()
-            sonatypeSnapshots {
+            maven {
+                url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                 content {
-                    includeGroup 'eu.xenit.contentcloud'
+                    includeGroup 'com.contentgrid.opa-java-client'
                 }
             }
         }
