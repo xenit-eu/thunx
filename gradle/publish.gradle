@@ -1,4 +1,3 @@
-apply plugin: 'eu.xenit.enterprise-conventions.ext.signing'
 apply plugin: 'signing'
 
 publishing {
@@ -27,6 +26,26 @@ publishing {
                         name = 'The Apache License, Version 2.0'
                         url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
+                }
+            }
+        }
+    }
+
+    repositories {
+        if ("${project.version}".endsWith('-SNAPSHOT')) {
+            sonatypeSnapshots {
+                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                credentials {
+                    username = project.findProperty('sonatype_username')
+                    password = project.findProperty('sonatype_password')
+                }
+            }
+        } else {
+            sonatypeMavenCentral {
+                url = "https://s01.oss.sonatype.org/service/local/"
+                credentials {
+                    username = project.findProperty('sonatype_username')
+                    password = project.findProperty('sonatype_password')
                 }
             }
         }
