@@ -4,6 +4,8 @@ plugins {
 
 rootProject.name = 'thunx'
 
+include 'thunx-dependencies'
+
 include 'thunx-model'
 include 'thunx-pdp'
 include 'thunx-pdp-opa'

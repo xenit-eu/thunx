@@ -5,15 +5,14 @@ plugins {
 apply from: "${rootDir}/gradle/publish.gradle"
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation platform(project(':thunx-dependencies'))
+    annotationProcessor platform(project(':thunx-dependencies'))
 
-    api platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
     api project(":thunx-model")
     api 'com.querydsl:querydsl-core'
-
-    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'

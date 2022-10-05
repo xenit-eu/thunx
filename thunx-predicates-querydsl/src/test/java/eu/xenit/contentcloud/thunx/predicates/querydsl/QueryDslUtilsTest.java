@@ -8,12 +8,10 @@ import eu.xenit.contentcloud.thunx.predicates.model.Comparison;
 import eu.xenit.contentcloud.thunx.predicates.model.LogicalOperation;
 import eu.xenit.contentcloud.thunx.predicates.model.Scalar;
 import eu.xenit.contentcloud.thunx.predicates.model.SymbolicReference;
-import lombok.Data;
 import org.junit.jupiter.api.Test;
 
 class QueryDslUtilsTest {
 
-    @Data
     static class Document {
 
         int security;

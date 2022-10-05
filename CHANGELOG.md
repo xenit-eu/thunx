@@ -6,9 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] (Unreleased)
 
+### Housekeeping
+
+* [#42] - Introduced `thunx-dependencies` to manage dependency versions
+
 ### Dependency updates
 
-* Changed dependency `eu.xenit.contentcloud:opa-async-java-client:0.3.0` to `com.contentgrid.opa:opa-async-java-client:0.4.0` 
+* [#41] - Changed dependency `eu.xenit.contentcloud:opa-async-java-client:0.3.0` to `com.contentgrid.opa:opa-async-java-client:0.4.0` 
+
+[#41]: https://github.com/xenit-eu/thunx/pull/41
+[#42]: https://github.com/xenit-eu/thunx/pull/42
 
 ## [0.3.3] (2022-04-14)
 
