@@ -1,7 +1,7 @@
 # Thunx  
 
 [![build](https://github.com/xenit-eu/thunx/workflows/build/badge.svg?branch=main)](https://github.com/xenit-eu/thunx/actions/workflows/ci.yml)
-[![maven central](https://img.shields.io/maven-central/v/eu.xenit.contentcloud.thunx/thunx-spring?color=blue)](https://search.maven.org/search?q=g:eu.xenit.contentcloud.thunx)
+[![maven central](https://img.shields.io/maven-central/v/com.contentgrid.thunx/thunx-spring?color=blue)](https://search.maven.org/search?q=g:com.contentgrid.thunx)
 [![Apache License 2](https://img.shields.io/github/license/xenit-eu/thunx?color=blue)](LICENSE)
 
 Thunx is a pluggable [Attribute Based Access Control] system, with and end-to-end implementation
@@ -98,8 +98,8 @@ Requirements:
 Using Gradle:
 
 ```groovy
-implementation 'eu.xenit.contentcloud.thunx:thunx-spring:${thunxVersion}'
-implementation 'eu.xenit.contentcloud.thunx:thunx-pdp-opa:${thunxVersion}'
+implementation 'com.contentgrid.thunx:thunx-spring:${thunxVersion}'
+implementation 'com.contentgrid.thunx:thunx-pdp-opa:${thunxVersion}'
 ```
 
 #### Spring Data REST Service
@@ -107,8 +107,8 @@ implementation 'eu.xenit.contentcloud.thunx:thunx-pdp-opa:${thunxVersion}'
 Using Gradle:
 
 ```groovy
-implementation 'eu.xenit.contentcloud.thunx:thunx-spring:${thunxVersion}'
-runtimeOnly 'eu.xenit.contentcloud.thunx:thunx-predicates-querydsl:${thunxVersion}'
+implementation 'com.contentgrid.thunx:thunx-spring:${thunxVersion}'
+runtimeOnly 'com.contentgrid.thunx:thunx-predicates-querydsl:${thunxVersion}'
 
 implementation "com.querydsl:querydsl-core"
 implementation "com.querydsl:querydsl-jpa"

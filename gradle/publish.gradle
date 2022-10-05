@@ -1,12 +1,8 @@
-apply plugin: 'maven-publish'
+apply plugin: 'eu.xenit.enterprise-conventions.ext.signing'
 apply plugin: 'signing'
 
 publishing {
     publications {
-        library(MavenPublication) {
-            from components.java
-        }
-
         all {
             pom {
                 url = 'https://github.com/xenit-eu/thunx'
@@ -35,22 +31,23 @@ publishing {
             }
         }
     }
+}
 
-
-    repositories {
-        if (version.version.isSignificant()) {
-            sonatypeMavenCentral {
-                credentials {
-                    username = project.findProperty('sonatype_username')
-                    password = project.findProperty('sonatype_password')
-                }
+pluginManager.withPlugin('java') {
+    publishing {
+        publications {
+            library(MavenPublication) {
+                from components.java
             }
-        } else {
-            sonatypeSnapshots {
-                credentials {
-                    username = project.findProperty('sonatype_username')
-                    password = project.findProperty('sonatype_password')
-                }
+        }
+    }
+}
+
+pluginManager.withPlugin('java-platform') {
+    publishing {
+        publications {
+            platform(MavenPublication) {
+                from components.javaPlatform
             }
         }
     }

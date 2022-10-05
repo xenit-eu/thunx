@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] (Unreleased)
 
+### Changed
+
+* [#43] - Relocated MavenCentral publication from `eu.xenit.contentcloud.thunx` to `com.contentgrid.thunx`
+
 ### Housekeeping
 
 * [#42] - Introduced `thunx-dependencies` to manage dependency versions
@@ -16,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#41]: https://github.com/xenit-eu/thunx/pull/41
 [#42]: https://github.com/xenit-eu/thunx/pull/42
+[#43]: https://github.com/xenit-eu/thunx/pull/43
 
 ## [0.3.3] (2022-04-14)
 
