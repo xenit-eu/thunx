@@ -6,13 +6,16 @@ plugins {
 apply from: "${rootDir}/gradle/publish.gradle"
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation platform(project(':thunx-dependencies'))
+    annotationProcessor platform(project(':thunx-dependencies'))
 
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
 
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "org.assertj:assertj-core"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
 
 test {

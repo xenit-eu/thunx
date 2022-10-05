@@ -5,20 +5,23 @@ plugins {
 apply from: "${rootDir}/gradle/publish.gradle"
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation platform(project(':thunx-dependencies'))
+    annotationProcessor platform(project(':thunx-dependencies'))
+
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
 
     api project(":thunx-model")
     api project(":thunx-pdp")
 
     implementation project(':thunx-visitor-reducer')
 
-    api 'com.contentgrid.opa-java-client:opa-async-java-client:0.4.0'
+    api 'com.contentgrid.opa-java-client:opa-async-java-client'
 
-    testImplementation "org.assertj:assertj-core:${assertjVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
 
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
 
 test {

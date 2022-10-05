@@ -5,17 +5,18 @@ plugins {
 apply from: "${rootDir}/gradle/publish.gradle"
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation platform(project(':thunx-dependencies'))
+    annotationProcessor platform(project(':thunx-dependencies'))
 
-    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootBomVersion}")
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
 
     implementation project(":thunx-model")
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj:2.35.0'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj'
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
