@@ -18,8 +18,8 @@ include 'thunx-predicates-querydsl'
 
 //includeBuild('../opa-java-client') {
 //    dependencySubstitution {
-//        substitute module('eu.xenit.contentcloud:opa-async-java-client') with project(':opa-async-java-client')
-//        substitute module('eu.xenit.contentcloud:rego-java') with project(':rego-java')
+//        substitute module('com.contentgrid.opa-java-client:opa-async-java-client') with project(':opa-async-java-client')
+//        substitute module('com.contentgrid.opa-java-client:rego-java') with project(':rego-java')
 //    }
 //}
 

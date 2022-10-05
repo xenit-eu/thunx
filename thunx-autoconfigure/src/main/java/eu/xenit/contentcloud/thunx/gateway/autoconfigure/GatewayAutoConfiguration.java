@@ -1,7 +1,7 @@
 package eu.xenit.contentcloud.thunx.gateway.autoconfigure;
 
-import eu.xenit.contentcloud.opa.client.OpaClient;
-import eu.xenit.contentcloud.opa.client.rest.RestClientConfiguration;
+import com.contentgrid.opa.client.OpaClient;
+import com.contentgrid.opa.client.rest.RestClientConfiguration;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionComponentImpl;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
 import eu.xenit.contentcloud.thunx.pdp.opa.OpaQueryProvider;

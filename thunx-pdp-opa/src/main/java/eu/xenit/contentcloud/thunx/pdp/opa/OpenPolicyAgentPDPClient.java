@@ -1,7 +1,7 @@
 package eu.xenit.contentcloud.thunx.pdp.opa;
 
-import eu.xenit.contentcloud.opa.client.OpaClient;
-import eu.xenit.contentcloud.opa.client.api.CompileApi.PartialEvaluationRequest;
+import com.contentgrid.opa.client.OpaClient;
+import com.contentgrid.opa.client.api.CompileApi.PartialEvaluationRequest;
 import eu.xenit.contentcloud.thunx.pdp.AuthenticationContext;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecision;
 import eu.xenit.contentcloud.thunx.pdp.PolicyDecisionPointClient;
