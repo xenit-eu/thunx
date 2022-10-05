@@ -1,11 +1,6 @@
 plugins {
     id 'java-library'
-}
-
-apply from: "${rootDir}/gradle/publish.gradle"
-
-repositories {
-    mavenCentral()
+    id 'maven-publish'
 }
 
 dependencies {

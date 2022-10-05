@@ -1,8 +1,7 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
-
-apply from: "${rootDir}/gradle/publish.gradle"
 
 dependencies {
     api project (":thunx-model")
