@@ -1,0 +1,21 @@
+plugins {
+    id 'java-platform'
+    id 'maven-publish'
+}
+
+dependencies {
+    constraints {
+        api project(':thunx-model')
+        api project(':thunx-pdp')
+        api project(':thunx-pdp-opa')
+        api project(':thunx-spring')
+        api project(':thunx-autoconfigure')
+        api project(':thunx-api-spring-boot-starter')
+        api project(':thunx-gateway-spring-boot-starter')
+
+        api project(':thunx-visitor-reducer')
+        api project(':thunx-encoding-json')
+        api project(':thunx-predicates-querydsl')
+    }
+}
+
