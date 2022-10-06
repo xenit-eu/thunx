@@ -1,5 +1,12 @@
 # Changelog
 
+
+## [0.4.1] (2022-10-06)
+
+## Changed
+
+* Bill of Materials is now published as `thunx-bom`, `thunx-dependencies` remains as internal platform by @tgeens in https://github.com/xenit-eu/thunx/pull/54
+
 ## [0.4.0] (2022-10-06)
 
 ## Changed
