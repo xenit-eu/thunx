@@ -1,26 +1,30 @@
 # Changelog
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.4.0] (2022-10-06)
 
-## [0.4.0] (Unreleased)
+## Changed
 
-### Changed
+* Relocated MavenCentral publication from `eu.xenit.contentcloud.thunx` to `com.contentgrid.thunx` by @tgeens in https://github.com/xenit-eu/thunx/pull/43
+* Rename packages from `eu.xenit.contentcloud.thunx` to `com.contentgrid.thunx` by @tgeens in https://github.com/xenit-eu/thunx/pull/44
+* Introduces `thunx-dependencies` to manage dependency versions by @tgeens in https://github.com/xenit-eu/thunx/pull/42
 
-* [#43] - Relocated MavenCentral publication from `eu.xenit.contentcloud.thunx` to `com.contentgrid.thunx`
+## Housekeeping
 
-### Housekeeping
+* Fixes maven central publishing by providing description for thunx-dependencies by @tgeens in https://github.com/xenit-eu/thunx/pull/47
+* Use gradle plugin eu.xenit.enterprise-conventions.oss:0.3.0-rc.1 by @tgeens in https://github.com/xenit-eu/thunx/pull/48
+* Make spring-boot and spring-cloud dependency versions manageable by dependabot by @tgeens in https://github.com/xenit-eu/thunx/pull/49
 
-* [#42] - Introduced `thunx-dependencies` to manage dependency versions
+## Dependency updates
 
-### Dependency updates
+* Dependency `eu.xenit.contentcloud:opa-async-java-client` relocated to groupId `com.contentgrid.opa` by @tgeens in https://github.com/xenit-eu/thunx/pull/41
+* Bump json-unit-assertj from 2.33.0 to 2.34.0 by @dependabot in https://github.com/xenit-eu/thunx/pull/39
+* Bump json-unit-assertj from 2.34.0 to 2.35.0 by @dependabot in https://github.com/xenit-eu/thunx/pull/40
+* Bump json-unit-assertj from 2.35.0 to 2.36.0 by @dependabot in https://github.com/xenit-eu/thunx/pull/50
+* Bump testcontainers-bom from 1.17.3 to 1.17.5 by @dependabot in https://github.com/xenit-eu/thunx/pull/45
+* Bump org.ajoberstar.reckon from 0.13.1 to 0.16.1 by @dependabot in https://github.com/xenit-eu/thunx/pull/30
+* Bump spring-cloud-dependencies from 2021.0.1 to 2021.0.4 by @dependabot in https://github.com/xenit-eu/thunx/pull/51
 
-* [#41] - Changed dependency `eu.xenit.contentcloud:opa-async-java-client:0.3.0` to `com.contentgrid.opa:opa-async-java-client:0.4.0` 
-
-[#41]: https://github.com/xenit-eu/thunx/pull/41
-[#42]: https://github.com/xenit-eu/thunx/pull/42
-[#43]: https://github.com/xenit-eu/thunx/pull/43
+**Full Changelog**: https://github.com/xenit-eu/thunx/compare/v0.3.3...v0.4.0
 
 ## [0.3.3] (2022-04-14)
 
