@@ -52,11 +52,20 @@ publishing {
     }
 }
 
-pluginManager.withPlugin('java') {
+pluginManager.withPlugin('java-library') {
     publishing {
         publications {
             library(MavenPublication) {
                 from components.java
+
+                versionMapping {
+                    usage("java-api") {
+                        fromResolutionResult()
+                    }
+                    usage("java-runtime") {
+                        fromResolutionResult()
+                    }
+                }
             }
         }
     }
