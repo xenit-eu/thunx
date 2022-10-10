@@ -8,7 +8,22 @@ reckon {
 }
 
 allprojects {
-    pluginManager.withPlugin('java') {
+    pluginManager.withPlugin('java-library') {
+
+        configurations {
+            // See https://github.com/gradle/gradle/issues/10861
+            // To avoid publishing the internal-platform
+            internalPlatform {
+                visible = false
+                canBeConsumed = false
+                canBeResolved = false
+            }
+            compileClasspath.extendsFrom(internalPlatform)
+            runtimeClasspath.extendsFrom(internalPlatform)
+            testCompileClasspath.extendsFrom(internalPlatform)
+            testRuntimeClasspath.extendsFrom(internalPlatform)
+        }
+
         java {
             sourceCompatibility = JavaVersion.VERSION_11
             withSourcesJar()
