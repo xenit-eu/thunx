@@ -11,13 +11,136 @@ import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import java.util.List;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class QuerySetToThunkExpressionConverterTest {
 
+    private final QuerySetToThunkExpressionConverter converter = new QuerySetToThunkExpressionConverter();
+
+    @Nested
+    class TestOperators {
+
+        @Test
+        void equals() {
+            // input.entity.color == "blue"
+            var opaExpr = new Expression(0, List.of(
+                    new Term.Ref(List.of(new Term.Var("eq"))),
+                    new Term.Ref(List.of(
+                            new Term.Var("input"),
+                            new Term.Text("entity"),
+                            new Term.Text("color")
+                    )),
+                    new Term.Text("blue")
+            ));
+
+            assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.areEqual(
+                    SymbolicReference.of("entity", path -> path.string("color")),
+                    Scalar.of("blue")
+            ));
+        }
+
+        @Test
+        void not_equals() {
+            // input.entity.color != "blue"
+            var opaExpr = new Expression(0, List.of(
+                    new Term.Ref(List.of(new Term.Var("neq"))),
+                    new Term.Ref(List.of(
+                            new Term.Var("input"),
+                            new Term.Text("entity"),
+                            new Term.Text("color")
+                    )),
+                    new Term.Text("blue")
+            ));
+
+            assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.notEqual(
+                    SymbolicReference.of("entity", path -> path.string("color")),
+                    Scalar.of("blue")
+            ));
+        }
+
+        @Test
+        void greater_than() {
+            // input.entity.security > 5
+            var opaExpr = new Expression(0, List.of(
+                    new Term.Ref(List.of(new Term.Var("gt"))),
+                    new Term.Ref(List.of(
+                            new Term.Var("input"),
+                            new Term.Text("entity"),
+                            new Term.Text("security")
+                    )),
+                    new Term.Numeric(5)
+            ));
+
+            assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.greater(
+                    SymbolicReference.of("entity", path -> path.string("security")),
+                    Scalar.of(5)
+            ));
+        }
+
+        @Test
+        void greater_or_equals() {
+            // input.entity.security >= 5
+            var opaExpr = new Expression(0, List.of(
+                    new Term.Ref(List.of(new Term.Var("gte"))),
+                    new Term.Ref(List.of(
+                            new Term.Var("input"),
+                            new Term.Text("entity"),
+                            new Term.Text("security")
+                    )),
+                    new Term.Numeric(5)
+            ));
+
+            assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.greaterOrEquals(
+                    SymbolicReference.of("entity", path -> path.string("security")),
+                    Scalar.of(5)
+            ));
+        }
+
+        @Test
+        void less_than() {
+            // input.entity.security < 5
+            var opaExpr = new Expression(0, List.of(
+                    new Term.Ref(List.of(new Term.Var("lt"))),
+                    new Term.Ref(List.of(
+                            new Term.Var("input"),
+                            new Term.Text("entity"),
+                            new Term.Text("security")
+                    )),
+                    new Term.Numeric(5)
+            ));
+
+            assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.less(
+                    SymbolicReference.of("entity", path -> path.string("security")),
+                    Scalar.of(5)
+            ));
+        }
+
+        @Test
+        void less_or_equals() {
+            // input.entity.security <= 5
+            var opaExpr = new Expression(0, List.of(
+                    new Term.Ref(List.of(new Term.Var("lte"))),
+                    new Term.Ref(List.of(
+                            new Term.Var("input"),
+                            new Term.Text("entity"),
+                            new Term.Text("security")
+                    )),
+                    new Term.Numeric(5)
+            ));
+
+            assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.lessOrEquals(
+                    SymbolicReference.of("entity", path -> path.string("security")),
+                    Scalar.of(5)
+            ));
+        }
+
+
+    }
+
     @Test
     void querySetNull_meansAccessDenied() {
-        var result = new QuerySetToThunkExpressionConverter().convert((QuerySet) null);
+        var result = converter.convert((QuerySet) null);
 
         assertThat(result).isNotNull().isEqualTo(Scalar.of(false));
     }
@@ -104,7 +227,7 @@ class QuerySetToThunkExpressionConverterTest {
                                 Scalar.of("group-b"),
                                 SymbolicReference
                                         .of("entity", path -> path.string("group")))
-                        )));
+                )));
 
     }
 
