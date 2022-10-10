@@ -1,27 +1,33 @@
 # Changelog
 
+## [0.4.2] (2022-10-10)
+
+### Fixed
+
+* Completed comparison operator set (eq, neq, lt, lte, gt, gte) when converting from OPA to ThunkExpression by @tgeens in https://github.com/xenit-eu/thunx/pull/58
+* Hide thunx-dependencies from published .pom by @tgeens in https://github.com/xenit-eu/thunx/pull/57
 
 ## [0.4.1] (2022-10-06)
 
-## Changed
+### Changed
 
 * Bill of Materials is now published as `thunx-bom`, `thunx-dependencies` remains as internal platform by @tgeens in https://github.com/xenit-eu/thunx/pull/54
 
 ## [0.4.0] (2022-10-06)
 
-## Changed
+### Changed
 
 * Relocated MavenCentral publication from `eu.xenit.contentcloud.thunx` to `com.contentgrid.thunx` by @tgeens in https://github.com/xenit-eu/thunx/pull/43
 * Rename packages from `eu.xenit.contentcloud.thunx` to `com.contentgrid.thunx` by @tgeens in https://github.com/xenit-eu/thunx/pull/44
 * Introduces `thunx-dependencies` to manage dependency versions by @tgeens in https://github.com/xenit-eu/thunx/pull/42
 
-## Housekeeping
+### Housekeeping
 
 * Fixes maven central publishing by providing description for thunx-dependencies by @tgeens in https://github.com/xenit-eu/thunx/pull/47
 * Use gradle plugin eu.xenit.enterprise-conventions.oss:0.3.0-rc.1 by @tgeens in https://github.com/xenit-eu/thunx/pull/48
 * Make spring-boot and spring-cloud dependency versions manageable by dependabot by @tgeens in https://github.com/xenit-eu/thunx/pull/49
 
-## Dependency updates
+### Dependency updates
 
 * Dependency `eu.xenit.contentcloud:opa-async-java-client` relocated to groupId `com.contentgrid.opa` by @tgeens in https://github.com/xenit-eu/thunx/pull/41
 * Bump json-unit-assertj from 2.33.0 to 2.34.0 by @dependabot in https://github.com/xenit-eu/thunx/pull/39
