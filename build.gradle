@@ -8,7 +8,7 @@ reckon {
 }
 
 allprojects {
-    pluginManager.withPlugin('java') {
+    pluginManager.withPlugin('java-library') {
 
         configurations {
             // See https://github.com/gradle/gradle/issues/10861
