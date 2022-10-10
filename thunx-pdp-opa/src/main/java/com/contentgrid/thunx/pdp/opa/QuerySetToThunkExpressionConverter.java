@@ -87,7 +87,12 @@ public class QuerySetToThunkExpressionConverter {
                 Map.entry("mul", NumericFunction::multiply),
 
                 Map.entry("eq", Comparison::areEqual),
-                Map.entry("gte", Comparison::greaterOrEquals)
+                Map.entry("neq", Comparison::notEqual),
+
+                Map.entry("gt", Comparison::greater),
+                Map.entry("gte", Comparison::greaterOrEquals),
+                Map.entry("lt", Comparison::less),
+                Map.entry("lte", Comparison::lessOrEquals)
         );
 
         @Override
