@@ -1,12 +1,12 @@
 package com.contentgrid.thunx.visitor.reducer;
 
-import com.contentgrid.thunx.predicates.model.ThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
-import com.contentgrid.thunx.predicates.model.FunctionExpression.FunctionExpressionFactory;
 import com.contentgrid.thunx.predicates.model.FunctionExpression.Operator;
+import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
+import com.contentgrid.thunx.predicates.model.ThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.Variable;
 import java.util.Map;
 import java.util.Objects;
@@ -21,10 +21,8 @@ public class ThunkReducerVisitor implements ThunkExpressionVisitor<ThunkExpressi
 
     public static ThunkReducerVisitor DEFAULT_INSTANCE = ThunkReducerVisitor.builder()
             .operatorReducer(Operator.EQUALS, new ComparisonFunctionReducer(Objects::equals))
-            .operatorReducer(Operator.AND, new LogicalFunctionReducer(false, true,
-                    (FunctionExpressionFactory<Boolean>) Operator.AND.getFactory()))
-            .operatorReducer(Operator.OR, new LogicalFunctionReducer(true, false,
-                    (FunctionExpressionFactory<Boolean>) Operator.OR.getFactory()))
+            .operatorReducer(Operator.AND, new LogicalFunctionReducer(false, true, LogicalOperation::uncheckedConjunction))
+            .operatorReducer(Operator.OR, new LogicalFunctionReducer(true, false,  LogicalOperation::uncheckedDisjunction))
             .build();
 
     @Singular
@@ -32,7 +30,7 @@ public class ThunkReducerVisitor implements ThunkExpressionVisitor<ThunkExpressi
 
     @Override
     public ThunkExpression<?> visit(Scalar<?> scalar) {
-        return (ThunkExpression<Object>) scalar;
+        return scalar;
     }
 
     @Override

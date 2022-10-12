@@ -25,5 +25,5 @@ public interface JsonExpressionDto {
 
     String getType();
 
-    <T> ThunkExpression<? extends T> toExpression() throws InvalidExpressionDataException;
+    ThunkExpression<?> toExpression() throws InvalidExpressionDataException;
 }

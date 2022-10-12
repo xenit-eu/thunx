@@ -50,6 +50,13 @@ public class LogicalOperation implements BooleanOperation {
         return conjunction(terms.stream().map(expr -> (ThunkExpression<Boolean>) expr));
     }
 
+    public static LogicalOperation uncheckedNegation(List<ThunkExpression<?>> terms) {
+        if (terms.size() != 1) {
+            throw new IllegalArgumentException("Expected 1 term, not "+terms.size());
+        }
+        return negation((ThunkExpression<Boolean>) terms.get(0));
+    }
+
     public static LogicalOperation negation(ThunkExpression<Boolean> term) {
         return new LogicalOperation(Operator.NOT, Stream.of(term));
     }
