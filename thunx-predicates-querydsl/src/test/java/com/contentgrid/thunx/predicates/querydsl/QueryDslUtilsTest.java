@@ -16,7 +16,16 @@ class QueryDslUtilsTest {
     static class Document {
 
         int security;
-        String department;
+        Department department;
+    }
+
+    static class Department {
+        String id;
+        Person manager;
+    }
+
+    static class Person {
+        String name;
     }
 
     @Nested
@@ -143,13 +152,13 @@ class QueryDslUtilsTest {
 
         @Test
         void conjunction() {
-            // document.security == 5 AND document.department == 'HR'
+            // document.security == 5 AND document.department.id == 'HR'
             var thunkExpression = LogicalOperation.conjunction(
                     Comparison.areEqual(
                             SymbolicReference.of("entity", path -> path.string("security")),
                             Scalar.of(5)),
                     Comparison.areEqual(
-                            SymbolicReference.of("entity", path -> path.string("department")),
+                            SymbolicReference.of("entity", path -> path.string("department").string("id")),
                             Scalar.of("HR"))
             );
 
@@ -158,7 +167,7 @@ class QueryDslUtilsTest {
             var actual = QueryDslUtils.from(thunkExpression, document);
             assertThat(actual)
                     .isNotNull()
-                    .hasToString("document.security = 5 && document.department = HR");
+                    .hasToString("document.security = 5 && document.department.id = HR");
 
         }
 
@@ -179,6 +188,22 @@ class QueryDslUtilsTest {
         assertThat(actual)
                 .isNotNull()
                 .hasToString("document.security = null");
+    }
+
+    @Test
+    void deep_relation_should_be_not_null() {
+        // document.department.manager != null
+        var thunkExpression = Comparison.notEqual(
+                SymbolicReference.of("entity", path -> path.string("department").string("manager")),
+                Scalar.nullValue()
+        );
+
+        var document = new PathBuilder(Document.class, "document");
+
+        var actual = QueryDslUtils.from(thunkExpression, document);
+        assertThat(actual)
+                .isNotNull()
+                .hasToString("document.department.manager != null");
     }
 
 
