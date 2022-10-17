@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.Property;
 import org.springframework.core.convert.TypeDescriptor;
@@ -25,6 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 public class AbacQuerydslPredicateBuilder {
 
     private final ConversionService conversionService;
@@ -54,6 +56,8 @@ public class AbacQuerydslPredicateBuilder {
             PathBuilder<?> entityPath = new PathBuilder(domainType, toAlias(domainType));
             Predicate queryDslPredicate = QueryDslUtils.from(abacContext, entityPath);
             Assert.notNull(queryDslPredicate, "abac expression cannot be null");
+            log.debug("ABAC Querydsl Predicate: {}", queryDslPredicate);
+
             builder.and(queryDslPredicate);
         }
 
