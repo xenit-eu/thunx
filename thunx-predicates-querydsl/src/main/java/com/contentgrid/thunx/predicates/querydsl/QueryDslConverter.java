@@ -13,6 +13,7 @@ import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.PathElementVisitor;
 import com.contentgrid.thunx.predicates.model.ThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.Variable;
+import java.util.List;
 import java.util.stream.Collectors;
 
 class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
@@ -24,10 +25,9 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
     }
 
 
-
     @Override
     public Expression<?> visit(Scalar<?> scalar) {
-        if(scalar == Scalar.nullValue()) {
+        if (scalar == Scalar.nullValue()) {
             return Expressions.nullExpression();
         }
         return Expressions.constant(scalar.getValue());
@@ -38,23 +38,49 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
 
         // convert all the terms
         var terms = function.getTerms().stream()
-                .map(term -> term.accept(this));
+                .map(term -> term.accept(this))
+                .collect(Collectors.toList());
 
         switch (function.getOperator()) {
             case EQUALS:
-                var equalTerms = terms
-                        .collect(Collectors.toList());
-                if(equalTerms.size() != 2) {
-                    throw new IllegalArgumentException("Equal operation requires 2 parameters.");
-                }
-                return ExpressionUtils.eq((Expression<Object>)equalTerms.get(0), equalTerms.get(1));
+                assertTwoTerms(terms);
+                return ExpressionUtils.eq((Expression<Object>) terms.get(0), terms.get(1));
+            case NOT_EQUAL_TO:
+                assertTwoTerms(terms);
+                return ExpressionUtils.ne(terms.get(0), (Expression<Object>) terms.get(1));
+            case GREATER_THAN_OR_EQUAL_TO:
+                assertTwoTerms(terms);
+                return Expressions.booleanOperation(Ops.GOE, terms.toArray(new Expression[0]));
+            case GREATER_THAN:
+                assertTwoTerms(terms);
+                return Expressions.booleanOperation(Ops.GT, terms.toArray(new Expression[0]));
+            case LESS_THEN_OR_EQUAL_TO:
+                assertTwoTerms(terms);
+                return Expressions.booleanOperation(Ops.LOE, terms.toArray(new Expression[0]));
+            case LESS_THAN:
+                assertTwoTerms(terms);
+                return Expressions.booleanOperation(Ops.LT, terms.toArray(new Expression[0]));
             case OR:
-                return ExpressionUtils.anyOf(terms.map(term -> (Predicate)term).collect(Collectors.toList()));
+                return ExpressionUtils.anyOf(terms.stream().map(term -> (Predicate) term).collect(Collectors.toList()));
             case AND:
-                return ExpressionUtils.allOf(terms.map(term -> (Predicate)term).collect(Collectors.toList()));
+                return ExpressionUtils.allOf(terms.stream().map(term -> (Predicate) term).collect(Collectors.toList()));
+            case NOT:
+                assertOneTerm(terms);
+                return Expressions.booleanOperation(Ops.NOT, terms.get(0));
             default:
                 throw new UnsupportedOperationException(
                         "Operation '" + function.getOperator() + "' not implemented");
+        }
+    }
+
+    private static void assertOneTerm(List<? extends Expression<?>> terms) {
+        if (terms.size() != 1) {
+            throw new IllegalArgumentException("Equal operation requires 1 parameters.");
+        }
+    }
+    private static void assertTwoTerms(List<? extends Expression<?>> terms) {
+        if (terms.size() != 2) {
+            throw new IllegalArgumentException("Operation requires 2 parameters.");
         }
     }
 
@@ -64,7 +90,8 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
 
         String subject = symbolicReference.getSubject().getName();
         if (!"entity".equalsIgnoreCase(subject)) {
-            throw new IllegalArgumentException("Expected symbolic-ref subject named 'entity', but got '"+subject+"'");
+            throw new IllegalArgumentException(
+                    "Expected symbolic-ref subject named 'entity', but got '" + subject + "'");
         }
 
         var path = symbolicReference.getPath();

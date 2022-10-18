@@ -4,6 +4,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.contentgrid.thunx.encoding.json.InvalidExpressionDataException.InvalidExpressionValueException;
@@ -67,10 +68,10 @@ class ExpressionJsonConverterTest {
         }
 
         @Nested
-        class Functions {
+        class Operators {
 
             @Test
-            void eq_toJson() {
+            void is_equal() {
                 // answer == 42
                 var expr = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
                 var result = converter.encode(expr);
@@ -81,6 +82,116 @@ class ExpressionJsonConverterTest {
                                 + "     { type: 'number', value: 42 }"
                                 + "]}");
             }
+
+            @Test
+            void is_not_equal() {
+                // answer != 42
+                var expr = Comparison.notEqual(Variable.named("answer"), Scalar.of(42));
+                var result = converter.encode(expr);
+
+                assertThatJson(result)
+                        .isEqualTo("{ type: 'function', operator: 'neq', terms: ["
+                                + "     { type: 'var', name: 'answer' },"
+                                + "     { type: 'number', value: 42 }"
+                                + "]}");
+            }
+
+            @Test
+            void is_greater_than() {
+                // answer > 42
+                var expr = Comparison.greater(Variable.named("answer"), Scalar.of(42));
+                var result = converter.encode(expr);
+
+                assertThatJson(result)
+                        .isEqualTo("{ type: 'function', operator: 'gt', terms: ["
+                                + "     { type: 'var', name: 'answer' },"
+                                + "     { type: 'number', value: 42 }"
+                                + "]}");
+            }
+
+            @Test
+            void is_greater_or_equals() {
+                // answer >= 42
+                var expr = Comparison.greaterOrEquals(Variable.named("answer"), Scalar.of(42));
+                var result = converter.encode(expr);
+
+                assertThatJson(result)
+                        .isEqualTo("{ type: 'function', operator: 'gte', terms: ["
+                                + "     { type: 'var', name: 'answer' },"
+                                + "     { type: 'number', value: 42 }"
+                                + "]}");
+            }
+
+            @Test
+            void is_less_than() {
+                // answer < 42
+                var expr = Comparison.less(Variable.named("answer"), Scalar.of(42));
+                var result = converter.encode(expr);
+
+                assertThatJson(result)
+                        .isEqualTo("{ type: 'function', operator: 'lt', terms: ["
+                                + "     { type: 'var', name: 'answer' },"
+                                + "     { type: 'number', value: 42 }"
+                                + "]}");
+            }
+
+            @Test
+            void is_less_or_equals() {
+                // answer <= 42
+                var expr = Comparison.lessOrEquals(Variable.named("answer"), Scalar.of(42));
+                var result = converter.encode(expr);
+
+                assertThatJson(result)
+                        .isEqualTo("{ type: 'function', operator: 'lte', terms: ["
+                                + "     { type: 'var', name: 'answer' },"
+                                + "     { type: 'number', value: 42 }"
+                                + "]}");
+            }
+
+            @Test
+            void logical_disjunction() {
+                // rules: answer == 42 OR user.admin == true
+                var rule1 = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
+                var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
+                var disjunction = LogicalOperation.disjunction(rule1, rule2);
+
+                var result = converter.encode(disjunction);
+
+                assertThatJson(result)
+                        .isEqualTo("{ type: 'function', operator: 'or', terms: ["
+                                + "     { type: 'function', operator: 'eq', terms: [{ type: 'var', name: 'answer' }, { type: 'number', value: 42 } ]},"
+                                + "     { type: 'function', operator: 'eq', terms: [{ type: 'ref', path: [], subject: { type: 'var', name: 'user.admin' }}, { type: 'bool', value: true }] }"
+                                + "]}");
+            }
+
+            @Test
+            void logical_conjunction() {
+                // rules: answer == 42 AND user.admin == true
+                var rule1 = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
+                var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
+                var disjunction = LogicalOperation.conjunction(rule1, rule2);
+
+                var result = converter.encode(disjunction);
+
+                assertThatJson(result)
+                        .isEqualTo("{ type: 'function', operator: 'and', terms: ["
+                                + "     { type: 'function', operator: 'eq', terms: [{ type: 'var', name: 'answer' }, { type: 'number', value: 42 } ]},"
+                                + "     { type: 'function', operator: 'eq', terms: [{ type: 'ref', path: [], subject: { type: 'var', name: 'user.admin' }}, { type: 'bool', value: true }] }"
+                                + "]}");
+            }
+
+            @Test
+            void logical_negation() throws InvalidExpressionDataException, JsonProcessingException {
+                // not(answer)
+                var expression = LogicalOperation.uncheckedNegation(List.of(Variable.named("answer")));
+                var json = converter.encode(expression);
+
+                assertThatJson(json)
+                        .isEqualTo("{ type: 'function', operator: 'not', terms: ["
+                                + "     { type: 'var', name: 'answer' }"
+                                + "]}");
+            }
+
         }
 
         @Nested
@@ -252,15 +363,95 @@ class ExpressionJsonConverterTest {
         }
 
         @Nested
-        class Functions {
+        class Operators {
 
             @Test
-            void eq() throws InvalidExpressionDataException, JsonProcessingException {
+            void is_equal() throws InvalidExpressionDataException, JsonProcessingException {
                 // answer == 42
                 var json = converter.encode(Comparison.areEqual(Variable.named("answer"), Scalar.of(42)));
                 var expr = converter.decode(json);
 
                 assertThat(expr).isEqualTo(Comparison.areEqual(Variable.named("answer"), Scalar.of(42)));
+            }
+
+            @Test
+            void is_not_equal() throws InvalidExpressionDataException, JsonProcessingException {
+                // answer != 42
+                var json = converter.encode(Comparison.notEqual(Variable.named("answer"), Scalar.of(42)));
+                var expr = converter.decode(json);
+
+                assertThat(expr).isEqualTo(Comparison.notEqual(Variable.named("answer"), Scalar.of(42)));
+            }
+
+            @Test
+            void is_greater_than() throws InvalidExpressionDataException, JsonProcessingException {
+                // answer > 42
+                var json = converter.encode(Comparison.greater(Variable.named("answer"), Scalar.of(42)));
+                var expr = converter.decode(json);
+
+                assertThat(expr).isEqualTo(Comparison.greater(Variable.named("answer"), Scalar.of(42)));
+            }
+
+            @Test
+            void is_greater_or_equals() throws InvalidExpressionDataException, JsonProcessingException {
+                // answer >= 42
+                var json = converter.encode(Comparison.greaterOrEquals(Variable.named("answer"), Scalar.of(42)));
+                var expr = converter.decode(json);
+
+                assertThat(expr).isEqualTo(Comparison.greaterOrEquals(Variable.named("answer"), Scalar.of(42)));
+            }
+
+            @Test
+            void is_less_than() throws InvalidExpressionDataException, JsonProcessingException {
+                // answer < 42
+                var json = converter.encode(Comparison.less(Variable.named("answer"), Scalar.of(42)));
+                var expr = converter.decode(json);
+
+                assertThat(expr).isEqualTo(Comparison.less(Variable.named("answer"), Scalar.of(42)));
+            }
+
+            @Test
+            void is_less_or_equals() throws InvalidExpressionDataException, JsonProcessingException {
+                // answer <= 42
+                var json = converter.encode(Comparison.lessOrEquals(Variable.named("answer"), Scalar.of(42)));
+                var expr = converter.decode(json);
+
+                assertThat(expr).isEqualTo(Comparison.lessOrEquals(Variable.named("answer"), Scalar.of(42)));
+            }
+
+            @Test
+            void logical_disjunction() throws JsonProcessingException {
+                // rules: answer == 42 OR user.admin == true
+                var rule1 = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
+                var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
+                var disjunction = LogicalOperation.disjunction(rule1, rule2);
+
+                var json = converter.encode(disjunction);
+                var expr = converter.decode(json);
+
+                assertThatJson(expr).isEqualTo(disjunction);
+            }
+
+            @Test
+            void logical_conjunction() throws JsonProcessingException {
+                // rules: answer == 42 AND user.admin == true
+                var rule1 = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
+                var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
+                var conjunction = LogicalOperation.conjunction(rule1, rule2);
+
+                var json = converter.encode(conjunction);
+                var expr = converter.decode(json);
+
+                assertThatJson(expr).isEqualTo(conjunction);
+            }
+
+            @Test
+            void logical_negation() throws InvalidExpressionDataException, JsonProcessingException {
+                // not(answer)
+                var expression = LogicalOperation.uncheckedNegation(List.of(Variable.named("answer")));
+                var json = converter.encode(expression);
+
+                assertThat(converter.decode(json)).isEqualTo(expression);
             }
         }
 

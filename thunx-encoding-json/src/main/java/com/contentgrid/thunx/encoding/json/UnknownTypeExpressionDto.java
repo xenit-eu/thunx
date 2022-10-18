@@ -14,7 +14,7 @@ public class UnknownTypeExpressionDto implements JsonExpressionDto {
     private Map<String, Object> fields;
 
     @Override
-    public <T> ThunkExpression<T> toExpression() {
+    public ThunkExpression<?> toExpression() {
         return null;
     }
 }
