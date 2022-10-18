@@ -80,7 +80,7 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
     }
     private static void assertTwoTerms(List<? extends Expression<?>> terms) {
         if (terms.size() != 2) {
-            throw new IllegalArgumentException("Equal operation requires 2 parameters.");
+            throw new IllegalArgumentException("Operation requires 2 parameters.");
         }
     }
 
