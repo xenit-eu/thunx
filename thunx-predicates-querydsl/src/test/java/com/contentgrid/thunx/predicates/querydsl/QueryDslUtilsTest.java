@@ -8,6 +8,7 @@ import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
+import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -169,6 +170,21 @@ class QueryDslUtilsTest {
                     .isNotNull()
                     .hasToString("document.security = 5 && document.department.id = HR");
 
+        }
+
+        @Test
+        void negation() {
+            // not(entity.external)
+            var thunkExpression = LogicalOperation.uncheckedNegation(List.of(
+                    SymbolicReference.of("entity", path -> path.string("external"))
+            ));
+
+            var document = new PathBuilder(Document.class, "document");
+
+            var actual = QueryDslUtils.from(thunkExpression, document);
+            assertThat(actual)
+                    .isNotNull()
+                    .hasToString("!document.external");
         }
 
     }

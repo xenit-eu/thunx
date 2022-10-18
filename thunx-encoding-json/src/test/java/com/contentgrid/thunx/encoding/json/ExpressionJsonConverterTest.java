@@ -180,6 +180,18 @@ class ExpressionJsonConverterTest {
                                 + "]}");
             }
 
+            @Test
+            void logical_negation() throws InvalidExpressionDataException, JsonProcessingException {
+                // not(answer)
+                var expression = LogicalOperation.uncheckedNegation(List.of(Variable.named("answer")));
+                var json = converter.encode(expression);
+
+                assertThatJson(json)
+                        .isEqualTo("{ type: 'function', operator: 'not', terms: ["
+                                + "     { type: 'var', name: 'answer' }"
+                                + "]}");
+            }
+
         }
 
         @Nested
@@ -431,6 +443,15 @@ class ExpressionJsonConverterTest {
                 var expr = converter.decode(json);
 
                 assertThatJson(expr).isEqualTo(conjunction);
+            }
+
+            @Test
+            void logical_negation() throws InvalidExpressionDataException, JsonProcessingException {
+                // not(answer)
+                var expression = LogicalOperation.uncheckedNegation(List.of(Variable.named("answer")));
+                var json = converter.encode(expression);
+
+                assertThat(converter.decode(json)).isEqualTo(expression);
             }
         }
 

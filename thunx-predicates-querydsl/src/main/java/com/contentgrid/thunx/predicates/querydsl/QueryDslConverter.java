@@ -64,12 +64,20 @@ class QueryDslConverter implements ThunkExpressionVisitor<Expression<?>> {
                 return ExpressionUtils.anyOf(terms.stream().map(term -> (Predicate) term).collect(Collectors.toList()));
             case AND:
                 return ExpressionUtils.allOf(terms.stream().map(term -> (Predicate) term).collect(Collectors.toList()));
+            case NOT:
+                assertOneTerm(terms);
+                return Expressions.booleanOperation(Ops.NOT, terms.get(0));
             default:
                 throw new UnsupportedOperationException(
                         "Operation '" + function.getOperator() + "' not implemented");
         }
     }
 
+    private static void assertOneTerm(List<? extends Expression<?>> terms) {
+        if (terms.size() != 1) {
+            throw new IllegalArgumentException("Equal operation requires 1 parameters.");
+        }
+    }
     private static void assertTwoTerms(List<? extends Expression<?>> terms) {
         if (terms.size() != 2) {
             throw new IllegalArgumentException("Equal operation requires 2 parameters.");
