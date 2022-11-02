@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
 
     private final OpaClient opaClient;
-    private OpaQueryProvider queryProvider;
+    private final OpaQueryProvider queryProvider;
 
     public OpenPolicyAgentPDPClient(OpaClient opaClient, OpaQueryProvider queryProvider) {
         Objects.requireNonNull(opaClient, "opaClient is required");
@@ -51,8 +51,9 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
                     var converter = new QuerySetToThunkExpressionConverter();
                     return converter.convert(opaQuerySet);
                 })
-                .thenApply(thunkExpression -> {
-                    var reducedExpression = thunkExpression.accept(ThunkReducerVisitor.DEFAULT_INSTANCE)
+                .thenApply((ThunkExpression<Boolean> thunkExpression) -> {
+                    var reducedExpression = thunkExpression
+                            .accept(ThunkReducerVisitor.DEFAULT_INSTANCE, null)
                             .assertResultType(Boolean.class);
                     log.trace("Thunx expression:\n{}\nReduced to:\n{}", thunkExpression, reducedExpression);
                     return ThunkExpression.maybeValue(reducedExpression)

@@ -3,28 +3,48 @@ package com.contentgrid.thunx.predicates.querydsl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import java.util.List;
+import java.util.UUID;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class QueryDslUtilsTest {
+class QueryDslConverterTest {
+
+    private final QueryDslConverter converter = new QueryDslConverter(new FieldByReflectionAccessStrategy());
 
     static class Document {
 
         int security;
+        boolean confidential;
+
+        @Embedded
+        Content content;
+
         Department department;
     }
 
     static class Department {
         String id;
+
+        @OneToOne
         Person manager;
     }
 
+    @Embeddable
+    static class Content {
+        UUID id;
+        String filename;
+    }
+
+    @Entity
     static class Person {
         String name;
     }
@@ -39,10 +59,9 @@ class QueryDslUtilsTest {
                     Scalar.of(5)
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security = 5");
         }
@@ -55,10 +74,9 @@ class QueryDslUtilsTest {
                     Scalar.of(5)
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security != 5");
         }
@@ -71,10 +89,9 @@ class QueryDslUtilsTest {
                     Scalar.of(5)
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security > 5");
         }
@@ -87,10 +104,9 @@ class QueryDslUtilsTest {
                     Scalar.of(5)
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security >= 5");
         }
@@ -103,10 +119,9 @@ class QueryDslUtilsTest {
                     Scalar.of(5)
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security < 5");
         }
@@ -119,10 +134,9 @@ class QueryDslUtilsTest {
                     Scalar.of(5)
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security <= 5");
         }
@@ -142,10 +156,9 @@ class QueryDslUtilsTest {
                             Scalar.of(8))
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security = 5 || document.security = 10 || document.security = 8");
 
@@ -163,10 +176,9 @@ class QueryDslUtilsTest {
                             Scalar.of("HR"))
             );
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
                     .hasToString("document.security = 5 && document.department.id = HR");
 
@@ -176,63 +188,87 @@ class QueryDslUtilsTest {
         void negation() {
             // not(entity.external)
             var thunkExpression = LogicalOperation.uncheckedNegation(List.of(
-                    SymbolicReference.of("entity", path -> path.string("external"))
+                    SymbolicReference.of("entity", path -> path.string("confidential"))
             ));
 
-            var document = new PathBuilder(Document.class, "document");
+            var predicate = converter.from(thunkExpression, Document.class);
 
-            var actual = QueryDslUtils.from(thunkExpression, document);
-            assertThat(actual)
+            assertThat(predicate)
                     .isNotNull()
-                    .hasToString("!document.external");
+                    .hasToString("!document.confidential");
         }
 
     }
 
 
-    @Test
-    void compare_with_null() {
-        // document.security == null
-        var thunkExpression = Comparison.areEqual(
-                SymbolicReference.of("entity", path -> path.string("security")),
-                Scalar.nullValue()
-        );
+    @Nested
+    class Symbolic {
 
-        var document = new PathBuilder(Document.class, "document");
+        @Test
+        void compare_attribute_with_null() {
+            // document.security == null
+            var thunkExpression = Comparison.areEqual(
+                    SymbolicReference.of("entity", path -> path.string("security")),
+                    Scalar.nullValue()
+            );
 
-        var actual = QueryDslUtils.from(thunkExpression, document);
-        assertThat(actual)
-                .isNotNull()
-                .hasToString("document.security = null");
-    }
+            var predicate = converter.from(thunkExpression, Document.class);
 
-    @Test
-    void deep_relation_should_be_not_null() {
-        // document.department.manager != null
-        var thunkExpression = Comparison.notEqual(
-                SymbolicReference.of("entity", path -> path.string("department").string("manager")),
-                Scalar.nullValue()
-        );
+            assertThat(predicate)
+                    .isNotNull()
+                    .hasToString("document.security = null");
+        }
 
-        var document = new PathBuilder(Document.class, "document");
+        @Test
+        void compare_relation_shouldThrow() {
+            // This is NOT supported, because this expression requires an explicit join
+            // document.department.manager != null
 
-        var actual = QueryDslUtils.from(thunkExpression, document);
-        assertThat(actual)
-                .isNotNull()
-                .hasToString("document.department.manager != null");
-    }
+            var thunkExpression = Comparison.notEqual(
+                    SymbolicReference.of("entity", path -> path.string("department").string("manager")),
+                    Scalar.nullValue()
+            );
+
+            assertThatThrownBy(() -> converter.from(thunkExpression, Document.class))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Cannot use `entity.department.manager` as an expression, because it refers to a relation,"
+                            + " not an attribute.");
+        }
+
+        @Test
+        void unknownField_shouldThrow_illegalArgumentException() {
+            var thunkExpression = Comparison.areEqual(
+                    SymbolicReference.of("entity", path -> path.string("unknown")),
+                    Scalar.of(5)
+            );
+
+            assertThatThrownBy(() -> converter.from(thunkExpression, Document.class))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Unknown property .unknown on Document, while traversing entity.unknown");
+        }
+
+        @Test
+        void unknownNestedField_shouldThrow_illegalArgumentException() {
+            var thunkExpression = Comparison.areEqual(
+                    SymbolicReference.of("entity", path -> path.string("department").string("unknown")),
+                    Scalar.of(5)
+            );
+
+            assertThatThrownBy(() -> converter.from(thunkExpression, Document.class))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Unknown property .unknown on Department, while traversing entity.department.unknown");
+        }
+
+        @Test
+        void expectSubjectNotNamed_entity_throwsIllegalArgumentException() {
+            var thunkExpression = Comparison.areEqual(
+                    SymbolicReference.of("document", path -> path.string("security")),
+                    Scalar.of(5)
+            );
 
 
-    @Test
-    void expectSubjectNotNamed_entity_throwsIllegalArgumentException() {
-        var thunkExpression = Comparison.areEqual(
-                SymbolicReference.of("document", path -> path.string("security")),
-                Scalar.of(5)
-        );
-
-        var document = new PathBuilder(Document.class, "document");
-
-        assertThatThrownBy(() -> QueryDslUtils.from(thunkExpression, document))
-                .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> converter.from(thunkExpression, Document.class))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
     }
 }

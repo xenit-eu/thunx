@@ -6,7 +6,7 @@ import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.contentgrid.thunx.predicates.model.ThunkExpressionVisitor;
+import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.Variable;
 import java.util.Map;
 import java.util.Objects;
@@ -17,7 +17,7 @@ import lombok.Singular;
 
 @AllArgsConstructor
 @Builder
-public class ThunkReducerVisitor implements ThunkExpressionVisitor<ThunkExpression<?>> {
+public class ThunkReducerVisitor extends ContextFreeThunkExpressionVisitor<ThunkExpression<?>> {
 
     public static ThunkReducerVisitor DEFAULT_INSTANCE = ThunkReducerVisitor.builder()
             .operatorReducer(Operator.EQUALS, new ComparisonFunctionReducer(Objects::equals))
@@ -40,7 +40,7 @@ public class ThunkReducerVisitor implements ThunkExpressionVisitor<ThunkExpressi
         return reducer.tryReduce(
                 functionExpression.getTerms()
                         .stream()
-                        .map(expression -> expression.accept(this))
+                        .map(expression -> expression.accept(this, null))
                         .collect(Collectors.toList())
         ).orElse((ThunkExpression)functionExpression);
     }

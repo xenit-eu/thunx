@@ -13,6 +13,8 @@ dependencies {
     api project(":thunx-model")
     api 'com.querydsl:querydsl-core'
 
+    implementation 'jakarta.persistence:jakarta.persistence-api'
+
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
 

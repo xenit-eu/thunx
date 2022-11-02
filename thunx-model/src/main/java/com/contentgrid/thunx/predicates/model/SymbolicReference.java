@@ -30,7 +30,8 @@ public class SymbolicReference implements ThunkExpression<Object> {
             return subject.toPath();
         }
 
-        return String.format("%s.%s", subject, String.join("", "[" + path + "]"));
+        return String.format("%s.%s",
+                subject, path.stream().map(Object::toString).collect(Collectors.joining(".")));
     }
 
     @Override
@@ -43,8 +44,8 @@ public class SymbolicReference implements ThunkExpression<Object> {
                 path.stream().map(Object::toString).collect(Collectors.joining(".")));
     }
 
-    public <R> R accept(ThunkExpressionVisitor<R> visitor) {
-        return visitor.visit(this);
+    public <R, C> R accept(ThunkExpressionVisitor<R, C> visitor, C context) {
+        return visitor.visit(this, context);
     }
 
     public static SymbolicReference of(String variable, PathElement... path) {
@@ -136,10 +137,10 @@ public class SymbolicReference implements ThunkExpression<Object> {
 
     public interface PathElement {
 
-        <T> T accept(ThunkExpressionVisitor<T> visitor);
+        <T> T accept(ContextFreeThunkExpressionVisitor<T> visitor);
     }
 
-    public abstract static class PathElementVisitor<T> implements ThunkExpressionVisitor<T> {
+    public abstract static class PathElementVisitor<T> extends ContextFreeThunkExpressionVisitor<T> {
 
         @Override
         public final T visit(FunctionExpression<?> functionExpression) {
@@ -170,7 +171,7 @@ public class SymbolicReference implements ThunkExpression<Object> {
         }
 
         @Override
-        public <T> T accept(ThunkExpressionVisitor<T> visitor) {
+        public <T> T accept(ContextFreeThunkExpressionVisitor<T> visitor) {
             return visitor.visit(this.getPath());
         }
     }
@@ -184,8 +185,12 @@ public class SymbolicReference implements ThunkExpression<Object> {
             this.variable = Variable.named(varName);
         }
 
+        public String toString() {
+            return "$" + this.variable.getName();
+        }
+
         @Override
-        public <T> T accept(ThunkExpressionVisitor<T> visitor) {
+        public <T> T accept(ContextFreeThunkExpressionVisitor<T> visitor) {
             return visitor.visit(this.getVariable());
         }
     }

@@ -13,7 +13,7 @@ public interface ThunkExpression<T> {
         return (ThunkExpression<R>) this;
     }
 
-    <R> R accept(ThunkExpressionVisitor<R> visitor);
+    <R, C> R accept(ThunkExpressionVisitor<R, C> visitor, C context);
 
     static <R> Optional<Scalar<R>> maybeScalar(ThunkExpression<R> expression) {
         if(expression instanceof Scalar) {

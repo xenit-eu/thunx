@@ -3,7 +3,7 @@ package com.contentgrid.thunx.encoding.json;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.contentgrid.thunx.predicates.model.ThunkExpressionVisitor;
+import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
@@ -26,7 +26,7 @@ public class ExpressionJsonConverter {
 
     public String encode(ThunkExpression<?> expression) {
         try {
-            JsonExpressionDto jsonDto = expression.accept(this.visitor);
+            JsonExpressionDto jsonDto = expression.accept(this.visitor, null);
             return this.objectMapper.writeValueAsString(jsonDto);
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException(e);
@@ -40,7 +40,7 @@ public class ExpressionJsonConverter {
 
     }
 
-    private static class JsonEncoderVisitor implements ThunkExpressionVisitor<JsonExpressionDto> {
+    private static class JsonEncoderVisitor extends ContextFreeThunkExpressionVisitor<JsonExpressionDto> {
 
         @Override
         public JsonExpressionDto visit(Scalar<?> scalar) {
@@ -58,7 +58,7 @@ public class ExpressionJsonConverter {
         @Override
         public JsonExpressionDto visit(FunctionExpression<?> functionExpression) {
             var operator = functionExpression.getOperator();
-            var result = functionExpression.getTerms().stream().map(term -> term.accept(this));
+            var result = functionExpression.getTerms().stream().map(term -> term.accept(this, null));
 
 
             return new JsonFunctionDto(operator.getKey(), result);
@@ -67,7 +67,7 @@ public class ExpressionJsonConverter {
         @Override
         public JsonExpressionDto visit(SymbolicReference ref) {
             var jsonExprTerms = ref.getPath().stream().map(p -> p.accept(this)).collect(Collectors.toList());
-            return new JsonSymbolicReferenceDto(ref.getSubject().accept(this), jsonExprTerms);
+            return new JsonSymbolicReferenceDto(ref.getSubject().accept(this, null), jsonExprTerms);
         }
 
         @Override
