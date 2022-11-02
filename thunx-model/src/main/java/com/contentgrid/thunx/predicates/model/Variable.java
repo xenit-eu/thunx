@@ -20,8 +20,8 @@ public class Variable implements ThunkExpression<Object> {
     }
 
     @Override
-    public <R> R accept(ThunkExpressionVisitor<R> visitor) {
-        return visitor.visit(this);
+    public <R, C> R accept(ThunkExpressionVisitor<R, C> visitor, C context) {
+        return visitor.visit(this, context);
     }
 
     public static Variable named(String name) {

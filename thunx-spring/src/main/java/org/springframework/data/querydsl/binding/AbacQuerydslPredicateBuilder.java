@@ -1,11 +1,12 @@
 package org.springframework.data.querydsl.binding;
 
+import com.contentgrid.thunx.predicates.querydsl.FieldByReflectionAccessStrategy;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.contentgrid.thunx.spring.data.context.AbacContext;
-import com.contentgrid.thunx.predicates.querydsl.QueryDslUtils;
+import com.contentgrid.thunx.predicates.querydsl.QueryDslConverter;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ public class AbacQuerydslPredicateBuilder {
     private final MultiValueBinding<Path<? extends Object>, Object> defaultBinding;
     private final Map<PathInformation, Path<?>> paths;
     private final EntityPathResolver resolver;
+    private final QueryDslConverter queryDslConverter;
 
     public AbacQuerydslPredicateBuilder(ConversionService conversionService, EntityPathResolver resolver) {
 
@@ -42,6 +44,8 @@ public class AbacQuerydslPredicateBuilder {
         this.conversionService = conversionService;
         this.paths = new ConcurrentHashMap<>();
         this.resolver = resolver;
+
+        this.queryDslConverter = new QueryDslConverter(new FieldByReflectionAccessStrategy());
     }
 
     public Predicate getPredicate(TypeInformation<?> type, MultiValueMap<String, String> values, QuerydslBindings bindings) {
@@ -52,9 +56,7 @@ public class AbacQuerydslPredicateBuilder {
 
         var abacContext = AbacContext.getCurrentAbacContext();
         if (abacContext != null) {
-            var domainType = type.getType();
-            PathBuilder<?> entityPath = new PathBuilder(domainType, toAlias(domainType));
-            Predicate queryDslPredicate = QueryDslUtils.from(abacContext, entityPath);
+            Predicate queryDslPredicate = this.queryDslConverter.from(abacContext, type.getType());
             Assert.notNull(queryDslPredicate, "abac expression cannot be null");
             log.debug("ABAC Querydsl Predicate: {}", queryDslPredicate);
 

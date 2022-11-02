@@ -15,8 +15,8 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
 
     List<ThunkExpression<?>> getTerms();
 
-    default <R> R accept(ThunkExpressionVisitor<R> visitor) {
-        return visitor.visit(this);
+    default <R, C> R accept(ThunkExpressionVisitor<R, C> visitor, C context) {
+        return visitor.visit(this, context);
     }
 
     default String toDebugString() {
