@@ -139,7 +139,7 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
 
         // we want to build a typed path, making sure the segments in the path are valid
         var property = this.accessStrategy.getProperty(builder.getType(), pathElement).orElseThrow(() -> {
-            String msg = String.format("Unknown property %s on %s, while traversing %s",
+            String msg = String.format("Unknown property '%s' on %s, while traversing %s",
                     pathElement, builder.getType().getSimpleName(), symbolicReference.toPath());
             throw new IllegalArgumentException(msg);
 

@@ -244,7 +244,7 @@ class QueryDslConverterTest {
 
             assertThatThrownBy(() -> converter.from(thunkExpression, Document.class))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Unknown property .unknown on Document, while traversing entity.unknown");
+                    .hasMessage("Unknown property 'unknown' on Document, while traversing entity.unknown");
         }
 
         @Test
@@ -256,7 +256,7 @@ class QueryDslConverterTest {
 
             assertThatThrownBy(() -> converter.from(thunkExpression, Document.class))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Unknown property .unknown on Department, while traversing entity.department.unknown");
+                    .hasMessage("Unknown property 'unknown' on Department, while traversing entity.department.unknown");
         }
 
         @Test
