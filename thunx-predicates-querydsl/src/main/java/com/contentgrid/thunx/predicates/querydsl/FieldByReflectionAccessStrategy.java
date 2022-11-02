@@ -17,7 +17,7 @@ public class FieldByReflectionAccessStrategy implements PropertyAccessStrategy {
     }
 
     @Value
-    static class FieldPropertyAccess implements PropertyAccess {
+    private static class FieldPropertyAccess implements PropertyAccess {
 
         @NonNull
         Field field;
