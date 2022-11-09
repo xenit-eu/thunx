@@ -1,12 +1,11 @@
 package org.springframework.data.querydsl.binding;
 
 import com.contentgrid.thunx.predicates.querydsl.FieldByReflectionAccessStrategy;
+import com.contentgrid.thunx.predicates.querydsl.QueryDslConverter;
+import com.contentgrid.thunx.spring.data.context.AbacContext;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.PathBuilder;
-import com.contentgrid.thunx.spring.data.context.AbacContext;
-import com.contentgrid.thunx.predicates.querydsl.QueryDslConverter;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +22,7 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.querydsl.EntityPathResolver;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -48,6 +48,7 @@ public class AbacQuerydslPredicateBuilder {
         this.queryDslConverter = new QueryDslConverter(new FieldByReflectionAccessStrategy());
     }
 
+    @Nullable
     public Predicate getPredicate(TypeInformation<?> type, MultiValueMap<String, String> values, QuerydslBindings bindings) {
 
         Assert.notNull(bindings, "Context must not be null!");

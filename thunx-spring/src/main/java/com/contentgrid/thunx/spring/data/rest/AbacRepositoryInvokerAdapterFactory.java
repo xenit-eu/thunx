@@ -9,15 +9,22 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @AllArgsConstructor
 public class AbacRepositoryInvokerAdapterFactory {
+
     private Repositories repositories;
     private PlatformTransactionManager transactionManager;
 
-    public RepositoryInvoker createRepositoryInvoker(RepositoryInvoker repositoryInvoker, Class<?> domainType, Predicate predicate) {
-        QuerydslPredicateExecutor<Object> predicateExecutor = repositories.getRepositoryFor(domainType)
+    public RepositoryInvoker createRepositoryInvoker(RepositoryInvoker repositoryInvoker, Class<?> domainType,
+            Predicate predicate) {
+        var executor = repositories.getRepositoryFor(domainType)
                 .map(QuerydslPredicateExecutor.class::cast)
                 .orElseThrow();
 
-        return new AbacRepositoryInvokerAdapter(repositoryInvoker, predicateExecutor, transactionManager, domainType, predicate);
+        var repositoryInformation = this.repositories.getRequiredRepositoryInformation(domainType);
+        var persistentEntity = repositories.getPersistentEntity(domainType);
+        var entityInformation = repositories.getEntityInformationFor(domainType);
+
+        return new AbacRepositoryInvokerAdapter(repositoryInvoker, executor, predicate, transactionManager,
+                repositoryInformation, persistentEntity, entityInformation);
     }
 
 }
