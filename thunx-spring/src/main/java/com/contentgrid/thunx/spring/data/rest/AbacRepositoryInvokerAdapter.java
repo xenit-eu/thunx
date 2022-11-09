@@ -130,7 +130,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
      * repository.
      * When an entity is saved, it is immediately looked up again using
      * {@link AbacRepositoryInvokerAdapter#invokeFindById(Object id)}, which applies the {@link Predicate}. If this
-     * lookup returns an empty {@link Optional<T>}, a {@link ResourceNotFoundException} is thrown that rolls back the
+     * lookup returns an empty {@link Optional}, a {@link ResourceNotFoundException} is thrown that rolls back the
      * current transaction.
      *
      * @return the result of the invocation of the save method

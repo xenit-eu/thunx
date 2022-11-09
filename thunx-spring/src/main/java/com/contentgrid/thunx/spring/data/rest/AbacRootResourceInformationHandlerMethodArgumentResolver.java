@@ -16,6 +16,7 @@ import org.springframework.data.repository.support.RepositoryInvokerFactory;
 import org.springframework.data.rest.webmvc.config.ResourceMetadataHandlerMethodArgumentResolver;
 import org.springframework.data.rest.webmvc.config.RootResourceInformationHandlerMethodArgumentResolver;
 import org.springframework.data.util.ClassTypeInformation;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -34,6 +35,9 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
      * @param repositories must not be {@literal null}.
      * @param invokerFactory must not be {@literal null}.
      * @param resourceMetadataResolver must not be {@literal null}.
+     * @param predicateBuilder must not be {@literal null}.
+     * @param querydslBindingsFactory must not be {@literal null}.
+     * @param repositoryInvokerFactory must not be {@literal null}.
      */
     public AbacRootResourceInformationHandlerMethodArgumentResolver(
             Repositories repositories,
@@ -41,15 +45,19 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
             ResourceMetadataHandlerMethodArgumentResolver resourceMetadataResolver,
             AbacQuerydslPredicateBuilder predicateBuilder,
             QuerydslBindingsFactory querydslBindingsFactory,
-            AbacRepositoryInvokerAdapterFactory abacRepositoryInvokerAdapterFactory
-            ) {
+            AbacRepositoryInvokerAdapterFactory repositoryInvokerFactory) {
 
         super(repositories, invokerFactory, resourceMetadataResolver);
+
+        Assert.notNull(repositories, "Repositories must not be null!");
+        Assert.notNull(predicateBuilder, "predicateBuilder must not be null!");
+        Assert.notNull(querydslBindingsFactory, "querydslBindingsFactory must not be null!");
+        Assert.notNull(repositoryInvokerFactory, "repositoryInvokerFactory must not be null!");
 
         this.repositories = repositories;
         this.predicateBuilder = predicateBuilder;
         this.querydslBindingsFactory = querydslBindingsFactory;
-        this.repositoryInvokerFactory = abacRepositoryInvokerAdapterFactory;
+        this.repositoryInvokerFactory = repositoryInvokerFactory;
     }
 
     /*
