@@ -3,15 +3,18 @@ package com.contentgrid.thunx.spring.data.rest;
 import com.contentgrid.thunx.spring.data.context.AbacContext;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.BeansException;
+import com.querydsl.core.types.dsl.PathBuilderFactory;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import lombok.NonNull;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.QuerydslRepositoryInvokerAdapter;
+import org.springframework.data.repository.core.EntityInformation;
+import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.format.support.DefaultFormattingConversionService;
@@ -19,64 +22,125 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
 
-    private QuerydslPredicateExecutor<Object> executor;
-    private PlatformTransactionManager transactionManager;
-    private Class<?> domainType;
-    private Predicate predicate;
+    @NonNull
+    private final QuerydslPredicateExecutor<Object> executor;
+    @NonNull
+    private final Predicate predicate;
+    private final PlatformTransactionManager transactionManager;
 
-    private ConversionService conversionService = new DefaultFormattingConversionService();
+    @NonNull
+    private final Class<?> domainType;
+
+    @NonNull
+    private final Class<?> idPropertyType;
+
+    @NonNull
+    private final String idName;
+
+    @NonNull
+    private final Function<Object, ?> idFunction;
+
+    private final ConversionService conversionService = new DefaultFormattingConversionService();
 
     public AbacRepositoryInvokerAdapter(
             RepositoryInvoker delegate,
             QuerydslPredicateExecutor<Object> executor,
+            Predicate predicate,
+            PlatformTransactionManager transactionManager,
+            RepositoryMetadata repositoryMetadata,
+            PersistentEntity<?, ?> persistentEntity,
+            EntityInformation<Object, ?> entityInformation) {
+        this(delegate, executor, predicate, transactionManager, repositoryMetadata.getDomainType(),
+                repositoryMetadata.getIdType(), persistentEntity.getRequiredIdProperty().getName(),
+                entityInformation::getRequiredId);
+    }
+
+    public AbacRepositoryInvokerAdapter(
+            RepositoryInvoker delegate,
+            QuerydslPredicateExecutor<Object> executor,
+            Predicate predicate,
             PlatformTransactionManager transactionManager,
             Class<?> domainType,
-            Predicate predicate) {
+            Class<?> idType,
+            String idPropertyName,
+            Function<Object, ?> idFunction
+    ) {
         super(delegate, executor, predicate);
         this.executor = executor;
+        this.predicate = predicate;
         this.transactionManager = transactionManager;
         this.domainType = domainType;
-        this.predicate = predicate;
+        this.idPropertyType = idType;
+        this.idName = idPropertyName;
+        this.idFunction = idFunction;
+
     }
 
+    /**
+     * Invokes the method equivalent to {@link org.springframework.data.repository.CrudRepository#findById(Object)},
+     * taking the provided {@link Predicate} into account when looking up an entity by id.
+     *
+     * @param id must not be {@literal null}.
+     * @return the entity with the given id.
+     * @throws IllegalStateException if the repository does not expose a find-one-method.
+     */
     @Override
     public <T> Optional<T> invokeFindById(Object id) {
-
         BooleanBuilder builder = new BooleanBuilder();
-
-        PathBuilder entityPath = new PathBuilder(domainType, toAlias(domainType));
-        BooleanExpression idExpr = idExpr(conversionService.convert(id, Long.class), entityPath);
-        Assert.notNull(idExpr, "id expression cannot be null");
-        builder.and(idExpr);
         builder.and(predicate);
 
-        return (Optional<T>) executor.findOne(builder.getValue());
+        var pathBuilder = new PathBuilderFactory().create(this.domainType);
+        var entityIdPath = pathBuilder.get(this.idName, this.idPropertyType);
+        Assert.notNull(entityIdPath, "id expression cannot be null");
+
+        builder.and(entityIdPath.eq(Expressions.constant(convertId(id))));
+
+        return (Optional<T>) executor.findOne(Objects.requireNonNull(builder.getValue()));
     }
 
-//  When saving an entity we first save and then findById that applies the abac policy.  If this find return null we throw a RNFE that rollback
-//  the transaction
+    /**
+     * Converts the given id into the id type of the backing repository.
+     *
+     * @param id must not be {@literal null}.
+     * @see "Copied from ReflectionRepositoryInvoker#convertId(Object) convertId"
+     */
+    protected Object convertId(Object id) {
 
-//  OPA policies are written in terms of the object being saved
-//
+        Assert.notNull(id, "Id must not be null");
+
+        if (idPropertyType.isInstance(id)) {
+            return id;
+        }
+
+        Object result = conversionService.convert(id, idPropertyType);
+
+        if (result == null) {
+            throw new IllegalStateException(
+                    String.format("Identifier conversion of %s to %s unexpectedly returned null", id, idPropertyType));
+        }
+
+        return result;
+    }
+
+    /**
+     * Invokes the method equivalent to {@link org.springframework.data.repository.CrudRepository#save(Object)} on the
+     * repository. When an entity is saved, it is immediately looked up again using
+     * {@link AbacRepositoryInvokerAdapter#invokeFindById(Object id)}, which applies the {@link Predicate} from the
+     * request context. If this lookup returns an empty {@link Optional}, a {@link ResourceNotFoundException} is thrown
+     * that rolls back the current transaction.
+     *
+     * @return the result of the invocation of the save method
+     * @throws IllegalStateException if the repository does not expose a save method.
+     */
     @Override
     public <T> T invokeSave(T object) {
 
-        var abacContext = AbacContext.getCurrentAbacContext();
-        if (abacContext == null) {
-            return super.invokeSave(object);
-        }
-
         TransactionStatus status = null;
-        T entityToReturn = null;
+        T entityToReturn;
+
         try {
 
             if (transactionManager != null) {
@@ -85,124 +149,29 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
 
             T savedEntity = super.invokeSave(object);
 
-            Field idField = DomainObjectUtils.getIdField(object.getClass());
-            Assert.notNull(idField, "missing id field");
-
-            BeanWrapper wrapper = new BeanWrapperImpl(savedEntity);
-            Object id = wrapper.getPropertyValue(idField.getName());
-
+            Object id = this.idFunction.apply(savedEntity);
             Optional<T> fetchedEntity = this.invokeFindById(id);
-            if (!fetchedEntity.isPresent()) {
+            if (fetchedEntity.isEmpty()) {
                 throw new ResourceNotFoundException(String.format("id: %s", id));
             }
 
             entityToReturn = fetchedEntity.get();
 
-            if (status != null && status.isCompleted() == false) {
+            if (status != null && !status.isCompleted()) {
                 transactionManager.commit(status);
             }
-        } catch (Exception e) {
-            if (status != null && status.isCompleted() == false) {
+
+
+        } catch (Exception e) /* why are we catching pokemons and not ResourceNotFoundException directly ? */ {
+
+            if (status != null && !status.isCompleted()) {
+                // every runtime-exception should trigger a rollback anyway, why do we need to do this explicitly ?
+                // is it because our invokeSave & invokeFindById _would_ be triggered in separate transactions ?
                 transactionManager.rollback(status);
             }
             throw e;
         }
 
         return entityToReturn;
-    }
-
-//    No implementation required.  When performing a delete through the REST API the Controller first does a findById call
-//    that applies the abac policies
-//
-//    @Override
-//    public void invokeDeleteById(Object id) {
-//
-//        Disjunction abacContext = ABACContext.getCurrentAbacContext();
-//        if (abacContext == null) {
-//            super.invokeDeleteById(id);
-//        }
-//
-//        try {
-//            Optional<Object> object = this.invokeFindById(conversionService.convert(id, Long.class));
-//            object.ifPresent((it) -> {
-//                enforceAbacAttributes(object, abacContext);
-//                super.invokeDeleteById(conversionService.convert(id, Long.class));
-//            });
-//        } catch (Throwable t) {
-//            int i=0;
-//        }
-//    }
-
-    private String toAlias(Class<?> subjectType) {
-
-        char c[] = subjectType.getSimpleName().toCharArray();
-        c[0] = Character.toLowerCase(c[0]);
-        return new String(c);
-    }
-
-    private BooleanExpression idExpr(Object id, PathBuilder entityPath) {
-        Field idField = DomainObjectUtils.getIdField(domainType);
-        PathBuilder idPath = entityPath.get(idField.getName(), id.getClass());
-        return idPath.eq(Expressions.constant(id));
-    }
-
-
-    static class DomainObjectUtils {
-
-        private static final boolean JAVAX_PERSISTENCE_PRESENT = ClassUtils.isPresent(
-                "javax.persistence.Id", DomainObjectUtils.class.getClassLoader());
-
-        static final Field getIdField(Class<?> domainClass) {
-
-            // Looking for @javax.persistence.Id
-            if (JAVAX_PERSISTENCE_PRESENT) {
-                var jpaIdField = DomainObjectUtils.findFieldWithAnnotation(domainClass, javax.persistence.Id.class);
-                if (jpaIdField.isPresent()) {
-                    return jpaIdField.get();
-                }
-            }
-
-            // Looking for @org.springframework.data.annotation.Id
-            var springDataId = DomainObjectUtils.findFieldWithAnnotation(domainClass, org.springframework.data.annotation.Id.class);
-            if (springDataId.isPresent()) {
-                return springDataId.get();
-            }
-
-            // None found
-            return null;
-        }
-
-        private static Optional<Field> findFieldWithAnnotation(Class<?> domainObjClass,
-                                                               Class<? extends Annotation> annotationClass)
-                throws SecurityException, BeansException {
-
-            // First look for the annotation on the accessor methods
-            BeanWrapper wrapper = new BeanWrapperImpl(domainObjClass);
-            return Stream.of(wrapper.getPropertyDescriptors())
-                    .map(descriptor -> findFieldByName(domainObjClass, descriptor.getName()))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .filter(field -> field.isAnnotationPresent(annotationClass))
-                    .findFirst()
-
-                    // Otherwise look for the annotation on the fields directly
-                    .or(() -> allFields(domainObjClass)
-                            .filter(field -> field.isAnnotationPresent(annotationClass))
-                            .findFirst());
-
-
-        }
-
-        private static Optional<Field> findFieldByName(Class<?> type, String fieldName) {
-            return allFields(type)
-                    .filter(field -> field.getName().equals(fieldName))
-                    .findFirst();
-        }
-
-        private static Stream<Field> allFields(Class<?> type) {
-            return Stream.concat(
-                    Stream.of(type.getDeclaredFields()),
-                    type.getSuperclass() != null ? allFields(type.getSuperclass()) : Stream.empty());
-        }
     }
 }

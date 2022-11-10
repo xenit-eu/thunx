@@ -36,6 +36,8 @@ public class AbacRequestFilter implements Filter {
             ThunkExpression<Boolean> abacExpression = this.thunkDecoder.decoder(abacContextBytes);
             log.debug("ABAC Context: {}", abacExpression);
             AbacContext.setCurrentAbacContext(abacExpression);
+        } else {
+            log.warn("No X-ABAC-Context context present.");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

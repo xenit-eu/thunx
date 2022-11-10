@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.spring.data.rest;
 
-import com.mysema.commons.lang.Pair;
 import com.querydsl.core.types.Predicate;
 import java.util.Arrays;
 import java.util.Map;
@@ -17,6 +16,7 @@ import org.springframework.data.repository.support.RepositoryInvokerFactory;
 import org.springframework.data.rest.webmvc.config.ResourceMetadataHandlerMethodArgumentResolver;
 import org.springframework.data.rest.webmvc.config.RootResourceInformationHandlerMethodArgumentResolver;
 import org.springframework.data.util.ClassTypeInformation;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -25,8 +25,8 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
 
     private final Repositories repositories;
     private final AbacQuerydslPredicateBuilder predicateBuilder;
-    private final QuerydslBindingsFactory factory;
-    private final AbacRepositoryInvokerAdapterFactory repositoryInvokerAdapterFactory;
+    private final QuerydslBindingsFactory querydslBindingsFactory;
+    private final AbacRepositoryInvokerAdapterFactory repositoryInvokerFactory;
 
     /**
      * Creates a new {@link AbacRootResourceInformationHandlerMethodArgumentResolver} using the given
@@ -35,22 +35,29 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
      * @param repositories must not be {@literal null}.
      * @param invokerFactory must not be {@literal null}.
      * @param resourceMetadataResolver must not be {@literal null}.
+     * @param predicateBuilder must not be {@literal null}.
+     * @param querydslBindingsFactory must not be {@literal null}.
+     * @param repositoryInvokerFactory must not be {@literal null}.
      */
     public AbacRootResourceInformationHandlerMethodArgumentResolver(
             Repositories repositories,
             RepositoryInvokerFactory invokerFactory,
             ResourceMetadataHandlerMethodArgumentResolver resourceMetadataResolver,
             AbacQuerydslPredicateBuilder predicateBuilder,
-            QuerydslBindingsFactory factory,
-            AbacRepositoryInvokerAdapterFactory abacRepositoryInvokerAdapterFactory
-            ) {
+            QuerydslBindingsFactory querydslBindingsFactory,
+            AbacRepositoryInvokerAdapterFactory repositoryInvokerFactory) {
 
         super(repositories, invokerFactory, resourceMetadataResolver);
 
+        Assert.notNull(repositories, "Repositories must not be null!");
+        Assert.notNull(predicateBuilder, "predicateBuilder must not be null!");
+        Assert.notNull(querydslBindingsFactory, "querydslBindingsFactory must not be null!");
+        Assert.notNull(repositoryInvokerFactory, "repositoryInvokerFactory must not be null!");
+
         this.repositories = repositories;
         this.predicateBuilder = predicateBuilder;
-        this.factory = factory;
-        this.repositoryInvokerAdapterFactory = abacRepositoryInvokerAdapterFactory;
+        this.querydslBindingsFactory = querydslBindingsFactory;
+        this.repositoryInvokerFactory = repositoryInvokerFactory;
     }
 
     /*
@@ -61,38 +68,31 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
     protected RepositoryInvoker postProcess(MethodParameter parameter, RepositoryInvoker invoker, Class<?> domainType,
             Map<String, String[]> parameters) {
 
-//        if (!parameter.hasParameterAnnotation(QuerydslPredicate.class)) {
-//            return invoker;
-//        }
-
-        return repositories.getRepositoryFor(domainType)//
-                .filter(it -> QuerydslPredicateExecutor.class.isInstance(it))//
-                .map(it -> QuerydslPredicateExecutor.class.cast(it))//
-                .flatMap(it -> getRepositoryAndPredicate(it, domainType, parameters))//
-                .map(it -> repositoryInvokerAdapterFactory.createRepositoryInvoker(invoker, domainType, it.getSecond()))//
+        return repositories.getRepositoryFor(domainType)
+                .filter(QuerydslPredicateExecutor.class::isInstance)
+                .flatMap(executor -> getPredicate(domainType, parameters))
+                .map(predicate -> repositoryInvokerFactory.createRepositoryInvoker(invoker, domainType, predicate))
                 .orElse(invoker);
     }
 
-    private Optional<Pair<QuerydslPredicateExecutor<?>, Predicate>> getRepositoryAndPredicate(
-            QuerydslPredicateExecutor<?> repository, Class<?> domainType, Map<String, String[]> parameters) {
+    private Optional<Predicate> getPredicate(Class<?> domainType, Map<String, String[]> parameters) {
 
         ClassTypeInformation<?> type = ClassTypeInformation.from(domainType);
-
-        QuerydslBindings bindings = factory.createBindingsFor(type);
+        QuerydslBindings bindings = querydslBindingsFactory.createBindingsFor(type);
         Predicate predicate = predicateBuilder.getPredicate(type, toMultiValueMap(parameters), bindings);
 
-        return Optional.ofNullable(predicate).map(it -> Pair.of(repository, it));
+        return Optional.ofNullable(predicate);
     }
 
     /**
      * Converts the given Map into a {@link MultiValueMap}.
      *
      * @param source must not be {@literal null}.
-     * @return
+     * @return the converted {@link MultiValueMap}.
      */
     private static MultiValueMap<String, String> toMultiValueMap(Map<String, String[]> source) {
 
-        MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>();
+        MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
 
         for (Entry<String, String[]> entry : source.entrySet()) {
             result.put(entry.getKey(), Arrays.asList(entry.getValue()));
