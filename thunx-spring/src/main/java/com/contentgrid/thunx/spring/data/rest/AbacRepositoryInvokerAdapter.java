@@ -127,11 +127,10 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
 
     /**
      * Invokes the method equivalent to {@link org.springframework.data.repository.CrudRepository#save(Object)} on the
-     * repository.
-     * When an entity is saved, it is immediately looked up again using
-     * {@link AbacRepositoryInvokerAdapter#invokeFindById(Object id)}, which applies the {@link Predicate}. If this
-     * lookup returns an empty {@link Optional}, a {@link ResourceNotFoundException} is thrown that rolls back the
-     * current transaction.
+     * repository. When an entity is saved, it is immediately looked up again using
+     * {@link AbacRepositoryInvokerAdapter#invokeFindById(Object id)}, which applies the {@link Predicate} from the
+     * request context. If this lookup returns an empty {@link Optional}, a {@link ResourceNotFoundException} is thrown
+     * that rolls back the current transaction.
      *
      * @return the result of the invocation of the save method
      * @throws IllegalStateException if the repository does not expose a save method.
@@ -139,13 +138,9 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     @Override
     public <T> T invokeSave(T object) {
 
-        var abacContext = AbacContext.getCurrentAbacContext();
-        if (abacContext == null) {
-            return super.invokeSave(object);
-        }
-
         TransactionStatus status = null;
-        T entityToReturn = null;
+        T entityToReturn;
+
         try {
 
             if (transactionManager != null) {
@@ -165,8 +160,13 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             if (status != null && !status.isCompleted()) {
                 transactionManager.commit(status);
             }
-        } catch (Exception e) {
+
+
+        } catch (Exception e) /* why are we catching pokemons and not ResourceNotFoundException directly ? */ {
+
             if (status != null && !status.isCompleted()) {
+                // every runtime-exception should trigger a rollback anyway, why do we need to do this explicitly ?
+                // is it because our invokeSave & invokeFindById _would_ be triggered in separate transactions ?
                 transactionManager.rollback(status);
             }
             throw e;
