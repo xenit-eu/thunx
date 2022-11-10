@@ -98,8 +98,8 @@ Requirements:
 Using Gradle:
 
 ```groovy
-implementation 'com.contentgrid.thunx:thunx-spring:${thunxVersion}'
-implementation 'com.contentgrid.thunx:thunx-pdp-opa:${thunxVersion}'
+implementation "com.contentgrid.thunx:thunx-spring:${thunxVersion}"
+implementation "com.contentgrid.thunx:thunx-pdp-opa:${thunxVersion}"
 ```
 
 #### Spring Data REST Service
@@ -107,8 +107,8 @@ implementation 'com.contentgrid.thunx:thunx-pdp-opa:${thunxVersion}'
 Using Gradle:
 
 ```groovy
-implementation 'com.contentgrid.thunx:thunx-spring:${thunxVersion}'
-runtimeOnly 'com.contentgrid.thunx:thunx-predicates-querydsl:${thunxVersion}'
+implementation "com.contentgrid.thunx:thunx-spring:${thunxVersion}"
+runtimeOnly "com.contentgrid.thunx:thunx-predicates-querydsl:${thunxVersion}"
 
 implementation "com.querydsl:querydsl-core"
 implementation "com.querydsl:querydsl-jpa"
