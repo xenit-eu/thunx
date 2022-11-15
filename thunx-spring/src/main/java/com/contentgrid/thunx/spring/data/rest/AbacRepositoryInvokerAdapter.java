@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.spring.data.rest;
 
-import com.contentgrid.thunx.spring.data.context.AbacContext;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
@@ -41,7 +40,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     private final String idName;
 
     @NonNull
-    private final Function<Object, ?> idFunction;
+    private final Function<Object, Optional<?>> idFunction;
 
     private final ConversionService conversionService = new DefaultFormattingConversionService();
 
@@ -55,7 +54,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             EntityInformation<Object, ?> entityInformation) {
         this(delegate, executor, predicate, transactionManager, repositoryMetadata.getDomainType(),
                 repositoryMetadata.getIdType(), persistentEntity.getRequiredIdProperty().getName(),
-                entityInformation::getRequiredId);
+                entity -> Optional.ofNullable(entityInformation.getId(entity)));
     }
 
     public AbacRepositoryInvokerAdapter(
@@ -66,7 +65,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             Class<?> domainType,
             Class<?> idType,
             String idPropertyName,
-            Function<Object, ?> idFunction
+            Function<Object, Optional<?>> idFunction
     ) {
         super(delegate, executor, predicate);
         this.executor = executor;
@@ -147,9 +146,25 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
                 status = transactionManager.getTransaction(new DefaultTransactionDefinition());
             }
 
+            // when object has no id, there is no pre-save-check required
+            // when object has an 'id', do:
+            //   1. invokeFindById without predicate
+            //   2. invokeFindById with predicate
+            //   case a) - both (1) and (2) are NOT present: create new -> check afterwards the new object was allowed
+            //   case b) - both (1) and (2) are present: update -> check afterwards the updates are allowed
+            //   case c) - if (1) is NOT present, but (2) is: impossible case
+            //   case d) - if (1) is present, but (2) is NOT: permission denied
+            this.idFunction.apply(object).ifPresent(id -> {
+                if (super.invokeFindById(id) /* without predicate */.isPresent()) {
+                    if (this.invokeFindById(id) /* with predicate */.isEmpty()) {
+                        throw new ResourceNotFoundException(String.format("id: %s", id));
+                    }
+                }
+            });
+
             T savedEntity = super.invokeSave(object);
 
-            Object id = this.idFunction.apply(savedEntity);
+            Object id = this.idFunction.apply(savedEntity).orElseThrow();
             Optional<T> fetchedEntity = this.invokeFindById(id);
             if (fetchedEntity.isEmpty()) {
                 throw new ResourceNotFoundException(String.format("id: %s", id));
