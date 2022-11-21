@@ -9,7 +9,7 @@ javaPlatform {
 dependencies {
     api platform("org.springframework.boot:spring-boot-dependencies:2.6.12")
     api platform("org.springframework.cloud:spring-cloud-dependencies:2021.0.4")
-    api platform("org.testcontainers:testcontainers-bom:1.17.5")
+    api platform("org.testcontainers:testcontainers-bom:1.17.6")
 
     constraints {
         api 'com.contentgrid.opa-java-client:opa-async-java-client:0.4.0'
