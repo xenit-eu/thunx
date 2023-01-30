@@ -1,5 +1,5 @@
 plugins {
-    id 'eu.xenit.enterprise-conventions.oss' version '0.3.0-rc.2'
+    id 'eu.xenit.enterprise-conventions.oss' version '0.3.0'
 }
 
 rootProject.name = 'thunx'
