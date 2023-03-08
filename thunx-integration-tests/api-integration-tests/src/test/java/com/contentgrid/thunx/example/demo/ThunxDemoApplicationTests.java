@@ -32,7 +32,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
@@ -108,7 +107,6 @@ class ThunxDemoApplicationTests {
         PROMO_XMAS = promos.save(new PromotionCampaign("XMAS", "Happy Holidays")).getPromoCode();
         PROMO_GORILLA = promos.save(new PromotionCampaign("GORILLA", "Huge Customers")).getPromoCode();
 
-        // class is annotated with @Transactional, any change gets rolled back at the end of every test
         var xenit = customers.save(new Customer(null, "XeniT", ORG_XENIT_VAT, new HashSet<>(), new HashSet<>()));
         var inbev = customers.save(new Customer(null, "AB InBev", ORG_INBEV_VAT, new HashSet<>(), new HashSet<>()));
 

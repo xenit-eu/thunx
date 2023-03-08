@@ -11,14 +11,6 @@ ext {
 	thunxVersion = '0.5.0-SNAPSHOT'
 }
 
-//repositories {
-//	mavenCentral()
-//	mavenLocal()
-//	maven {
-//		url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-//	}
-//}
-
 dependencies {
 	implementation platform(project(":thunx-bom"))
 
