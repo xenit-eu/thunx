@@ -23,7 +23,7 @@ dependencies {
 	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.4.1')
 
 	runtimeOnly 'org.postgresql:postgresql'
-	runtimeOnly 'org.testcontainers:postgresql:1.17.3'
+	runtimeOnly 'org.testcontainers:postgresql:1.17.6'
 
 	runtimeOnly project(":thunx-api-spring-boot-starter")
 
