@@ -4,6 +4,8 @@ plugins {
 }
 
 dependencies {
+    implementation platform(project(":thunx-bom"))
+
     api project(':thunx-pdp-opa')
     api project(':thunx-autoconfigure')
 }
