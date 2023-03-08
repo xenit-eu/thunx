@@ -2,13 +2,6 @@ plugins {
 	id 'java-library'
 }
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
-
-ext {
-	thunxVersion = '0.5.0-SNAPSHOT'
-}
-
 dependencies {
 	implementation platform("org.springframework.boot:spring-boot-dependencies:2.7.9")
 	implementation platform(project(":thunx-bom"))
@@ -32,13 +25,10 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'org.testcontainers:postgresql:1.17.3'
 
-//	runtimeOnly project(":thunx-autoconfigure")
-//	runtimeOnly project(":thunx-predicates-querydsl")
 	runtimeOnly project(":thunx-api-spring-boot-starter")
 
 	annotationProcessor 'com.querydsl:querydsl-apt::jpa'
 	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
-//	api 'jakarta.annotation:jakarta.annotation-api'
 
 }
 
