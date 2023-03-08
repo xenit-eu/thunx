@@ -1,6 +1,4 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.7'
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id 'java-library'
 }
 
@@ -12,6 +10,7 @@ ext {
 }
 
 dependencies {
+	implementation platform("org.springframework.boot:spring-boot-dependencies:2.7.9")
 	implementation platform(project(":thunx-bom"))
 
 	compileOnly 'org.projectlombok:lombok'
