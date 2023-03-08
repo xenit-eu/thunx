@@ -6,3 +6,8 @@ updates:
       interval: weekly
     reviewers: 
       - "xenit-eu/contentgrid"
+    ignore:
+      - dependency-name: org.springframework.boot:spring-boot-dependencies
+        update-types: ['version-update:semver-major']
+      - dependency-name: org.springframework.cloud:spring-cloud-dependencies
+        update-types: [ 'version-update:semver-major' ]
