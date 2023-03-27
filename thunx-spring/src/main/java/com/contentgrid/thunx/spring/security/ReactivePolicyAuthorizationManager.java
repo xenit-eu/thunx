@@ -75,6 +75,11 @@ public class ReactivePolicyAuthorizationManager implements ReactiveAuthorization
             public Map<String, List<String>> getQueryParams() {
                 return context.getExchange().getRequest().getQueryParams();
             }
+
+            @Override
+            public Map<String, Object> getAttributes() {
+                return Map.copyOf(context.getExchange().getAttributes());
+            }
         };
     }
 }
