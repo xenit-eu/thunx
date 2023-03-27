@@ -63,4 +63,20 @@ public interface RequestContext {
         return Optional.ofNullable(this.getQueryParams(name)).flatMap(params -> Stream.of(params).findFirst());
     }
 
+    /**
+     * Return an immutable map of request attributes for the current request.
+     */
+    Map<String, Object> getAttributes();
+
+    /**
+     * Return the request attribute value if present.
+     * @param name the attribute name
+     * @param <T> the attribute type
+     * @return the attribute value
+     */
+    @SuppressWarnings("unchecked")
+    default <T> Optional<T> getAttribute(String name) {
+        return Optional.ofNullable((T) getAttributes().get(name));
+    }
+
 }
