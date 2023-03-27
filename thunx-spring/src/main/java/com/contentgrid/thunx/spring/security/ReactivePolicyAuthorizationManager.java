@@ -8,10 +8,12 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 public class ReactivePolicyAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
@@ -59,27 +61,7 @@ public class ReactivePolicyAuthorizationManager implements ReactiveAuthorization
     }
 
     static RequestContext mapRequestContext(AuthorizationContext context) {
-        return new RequestContext() {
-
-            @Override
-            public String getHttpMethod() {
-                return context.getExchange().getRequest().getMethodValue();
-            }
-
-            @Override
-            public URI getURI() {
-                return context.getExchange().getRequest().getURI();
-            }
-
-            @Override
-            public Map<String, List<String>> getQueryParams() {
-                return context.getExchange().getRequest().getQueryParams();
-            }
-
-            @Override
-            public Map<String, Object> getAttributes() {
-                return Map.copyOf(context.getExchange().getAttributes());
-            }
-        };
+        return new ServerWebExchangeRequestContext(context.getExchange());
     }
+
 }
