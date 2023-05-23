@@ -1,8 +1,17 @@
 plugins {
     id 'eu.xenit.enterprise-conventions.oss' version '0.4.0'
+    id 'org.ajoberstar.reckon.settings' version '0.18.0'
 }
 
 rootProject.name = 'thunx'
+
+reckon {
+    defaultInferredScope = 'patch'
+    snapshots()
+    scopeCalc = calcScopeFromCommitMessages()
+    stageCalc = { inventory, targetNormal -> java.util.Optional.empty() }
+}
+
 
 include 'thunx-dependencies'
 

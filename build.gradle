@@ -1,12 +1,3 @@
-plugins {
-    id 'org.ajoberstar.reckon' version '0.18.0'
-}
-
-reckon {
-    scopeFromProp()
-    snapshotFromProp()
-}
-
 allprojects {
     pluginManager.withPlugin('java-library') {
 
@@ -47,5 +38,3 @@ allprojects {
         apply from: "${rootDir}/gradle/publish.gradle"
     }
 }
-
-
