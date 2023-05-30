@@ -11,7 +11,7 @@ dependencies {
 
     api platform("org.springframework.boot:spring-boot-dependencies:2.7.12")
     api platform("org.springframework.cloud:spring-cloud-dependencies:2021.0.7")
-    api platform("org.testcontainers:testcontainers-bom:1.18.1")
+    api platform("org.testcontainers:testcontainers-bom:1.18.2")
 
     constraints {
         api 'net.javacrumbs.json-unit:json-unit-assertj:2.38.0'
