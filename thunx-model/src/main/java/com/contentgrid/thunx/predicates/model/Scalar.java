@@ -1,6 +1,9 @@
 package com.contentgrid.thunx.predicates.model;
 
+import com.contentgrid.opa.rego.ast.Term;
+
 import java.math.BigDecimal;
+import java.util.Collection;
 
 public interface Scalar<T> extends ThunkExpression<T> {
 
@@ -28,6 +31,10 @@ public interface Scalar<T> extends ThunkExpression<T> {
 
     static BooleanValue of(boolean value) {
         return new BooleanValue(value);
+    }
+
+    static CollectionValue of(Collection<Term.ScalarTerm<Object>> value) {
+        return new CollectionValue(value);
     }
 
     static NullValue nullValue() {

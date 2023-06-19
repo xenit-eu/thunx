@@ -11,6 +11,7 @@ import com.contentgrid.opa.rego.ast.Term.Call;
 import com.contentgrid.opa.rego.ast.Term.Null;
 import com.contentgrid.opa.rego.ast.Term.Numeric;
 import com.contentgrid.opa.rego.ast.Term.Ref;
+import com.contentgrid.opa.rego.ast.Term.SetTerm;
 import com.contentgrid.opa.rego.ast.Term.Text;
 import com.contentgrid.opa.rego.ast.Term.Var;
 import com.contentgrid.thunx.predicates.model.Comparison;
@@ -21,8 +22,10 @@ import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.StringPathElement;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,6 +60,7 @@ public class QuerySetToThunkExpressionConverter {
 
         var expressions = query.stream()
                 .map(this::convert)
+                .filter(Objects::nonNull)
                 .peek(expr -> {
                     if (!Boolean.class.isAssignableFrom(expr.getResultType())) {
                         // there are non-boolean expressions in here ?
@@ -92,7 +96,8 @@ public class QuerySetToThunkExpressionConverter {
                 Map.entry("gt", Comparison::greater),
                 Map.entry("gte", Comparison::greaterOrEquals),
                 Map.entry("lt", Comparison::less),
-                Map.entry("lte", Comparison::lessOrEquals)
+                Map.entry("lte", Comparison::lessOrEquals),
+                Map.entry("internal.member_2", Comparison::in)
         );
 
         @Override
@@ -279,7 +284,12 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            return null;
+            return Scalar.of(arrayTerm.getValue());
+        }
+
+        @Override
+        public ThunkExpression<?> visit(SetTerm setTerm) {
+            return Scalar.of(setTerm.getValue());
         }
     }
 

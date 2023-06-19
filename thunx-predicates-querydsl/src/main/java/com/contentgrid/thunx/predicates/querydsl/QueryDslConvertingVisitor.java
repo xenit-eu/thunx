@@ -1,5 +1,7 @@
 package com.contentgrid.thunx.predicates.querydsl;
 
+import com.contentgrid.opa.rego.ast.Term;
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
@@ -13,18 +15,19 @@ import com.querydsl.core.types.Ops;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import javax.persistence.Embedded;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>, QueryDslConversionContext> {
@@ -70,6 +73,9 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
             case LESS_THAN:
                 assertTwoTerms(terms);
                 return Expressions.booleanOperation(Ops.LT, terms.toArray(new Expression[0]));
+            case IN:
+                assertTwoTerms(terms);
+                return ExpressionUtils.predicate(Ops.IN, terms.get(0), terms.get(1));
             case OR:
                 return ExpressionUtils.anyOf(terms.stream().map(term -> (Predicate) term).collect(Collectors.toList()));
             case AND:
@@ -121,21 +127,21 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
      * annotations
      */
     private static void assertNotReferencingEntity(@NonNull SymbolicReference symbolicReference,
-            @NonNull PathBuilder<?> builder) {
+                                                   @NonNull PathBuilder<?> builder) {
 
         var blacklist = Set.of(OneToOne.class, OneToMany.class, ManyToOne.class, ManyToMany.class, Embedded.class);
         var element = builder.getAnnotatedElement();
         if (blacklist.stream().anyMatch(element::isAnnotationPresent)) {
             var msg = String.format("Cannot use `%s` as an expression, because it refers to a relation, not an attribute.",
                     symbolicReference,
-                    element instanceof Field ? ((Field)element).getType().getName() + " " + ((Field)element).getName() : element);
+                    element instanceof Field ? ((Field) element).getType().getName() + " " + ((Field) element).getName() : element);
 
             throw new IllegalArgumentException(msg);
         }
     }
 
     private PathBuilder<?> traversePath(SymbolicReference symbolicReference, PathBuilder<?> builder,
-            String pathElement) {
+                                        String pathElement) {
 
         // we want to build a typed path, making sure the segments in the path are valid
         var property = this.accessStrategy.getProperty(builder.getType(), pathElement).orElseThrow(() -> {
@@ -172,5 +178,10 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
     public Expression<?> visit(Variable variable, QueryDslConversionContext context) {
         // TODO could there be more variables available, than just the subject-path-builder ?
         throw new UnsupportedOperationException("converting variable to querydsl is not yet implemented");
+    }
+
+    @Override
+    public Expression<?> visit(CollectionValue collection, QueryDslConversionContext context) {
+        return Expressions.constant(collection.getValue().stream().map(Term.ScalarTerm::getValue).collect(Collectors.toList()));
     }
 }
