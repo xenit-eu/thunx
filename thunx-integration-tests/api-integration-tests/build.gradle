@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-	implementation platform("org.springframework.boot:spring-boot-dependencies:2.7.12")
+	implementation platform("org.springframework.boot:spring-boot-dependencies:2.7.13")
 	implementation platform(project(":thunx-bom"))
 
 	compileOnly 'org.projectlombok:lombok'
