@@ -11,6 +11,8 @@ import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import java.util.List;
+import java.util.Set;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -132,6 +134,25 @@ class QuerySetToThunkExpressionConverterTest {
             assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.lessOrEquals(
                     SymbolicReference.of("entity", path -> path.string("security")),
                     Scalar.of(5)
+            ));
+        }
+
+        @Test
+        void in() {
+            // input.entity.security in {4, 5}
+            var opaExpr = new Expression(0, List.of(
+                    new Term.Ref(List.of(new Term.Var("internal"), new Term.Text("member_2"))),
+                    new Term.Ref(List.of(
+                            new Term.Var("input"),
+                            new Term.Text("entity"),
+                            new Term.Text("security")
+                    )),
+                    new Term.SetTerm(Set.of(new Term.Numeric(4), new Term.Numeric(5)))
+            ));
+
+            assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.in(
+                    SymbolicReference.of("entity", path -> path.string("security")),
+                    Scalar.of(Set.of(new Term.Numeric(4), new Term.Numeric(5)))
             ));
         }
 

@@ -7,17 +7,17 @@ import lombok.Getter;
 import java.util.Collection;
 
 @EqualsAndHashCode
-public class CollectionValue implements Scalar<Collection<Term.ScalarTerm<Object>>> {
+public class CollectionValue implements Scalar<Collection<Term.ScalarTerm<?>>> {
 
     @Getter
-    private final Collection<Term.ScalarTerm<Object>> value;
+    private final Collection<Term.ScalarTerm<?>> value;
 
-    protected CollectionValue(Collection<Term.ScalarTerm<Object>> value) {
+    protected CollectionValue(Collection<Term.ScalarTerm<?>> value) {
         this.value = value;
     }
 
     @Override
-    public Class<? extends Collection<Term.ScalarTerm<Object>>> getResultType() {
+    public Class<? extends Collection<Term.ScalarTerm<?>>> getResultType() {
         return null; // TODO: return correct class
     }
 

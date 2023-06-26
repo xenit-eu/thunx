@@ -33,7 +33,7 @@ public interface Scalar<T> extends ThunkExpression<T> {
         return new BooleanValue(value);
     }
 
-    static CollectionValue of(Collection<Term.ScalarTerm<Object>> value) {
+    static CollectionValue of(Collection<Term.ScalarTerm<?>> value) {
         return new CollectionValue(value);
     }
 
