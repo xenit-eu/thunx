@@ -1,24 +1,26 @@
 package com.contentgrid.thunx.predicates.model;
 
-import com.contentgrid.opa.rego.ast.Term;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 import java.util.Collection;
 
 @EqualsAndHashCode
-public class CollectionValue implements Scalar<Collection<Term.ScalarTerm<?>>> {
+public class CollectionValue implements Scalar<Collection<Scalar<?>>> {
 
-    @Getter
-    private final Collection<Term.ScalarTerm<?>> value;
+    private final Collection<Scalar<?>> value;
 
-    protected CollectionValue(Collection<Term.ScalarTerm<?>> value) {
+    @Override
+    public Collection<Scalar<?>> getValue() {
+        return value;
+    }
+
+    protected CollectionValue(Collection<Scalar<?>> value) {
         this.value = value;
     }
 
     @Override
-    public Class<? extends Collection<Term.ScalarTerm<?>>> getResultType() {
-        return null; // TODO: return correct class
+    public Class<? extends Collection<Scalar<?>>> getResultType() {
+        return null;
     }
 
     @Override

@@ -182,6 +182,6 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
 
     @Override
     public Expression<?> visit(CollectionValue collection, QueryDslConversionContext context) {
-        return Expressions.constant(collection.getValue().stream().map(Term.ScalarTerm::getValue).collect(Collectors.toList()));
+        return Expressions.constant(collection.getValue().stream().map(Scalar::getValue).collect(Collectors.toList()));
     }
 }

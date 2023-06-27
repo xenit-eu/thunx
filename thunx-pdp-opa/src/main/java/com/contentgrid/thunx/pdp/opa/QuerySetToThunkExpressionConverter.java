@@ -1,6 +1,7 @@
 package com.contentgrid.thunx.pdp.opa;
 
 
+import com.contentgrid.opa.rego.ast.Expression;
 import com.contentgrid.opa.rego.ast.Query;
 import com.contentgrid.opa.rego.ast.QuerySet;
 import com.contentgrid.opa.rego.ast.RegoVisitor;
@@ -22,7 +23,9 @@ import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.StringPathElement;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
+import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -284,12 +287,90 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            return Scalar.of(arrayTerm.getValue());
+            ScalarCollectingRegoVisitor collectingRegoVisitor = new ScalarCollectingRegoVisitor();
+            arrayTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(collectingRegoVisitor));
+            return Scalar.of(collectingRegoVisitor.getScalars());
         }
 
         @Override
         public ThunkExpression<?> visit(SetTerm setTerm) {
-            return Scalar.of(setTerm.getValue());
+            ScalarCollectingRegoVisitor collectingRegoVisitor = new ScalarCollectingRegoVisitor();
+            setTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(collectingRegoVisitor));
+            return Scalar.of(collectingRegoVisitor.getScalars());
+        }
+    }
+
+    static class ScalarCollectingRegoVisitor implements RegoVisitor<ThunkExpression<?>> {
+
+        @Getter
+        List<Scalar<?>> scalars = new ArrayList<>();
+
+        @Override
+        public ThunkExpression<?> visit(QuerySet querySet) {
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Query query) {
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Expression expression) {
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Ref ref) {
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Call call) {
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Var var) {
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Numeric numeric) {
+            Scalar<?> scalar = Scalar.of(numeric.getValue());
+            scalars.add(scalar);
+            return scalar;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Text text) {
+            Scalar<?> scalar = Scalar.of(text.getValue());
+            scalars.add(scalar);
+            return scalar;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Bool bool) {
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(Null aNull) {
+            Scalar<?> scalar = Scalar.nullValue();
+            scalars.add(scalar);
+            return scalar;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
+            arrayTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(this));
+            return null;
+        }
+
+        @Override
+        public ThunkExpression<?> visit(SetTerm setTerm) {
+            setTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(this));
+            return null;
         }
     }
 
