@@ -1,4 +1,4 @@
-package com.contentgrid.thunx.pdp.opa;
+package com.contentgrid.thunx.gateway.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

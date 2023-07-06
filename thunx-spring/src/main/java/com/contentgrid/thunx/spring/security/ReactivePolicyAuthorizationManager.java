@@ -4,6 +4,7 @@ import com.contentgrid.thunx.pdp.AuthenticationContext;
 import com.contentgrid.thunx.pdp.PolicyDecision;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponent;
 import com.contentgrid.thunx.pdp.RequestContext;
+import com.contentgrid.thunx.spring.security.AuthenticationContextMapper.DefaultAuthenticationContext;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +21,9 @@ public class ReactivePolicyAuthorizationManager implements ReactiveAuthorization
 
     public static final String ABAC_POLICY_PREDICATE_ATTR = "ABAC_POLICY_PREDICATE";
 
-    private final PolicyDecisionComponent policyDecisionComponent;
+    private final PolicyDecisionComponent<AuthenticationContext, RequestContext> policyDecisionComponent;
 
-    public ReactivePolicyAuthorizationManager(PolicyDecisionComponent policyDecisionComponent) {
+    public ReactivePolicyAuthorizationManager(PolicyDecisionComponent<AuthenticationContext, RequestContext> policyDecisionComponent) {
         this.policyDecisionComponent = policyDecisionComponent;
     }
 

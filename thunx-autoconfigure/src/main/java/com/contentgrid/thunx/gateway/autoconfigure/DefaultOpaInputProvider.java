@@ -1,12 +1,13 @@
-package com.contentgrid.thunx.pdp.opa;
+package com.contentgrid.thunx.gateway.autoconfigure;
 
 import com.contentgrid.thunx.pdp.AuthenticationContext;
 import com.contentgrid.thunx.pdp.RequestContext;
+import com.contentgrid.thunx.pdp.opa.OpaInputProvider;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
-public class DefaultOpaInputProvider implements OpaInputProvider {
+class DefaultOpaInputProvider implements OpaInputProvider<AuthenticationContext, RequestContext> {
 
     static String[] uriToPathArray(URI uri) {
         Objects.requireNonNull(uri, "Argument 'uri' is required");
