@@ -1,9 +1,7 @@
 package com.contentgrid.thunx.pdp.opa;
 
-import com.contentgrid.thunx.pdp.RequestContext;
-
 @FunctionalInterface
-public interface OpaQueryProvider<R extends RequestContext> {
+public interface OpaQueryProvider<R> {
 
     String createQuery(R requestContext);
 }

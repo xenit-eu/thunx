@@ -2,9 +2,7 @@ package com.contentgrid.thunx.gateway.autoconfigure;
 
 import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.thunx.api.autoconfigure.AbacAutoConfiguration;
-import com.contentgrid.thunx.pdp.AuthenticationContext;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
-import com.contentgrid.thunx.pdp.RequestContext;
 import com.contentgrid.thunx.pdp.opa.OpaQueryProvider;
 import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import org.junit.jupiter.api.Test;
@@ -14,7 +12,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,8 +82,7 @@ public class GatewayAutoConfigurationTest {
         }
 
         @Bean
-        @ConditionalOnMissingBean
-        public PolicyDecisionPointClient<AuthenticationContext, RequestContext> pdpClient() {
+        public PolicyDecisionPointClient<Authentication, ServerHttpRequest> pdpClient() {
             return mock(PolicyDecisionPointClient.class);
         }
 
@@ -98,7 +97,7 @@ public class GatewayAutoConfigurationTest {
         }
 
         @Bean
-        public OpaQueryProvider<RequestContext> customQueryProvider() {
+        public OpaQueryProvider<ServerHttpRequest> customQueryProvider() {
             return mock(OpaQueryProvider.class);
         }
     }

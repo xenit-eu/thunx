@@ -2,7 +2,7 @@ package com.contentgrid.thunx.pdp;
 
 import java.util.concurrent.CompletableFuture;
 
-public class PolicyDecisionComponentImpl<A extends AuthenticationContext, R extends RequestContext> implements PolicyDecisionComponent<A, R> {
+public class PolicyDecisionComponentImpl<A, R> implements PolicyDecisionComponent<A, R> {
 
     private final PolicyDecisionPointClient<A, R> client;
 

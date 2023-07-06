@@ -2,11 +2,9 @@ package com.contentgrid.thunx.pdp.opa;
 
 import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.opa.client.api.CompileApi.PartialEvaluationRequest;
-import com.contentgrid.thunx.pdp.AuthenticationContext;
 import com.contentgrid.thunx.pdp.PolicyDecision;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.PolicyDecisions;
-import com.contentgrid.thunx.pdp.RequestContext;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.visitor.reducer.ThunkReducerVisitor;
 import java.util.List;
@@ -17,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class OpenPolicyAgentPDPClient<A extends AuthenticationContext, R extends RequestContext> implements PolicyDecisionPointClient<A, R> {
+public class OpenPolicyAgentPDPClient<A, R> implements PolicyDecisionPointClient<A, R> {
 
     @NonNull
     private final OpaClient opaClient;
