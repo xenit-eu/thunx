@@ -2,15 +2,12 @@ package com.contentgrid.thunx.pdp.opa;
 
 import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.opa.client.api.CompileApi.PartialEvaluationRequest;
-import com.contentgrid.thunx.pdp.AuthenticationContext;
 import com.contentgrid.thunx.pdp.PolicyDecision;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.PolicyDecisions;
-import com.contentgrid.thunx.pdp.RequestContext;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.visitor.reducer.ThunkReducerVisitor;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +15,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
+public class OpenPolicyAgentPDPClient<A, R> implements PolicyDecisionPointClient<A, R> {
 
     @NonNull
     private final OpaClient opaClient;
     @NonNull
-    private final OpaQueryProvider queryProvider;
+    private final OpaQueryProvider<R> queryProvider;
     @NonNull
-    private final OpaInputProvider inputProvider;
+    private final OpaInputProvider<A, R> inputProvider;
 
     @Override
     public CompletableFuture<PolicyDecision> conditional(
-            AuthenticationContext authContext, RequestContext requestContext) {
+            A authContext, R requestContext) {
         // TODO how can we define 'unknowns' in a generic way ?
         // WARNING: do NOT list 'input' as unknown, or it will ignore the whole 'input' object itself
         // WARNING: do NOT list 'data' as unknown, or it will ignore the policy that is loaded in OPA itself

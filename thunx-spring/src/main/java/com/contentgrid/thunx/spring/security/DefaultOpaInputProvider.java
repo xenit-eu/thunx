@@ -1,12 +1,13 @@
-package com.contentgrid.thunx.pdp.opa;
+package com.contentgrid.thunx.spring.security;
 
-import com.contentgrid.thunx.pdp.AuthenticationContext;
-import com.contentgrid.thunx.pdp.RequestContext;
+import com.contentgrid.thunx.pdp.opa.OpaInputProvider;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.core.Authentication;
 
-public class DefaultOpaInputProvider implements OpaInputProvider {
+public class DefaultOpaInputProvider implements OpaInputProvider<Authentication, ServerHttpRequest> {
 
     static String[] uriToPathArray(URI uri) {
         Objects.requireNonNull(uri, "Argument 'uri' is required");
@@ -29,10 +30,11 @@ public class DefaultOpaInputProvider implements OpaInputProvider {
     }
 
     @Override
-    public Map<String, Object> createInput(AuthenticationContext authContext, RequestContext requestContext) {
+    public Map<String, Object> createInput(Authentication authentication, ServerHttpRequest requestContext) {
+        var authContext = AuthenticationContextMapper.fromAuthentication(authentication);
         return Map.of(
                 "path", uriToPathArray(requestContext.getURI()),
-                "method", requestContext.getHttpMethod(),
+                "method", requestContext.getMethodValue(),
                 "queryParams", requestContext.getQueryParams(),
                 "auth", authContext,
                 "user", authContext.getUser() // temp for backwards compat with existing policies

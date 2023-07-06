@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.spring.security;
 
-import com.contentgrid.thunx.pdp.AuthenticationContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class AuthenticationContextMapper {
             "locale",
             "zoneinfo");
 
-    public static AuthenticationContext fromAuthentication(@NonNull Authentication authentication) {
+    public static DefaultAuthenticationContext fromAuthentication(@NonNull Authentication authentication) {
         return new DefaultAuthenticationContext(
                 authentication.getName(),
                 authentication.isAuthenticated(),
@@ -86,7 +85,7 @@ public class AuthenticationContextMapper {
     }
 
     @Value
-    static class DefaultAuthenticationContext implements AuthenticationContext {
+    public static class DefaultAuthenticationContext {
         String name;
         boolean authenticated;
         Map<String, Object> details;

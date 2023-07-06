@@ -12,7 +12,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,8 +82,7 @@ public class GatewayAutoConfigurationTest {
         }
 
         @Bean
-        @ConditionalOnMissingBean
-        public PolicyDecisionPointClient pdpClient() {
+        public PolicyDecisionPointClient<Authentication, ServerHttpRequest> pdpClient() {
             return mock(PolicyDecisionPointClient.class);
         }
 
@@ -96,7 +97,7 @@ public class GatewayAutoConfigurationTest {
         }
 
         @Bean
-        public OpaQueryProvider customQueryProvider() {
+        public OpaQueryProvider<ServerHttpRequest> customQueryProvider() {
             return mock(OpaQueryProvider.class);
         }
     }
