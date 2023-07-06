@@ -2,6 +2,8 @@ package com.contentgrid.thunx.gateway.autoconfigure;
 
 import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.opa.client.rest.RestClientConfiguration;
+import com.contentgrid.thunx.pdp.opa.DefaultOpaInputProvider;
+import com.contentgrid.thunx.pdp.opa.OpaInputProvider;
 import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import com.contentgrid.thunx.spring.security.ReactivePolicyAuthorizationManager;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponentImpl;
@@ -39,8 +41,14 @@ public class GatewayAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public PolicyDecisionPointClient pdpClient(OpaClient opaClient, OpaQueryProvider queryProvider) {
-        return new OpenPolicyAgentPDPClient(opaClient, queryProvider);
+    public OpaInputProvider defaultOpaInputProvider() {
+        return new DefaultOpaInputProvider();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PolicyDecisionPointClient pdpClient(OpaClient opaClient, OpaQueryProvider queryProvider, OpaInputProvider inputProvider) {
+        return new OpenPolicyAgentPDPClient(opaClient, queryProvider, inputProvider);
     }
 
     @Bean

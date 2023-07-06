@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 
-class OpenPolicyAgentPDPClientTest {
+class DefaultOpaInputProviderTest {
 
     private static String[] toPath(String uri) {
-        return OpenPolicyAgentPDPClient.uriToPathArray(URI.create(uri));
+        return DefaultOpaInputProvider.uriToPathArray(URI.create(uri));
     }
     @Test
     void uriToPathArray_rootShouldBeEmptyArray() {
