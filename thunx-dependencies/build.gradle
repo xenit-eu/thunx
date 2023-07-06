@@ -10,7 +10,7 @@ dependencies {
     api platform(project(":thunx-bom"))
 
     api platform("org.springframework.boot:spring-boot-dependencies:2.7.13")
-    api platform("org.springframework.cloud:spring-cloud-dependencies:2021.0.7")
+    api platform("org.springframework.cloud:spring-cloud-dependencies:2021.0.8")
     api platform("org.testcontainers:testcontainers-bom:1.18.3")
 
     constraints {
