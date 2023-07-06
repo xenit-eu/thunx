@@ -9,26 +9,23 @@ import com.contentgrid.thunx.pdp.PolicyDecisions;
 import com.contentgrid.thunx.pdp.RequestContext;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.visitor.reducer.ThunkReducerVisitor;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
 
+    @NonNull
     private final OpaClient opaClient;
+    @NonNull
     private final OpaQueryProvider queryProvider;
-
-    public OpenPolicyAgentPDPClient(OpaClient opaClient, OpaQueryProvider queryProvider) {
-        Objects.requireNonNull(opaClient, "opaClient is required");
-        Objects.requireNonNull(queryProvider, "queryProvider is required");
-
-        this.opaClient = opaClient;
-        this.queryProvider = queryProvider;
-    }
+    @NonNull
+    private final OpaInputProvider inputProvider;
 
     @Override
     public CompletableFuture<PolicyDecision> conditional(
@@ -38,7 +35,7 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
         // WARNING: do NOT list 'data' as unknown, or it will ignore the policy that is loaded in OPA itself
         var request = new PartialEvaluationRequest(
                 this.queryProvider.createQuery(requestContext),
-                createInput(authContext, requestContext),
+                this.inputProvider.createInput(authContext, requestContext),
                 List.of("input.entity"));
 
         return opaClient.compile(request)
@@ -63,36 +60,5 @@ public class OpenPolicyAgentPDPClient implements PolicyDecisionPointClient {
                             .orElse(PolicyDecisions.conditional(reducedExpression));
                 });
     }
-
-    static Map<String, Object> createInput(AuthenticationContext authContext, RequestContext requestContext) {
-        return Map.of(
-                "path", uriToPathArray(requestContext.getURI()),
-                "method", requestContext.getHttpMethod(),
-                "queryParams", requestContext.getQueryParams(),
-                "auth", authContext,
-                "user", authContext.getUser() // temp for backwards compat with existing policies
-        );
-    }
-
-    static String[] uriToPathArray(URI uri) {
-        Objects.requireNonNull(uri, "Argument 'uri' is required");
-        uri = uri.normalize();
-
-        var path = uri.getPath();
-        if (path == null) {
-            return new String[0];
-        }
-
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-
-        if (path.length() == 0) {
-            return new String[0];
-        }
-
-        return path.split("/");
-    }
-
 
 }
