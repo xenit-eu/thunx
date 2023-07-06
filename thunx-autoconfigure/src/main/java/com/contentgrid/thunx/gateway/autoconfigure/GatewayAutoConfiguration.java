@@ -20,6 +20,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
+import org.springframework.web.server.ServerWebExchange;
 
 @Configuration
 @ConditionalOnClass({OpaClient.class, AbstractGatewayFilterFactory.class})
@@ -37,26 +38,26 @@ public class GatewayAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public OpaQueryProvider<ServerHttpRequest> propertyBasedOpaQueryProvider(OpaProperties opaProperties) {
+    public OpaQueryProvider<ServerWebExchange> propertyBasedOpaQueryProvider(OpaProperties opaProperties) {
         return request -> opaProperties.getQuery();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public OpaInputProvider<Authentication, ServerHttpRequest> defaultOpaInputProvider() {
+    public OpaInputProvider<Authentication, ServerWebExchange> defaultOpaInputProvider() {
         return new DefaultOpaInputProvider();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public PolicyDecisionPointClient<Authentication, ServerHttpRequest> pdpClient(OpaClient opaClient, OpaQueryProvider<ServerHttpRequest> queryProvider, OpaInputProvider<Authentication, ServerHttpRequest> inputProvider) {
+    public PolicyDecisionPointClient<Authentication, ServerWebExchange> pdpClient(OpaClient opaClient, OpaQueryProvider<ServerWebExchange> queryProvider, OpaInputProvider<Authentication, ServerWebExchange> inputProvider) {
         return new OpenPolicyAgentPDPClient<>(opaClient, queryProvider, inputProvider);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public ReactiveAuthorizationManager<AuthorizationContext> reactiveAuthenticationManager(
-            PolicyDecisionPointClient<Authentication, ServerHttpRequest> pdpClient) {
+            PolicyDecisionPointClient<Authentication, ServerWebExchange> pdpClient) {
         return new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl<>(pdpClient));
     }
 
