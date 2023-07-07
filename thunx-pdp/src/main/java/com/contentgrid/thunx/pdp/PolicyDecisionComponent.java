@@ -2,7 +2,7 @@ package com.contentgrid.thunx.pdp;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface PolicyDecisionComponent {
+public interface PolicyDecisionComponent<A, R> {
     
-    CompletableFuture<PolicyDecision> authorize(AuthenticationContext principal, RequestContext requestContext);
+    CompletableFuture<PolicyDecision> authorize(A principal, R requestContext);
 }

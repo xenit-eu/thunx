@@ -2,15 +2,13 @@ package com.contentgrid.thunx.spring.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.contentgrid.thunx.predicates.model.Scalar;
-import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.contentgrid.thunx.pdp.AuthenticationContext;
 import com.contentgrid.thunx.pdp.PolicyDecision;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponentImpl;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.PolicyDecisions;
-import com.contentgrid.thunx.pdp.RequestContext;
 import com.contentgrid.thunx.predicates.model.Comparison;
+import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
@@ -80,31 +78,31 @@ class ReactivePolicyAuthorizationManagerTest {
         return Mono.just(new TestingAuthenticationToken("mario", null));
     }
 
-    private static PolicyDecisionPointClient policySaysYes() {
-        return new PolicyDecisionPointClient() {
+    private static PolicyDecisionPointClient<?, ?> policySaysYes() {
+        return new PolicyDecisionPointClient<>() {
             @Override
-            public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext,
-                    RequestContext requestContext) {
+            public CompletableFuture<PolicyDecision> conditional(Object authContext,
+                    Object requestContext) {
                 return CompletableFuture.completedFuture(PolicyDecisions.allowed());
             }
         };
     }
 
-    private static PolicyDecisionPointClient policySaysNo() {
-        return new PolicyDecisionPointClient() {
+    private static PolicyDecisionPointClient<?, ?> policySaysNo() {
+        return new PolicyDecisionPointClient<>() {
             @Override
-            public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext,
-                    RequestContext requestContext) {
+            public CompletableFuture<PolicyDecision> conditional(Object authContext,
+                    Object requestContext) {
                 return CompletableFuture.completedFuture(PolicyDecisions.denied());
             }
         };
     }
 
-    private static PolicyDecisionPointClient policySaysMaybe(ThunkExpression<Boolean> expression) {
-        return new PolicyDecisionPointClient() {
+    private static PolicyDecisionPointClient<?, ?> policySaysMaybe(ThunkExpression<Boolean> expression) {
+        return new PolicyDecisionPointClient<>() {
             @Override
-            public CompletableFuture<PolicyDecision> conditional(AuthenticationContext authContext,
-                    RequestContext requestContext) {
+            public CompletableFuture<PolicyDecision> conditional(Object authContext,
+                    Object requestContext) {
                 return CompletableFuture.completedFuture(PolicyDecisions.conditional(expression));
             }
         };
