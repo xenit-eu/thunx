@@ -1,5 +1,8 @@
 package com.contentgrid.thunx.gateway.autoconfigure;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.thunx.api.autoconfigure.AbacAutoConfiguration;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
@@ -8,17 +11,13 @@ import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import org.springframework.web.server.ServerWebExchange;
 
 public class GatewayAutoConfigurationTest {
 
@@ -82,7 +81,7 @@ public class GatewayAutoConfigurationTest {
         }
 
         @Bean
-        public PolicyDecisionPointClient<Authentication, ServerHttpRequest> pdpClient() {
+        public PolicyDecisionPointClient<Authentication, ServerWebExchange> pdpClient() {
             return mock(PolicyDecisionPointClient.class);
         }
 
@@ -97,7 +96,7 @@ public class GatewayAutoConfigurationTest {
         }
 
         @Bean
-        public OpaQueryProvider<ServerHttpRequest> customQueryProvider() {
+        public OpaQueryProvider<ServerWebExchange> customQueryProvider() {
             return mock(OpaQueryProvider.class);
         }
     }
