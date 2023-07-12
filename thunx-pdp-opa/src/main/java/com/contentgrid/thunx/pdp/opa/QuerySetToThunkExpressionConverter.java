@@ -23,6 +23,14 @@ import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.StringPathElement;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
+
+import java.math.BigDecimal;
+import java.util.Collection;
+
+import java.util.HashSet;
+
+import java.util.Set;
+
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -288,89 +296,85 @@ public class QuerySetToThunkExpressionConverter {
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
             ScalarCollectingRegoVisitor collectingRegoVisitor = new ScalarCollectingRegoVisitor();
-            arrayTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(collectingRegoVisitor));
-            return Scalar.of(collectingRegoVisitor.getScalars());
+            return Scalar.of(
+                    (List) arrayTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(collectingRegoVisitor)).collect(Collectors.toList())
+            );
         }
 
         @Override
         public ThunkExpression<?> visit(SetTerm setTerm) {
             ScalarCollectingRegoVisitor collectingRegoVisitor = new ScalarCollectingRegoVisitor();
-            setTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(collectingRegoVisitor));
-            return Scalar.of(collectingRegoVisitor.getScalars());
+
+            return Scalar.of(
+                    (Set) setTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(collectingRegoVisitor)).collect(Collectors.toSet())
+            );
         }
     }
 
     static class ScalarCollectingRegoVisitor implements RegoVisitor<ThunkExpression<?>> {
 
-        @Getter
-        List<Scalar<?>> scalars = new ArrayList<>();
-
         @Override
         public ThunkExpression<?> visit(QuerySet querySet) {
-            return null;
+            throw new UnsupportedOperationException("QuerySet is not supported in collection");
         }
 
         @Override
         public ThunkExpression<?> visit(Query query) {
-            return null;
+            throw new UnsupportedOperationException("Query is not supported in collection");
         }
 
         @Override
         public ThunkExpression<?> visit(Expression expression) {
-            return null;
+            throw new UnsupportedOperationException("Expression is not supported in collection");
         }
 
         @Override
         public ThunkExpression<?> visit(Ref ref) {
-            return null;
+            throw new UnsupportedOperationException("Reference is not supported in collection");
         }
 
         @Override
         public ThunkExpression<?> visit(Call call) {
-            return null;
+            throw new UnsupportedOperationException("Call is not supported in collection");
         }
 
         @Override
         public ThunkExpression<?> visit(Var var) {
-            return null;
+            throw new UnsupportedOperationException("Variable is not supported in collection");
         }
 
         @Override
         public ThunkExpression<?> visit(Numeric numeric) {
-            Scalar<?> scalar = Scalar.of(numeric.getValue());
-            scalars.add(scalar);
-            return scalar;
+            return Scalar.of(numeric.getValue());
         }
 
         @Override
         public ThunkExpression<?> visit(Text text) {
-            Scalar<?> scalar = Scalar.of(text.getValue());
-            scalars.add(scalar);
-            return scalar;
+            return Scalar.of(text.getValue());
         }
 
         @Override
         public ThunkExpression<?> visit(Bool bool) {
-            return null;
+            return Scalar.of(bool.getValue());
         }
 
         @Override
         public ThunkExpression<?> visit(Null aNull) {
-            Scalar<?> scalar = Scalar.nullValue();
-            scalars.add(scalar);
-            return scalar;
+            return Scalar.nullValue();
         }
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            arrayTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(this));
-            return null;
+            return Scalar.of(
+                    (List) arrayTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(this)).collect(Collectors.toList())
+            );
         }
 
         @Override
         public ThunkExpression<?> visit(SetTerm setTerm) {
-            setTerm.getValue().forEach(scalarTerm -> scalarTerm.accept(this));
-            return null;
+            return Scalar.of(
+                    (Set) setTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(this)).collect(Collectors.toSet())
+            );
         }
     }
 

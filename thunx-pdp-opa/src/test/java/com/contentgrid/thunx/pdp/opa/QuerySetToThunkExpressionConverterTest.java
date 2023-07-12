@@ -152,7 +152,7 @@ class QuerySetToThunkExpressionConverterTest {
 
             assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.in(
                     SymbolicReference.of("entity", path -> path.string("security")),
-                    Scalar.of(Set.of(new Term.Numeric(4), new Term.Numeric(5)))
+                    Scalar.of(Set.of(Scalar.of(4), Scalar.of(5)))
             ));
         }
 
@@ -195,6 +195,27 @@ class QuerySetToThunkExpressionConverterTest {
                 .isEqualTo(Comparison.greaterOrEquals(
                         Scalar.of(4),
                         SymbolicReference.of("data", p -> p.string("reports").var("$01").string("clearance_level"))));
+    }
+
+    @Test
+    void opaExpression_collection_in_collection() {
+        // input.entity.security in {4, 5, {6, 7}}
+        var opaExpr = new Expression(0, List.of(
+                new Term.Ref(List.of(new Term.Var("internal"), new Term.Text("member_2"))),
+                new Term.Ref(List.of(
+                        new Term.Var("input"),
+                        new Term.Text("entity"),
+                        new Term.Text("security")
+                )),
+                new Term.SetTerm(Set.of(new Term.Numeric(4), new Term.Numeric(5),
+                        new Term.SetTerm(Set.of(new Term.Numeric(6), new Term.Numeric(7)))
+        ))));
+
+        assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.in(
+                SymbolicReference.of("entity", path -> path.string("security")),
+                Scalar.of(Set.of(Scalar.of(4), Scalar.of(5),
+                        Scalar.of(Set.of(Scalar.of(6), Scalar.of(7))))
+        )));
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.predicates.querydsl;
 
-import com.contentgrid.opa.rego.ast.Term;
 import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.Scalar;
