@@ -57,7 +57,7 @@ public class ThunkReducerVisitor extends ContextFreeThunkExpressionVisitor<Thunk
     }
 
     @Override
-    public ThunkExpression<?> visit(CollectionValue collection, Void context) {
-        return collection;
+    public ThunkExpression<?> visit(CollectionValue collectionValue) {
+        return collectionValue;
     }
 }

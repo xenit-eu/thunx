@@ -32,7 +32,7 @@ public interface Scalar<T> extends ThunkExpression<T> {
     }
 
     static CollectionValue of(Collection<Scalar<?>> value) {
-        return new CollectionValue(value);
+        return new CollectionValue(value, (Class<? extends Collection<Scalar<?>>>)value.getClass());
     }
 
     static NullValue nullValue() {

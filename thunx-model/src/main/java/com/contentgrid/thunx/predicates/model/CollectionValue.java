@@ -4,23 +4,26 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Collection;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "type")
 public class CollectionValue implements Scalar<Collection<Scalar<?>>> {
 
     private final Collection<Scalar<?>> value;
+
+    private final Class<? extends Collection<Scalar<?>>> type;
 
     @Override
     public Collection<Scalar<?>> getValue() {
         return value;
     }
 
-    protected CollectionValue(Collection<Scalar<?>> value) {
+    protected CollectionValue(Collection<Scalar<?>> value, Class<? extends Collection<Scalar<?>>> type) {
         this.value = value;
+        this.type = type;
     }
 
     @Override
     public Class<? extends Collection<Scalar<?>>> getResultType() {
-        return null;
+        return type;
     }
 
     @Override

@@ -4,6 +4,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,8 +13,11 @@ import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.Variable;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -64,6 +68,40 @@ class ExpressionJsonConverterTest {
 
                 // Map.of(...) does not support null-values :facepalm:
                 assertThatJson(result).isEqualTo("{ type: 'null' }");
+            }
+        }
+
+        @Nested
+        class Collection {
+
+            @Test
+            void collection_set_toJson() {
+                var expr = Scalar.of(Set.of(Scalar.of(1),
+                        Scalar.of(2), Scalar.of(Set.of(Scalar.of(3), Scalar.of(4)))));
+                var result = converter.encode(expr);
+
+                assertThatJson(result).isEqualTo("{type: 'set',value:" +
+                        "[{type: 'number', value: 2}," +
+                        "{type: 'number', value: 1}," +
+                        "{type:'set', value:[" +
+                        "{type: 'number', value: 4}," +
+                        "{type : 'number', value: 3}]}" +
+                        "]}");
+            }
+
+            @Test
+            void collection_array_toJson() {
+                var expr = Scalar.of(List.of(Scalar.of(1),
+                        Scalar.of(2), Scalar.of(List.of(Scalar.of(3), Scalar.of(4)))));
+                var result = converter.encode(expr);
+
+                assertThatJson(result).isEqualTo("{type: 'array',value:" +
+                        "[{type: 'number', value: 1}," +
+                        "{type: 'number', value: 2}," +
+                        "{type:'array', value:[" +
+                        "{type: 'number', value: 3}," +
+                        "{type : 'number', value: 4}]}" +
+                        "]}");
             }
         }
 
@@ -190,6 +228,27 @@ class ExpressionJsonConverterTest {
                         .isEqualTo("{ type: 'function', operator: 'not', terms: ["
                                 + "     { type: 'var', name: 'answer' }"
                                 + "]}");
+            }
+
+            @Test
+            void in() {
+                // input.entity.security in {4, 5}
+                var expr = Comparison.in(
+                        SymbolicReference.of("entity", path -> path.string("security")),
+                        Scalar.of(Set.of(Scalar.of(4), Scalar.of(5)))
+                );
+
+                var result = converter.encode(expr);
+
+                assertThatJson(result)
+                        .isEqualTo("{type: 'function', " +
+                                "operator: 'in', " +
+                                "terms:[" +
+                                "{type: 'ref', subject:{type: 'var', name: 'entity'}, " +
+                                "path:[{type: 'string', value: 'security'}" +
+                                "]}," +
+                                "{type: 'set', value:[{type: 'number', value: 4},{type: 'number', value: 5}]}]}");
+
             }
 
         }
@@ -329,6 +388,45 @@ class ExpressionJsonConverterTest {
                 ));
                 var actual = converter.decode(json);
                 assertThat(actual).isEqualTo(Scalar.nullValue());
+            }
+        }
+
+        @Nested
+        class Collection {
+
+            @Test
+            void collection_set_fromJson() throws JsonProcessingException {
+                var expr = "{\"type\": \"set\",\"value\":[\n" +
+                        "{\"type\": \"number\", \"value\": 2},\n" +
+                        "{\"type\": \"number\", \"value\": 1},\n" +
+                        "{\"type\": \"set\", \"value\":[\n" +
+                        "{\"type\": \"number\", \"value\": 4},\n" +
+                        "{\"type\" : \"number\", \"value\": 3}]\n" +
+                        "}]\n" +
+                        "}";
+                var result = converter.decode(expr);
+
+                CollectionValue expected = Scalar.of(Set.of(Scalar.of(1),
+                        Scalar.of(2), Scalar.of(Set.of(Scalar.of(3), Scalar.of(4)))));
+                assertThat(result).isEqualTo(expected);
+            }
+
+            @Test
+            void collection_array_fromJson() throws JsonProcessingException {
+                var expr = "{\"type\": \"array\",\"value\":[\n" +
+                        "{\"type\": \"number\", \"value\": 1},\n" +
+                        "{\"type\": \"number\", \"value\": 2},\n" +
+                        "{\"type\": \"array\", \"value\":[\n" +
+                        "{\"type\": \"number\", \"value\": 3},\n" +
+                        "{\"type\" : \"number\", \"value\": 4}]\n" +
+                        "}]\n" +
+                        "}";
+                var result = converter.decode(expr);
+
+                CollectionValue expected = Scalar.of(List.of(Scalar.of(1),
+                        Scalar.of(2), Scalar.of(List.of(Scalar.of(3), Scalar.of(4)))));
+
+                assertThat(result).isEqualTo(expected);
             }
         }
 

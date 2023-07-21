@@ -1,14 +1,19 @@
 package com.contentgrid.thunx.encoding.json;
 
+import com.contentgrid.thunx.predicates.model.CollectionValue;
+import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
+import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
+import com.contentgrid.thunx.predicates.model.Variable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.contentgrid.thunx.predicates.model.FunctionExpression;
-import com.contentgrid.thunx.predicates.model.Variable;
+
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import java.io.UncheckedIOException;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class ExpressionJsonConverter {
@@ -17,7 +22,11 @@ public class ExpressionJsonConverter {
     private final JsonEncoderVisitor visitor = new JsonEncoderVisitor();
 
     public ExpressionJsonConverter() {
-        this(new ObjectMapper());
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(JsonExpressionDto.class, new CollectionValueDeserializer(JsonCollectionValueDto.class));
+        mapper.registerModule(module);
+        this.objectMapper = mapper;
     }
 
     public ExpressionJsonConverter(ObjectMapper objectMapper) {
@@ -44,15 +53,7 @@ public class ExpressionJsonConverter {
 
         @Override
         public JsonExpressionDto visit(Scalar<?> scalar) {
-            var resultType = scalar.getResultType();
-
-            var typeName = JsonScalarDto.SCALAR_TYPES.get(resultType);
-            if (typeName == null) {
-                String exMessage = String.format("Scalar of type <%s> is not supported", resultType.getName());
-                throw new IllegalArgumentException(exMessage);
-            }
-
-            return JsonScalarDto.of(typeName, scalar.getValue());
+            return processScalar(scalar);
         }
 
         @Override
@@ -75,8 +76,66 @@ public class ExpressionJsonConverter {
             return new JsonVariableDto(variable.getName());
         }
 
-
+        @Override
+        protected JsonExpressionDto visit(CollectionValue collectionValue) {
+            return processCollectionDto(collectionValue);
+        }
     }
 
+    private static class JsonScalarEncoderVisitor extends ContextFreeThunkExpressionVisitor<JsonScalarDto<?>> {
+
+        @Override
+        protected JsonScalarDto<?> visit(Scalar<?> scalar) {
+            return processScalar(scalar);
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(FunctionExpression<?> functionExpression) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection");
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(SymbolicReference symbolicReference) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection");
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(Variable variable) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection");
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(CollectionValue collectionValue) {
+            return processCollectionDto(collectionValue);
+        }
+    }
+
+    private static JsonScalarDto<?> processScalar(Scalar<?> scalar) {
+        var resultType = scalar.getResultType();
+
+        var typeName = JsonScalarDto.SCALAR_TYPES.get(resultType);
+        if (typeName == null) {
+            String exMessage = String.format("Scalar of type <%s> is not supported", resultType.getName());
+            throw new IllegalArgumentException(exMessage);
+        }
+
+        return JsonScalarDto.of(typeName, scalar.getValue());
+    }
+
+    private static JsonScalarDto<?> processCollectionDto(CollectionValue collectionValue) {
+        Collection<JsonExpressionDto> result;
+        if (JsonCollectionValueDto.getTypeByClass(collectionValue.getResultType()).equals("set")) {
+            result = collectionValue.getValue().stream()
+                    .map(scalar -> scalar.accept(new JsonScalarEncoderVisitor(), null))
+                    .collect(Collectors.toSet());
+        } else if (JsonCollectionValueDto.getTypeByClass(collectionValue.getResultType()).equals("array")) {
+            result = collectionValue.getValue().stream()
+                    .map(scalar -> scalar.accept(new JsonScalarEncoderVisitor(), null)).collect(Collectors.toList());
+        } else {
+            throw new UnsupportedOperationException("Type is not supported: " + collectionValue.getResultType());
+        }
+
+        return JsonCollectionValueDto.of(JsonCollectionValueDto.getTypeByClass(collectionValue.getResultType()), result);
+    }
 
 }
