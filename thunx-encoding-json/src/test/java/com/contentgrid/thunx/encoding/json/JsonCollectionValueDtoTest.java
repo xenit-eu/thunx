@@ -2,6 +2,9 @@ package com.contentgrid.thunx.encoding.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -41,6 +44,6 @@ class JsonCollectionValueDtoTest {
         var json = "{ \"type\": \"array\", \"value\": null }";
 
         JsonExpressionDto scalar = mapper.readValue(json, JsonExpressionDto.class);
-        assertThat(scalar).isEqualTo(new JsonCollectionValueDto("array", null));
+        assertThat(scalar).isEqualTo(new JsonCollectionValueDto("array", new ArrayList<>()));
     }
 }
