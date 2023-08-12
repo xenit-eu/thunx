@@ -11,10 +11,10 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
