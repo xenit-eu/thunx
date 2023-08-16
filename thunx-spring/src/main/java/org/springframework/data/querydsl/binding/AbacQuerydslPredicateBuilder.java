@@ -3,6 +3,7 @@ package org.springframework.data.querydsl.binding;
 import com.contentgrid.thunx.predicates.querydsl.FieldByReflectionAccessStrategy;
 import com.contentgrid.thunx.predicates.querydsl.QueryDslConverter;
 import com.contentgrid.thunx.spring.data.context.AbacContext;
+import com.contentgrid.thunx.spring.data.querydsl.EntityPathResolverBasedPathBuilderFactory;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
@@ -45,7 +46,8 @@ public class AbacQuerydslPredicateBuilder {
         this.paths = new ConcurrentHashMap<>();
         this.resolver = resolver;
 
-        this.queryDslConverter = new QueryDslConverter(new FieldByReflectionAccessStrategy());
+        this.queryDslConverter = new QueryDslConverter(new FieldByReflectionAccessStrategy(), new EntityPathResolverBasedPathBuilderFactory(
+                resolver));
     }
 
     @Nullable
@@ -89,13 +91,6 @@ public class AbacQuerydslPredicateBuilder {
         }
 
         return builder.getValue();
-    }
-
-    private String toAlias(Class<?> subjectType) {
-
-        char c[] = subjectType.getSimpleName().toCharArray();
-        c[0] = Character.toLowerCase(c[0]);
-        return new String(c);
     }
 
     /**

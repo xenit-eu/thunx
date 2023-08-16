@@ -54,7 +54,9 @@ class AbacRepositoryInvokerAdapterTest {
     @BeforeEach
     void setUp() {
         this.adapter = new AbacRepositoryInvokerAdapter(delegate, executor, predicate, transactionManager,
-                MyEntity.class, UUID.class, "id", (entity) -> Optional.ofNullable(((MyEntity) entity).getId()));
+                UUID.class, "id", (entity) -> Optional.ofNullable(((MyEntity) entity).getId()),
+                new PathBuilder<>(MyEntity.class, "myEntity")
+        );
     }
 
     @Test
