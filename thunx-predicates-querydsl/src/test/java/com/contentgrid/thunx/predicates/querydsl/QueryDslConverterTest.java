@@ -7,7 +7,9 @@ import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
+import com.querydsl.core.types.dsl.PathBuilder;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
@@ -18,7 +20,8 @@ import org.junit.jupiter.api.Test;
 
 class QueryDslConverterTest {
 
-    private final QueryDslConverter converter = new QueryDslConverter(new FieldByReflectionAccessStrategy());
+    private final QueryDslConverter converter = new QueryDslConverter(new FieldByReflectionAccessStrategy(), domainType -> new PathBuilder<>(domainType, domainType.getSimpleName().toLowerCase(
+            Locale.ROOT)));
 
     static class Document {
 

@@ -1,12 +1,11 @@
 package com.contentgrid.thunx.spring.data.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
+import com.contentgrid.thunx.predicates.model.ThunkExpression;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
@@ -78,10 +77,11 @@ public class AbacConfiguration {
                     var resourceMetadataResolver = applicationContext.getBean(ResourceMetadataHandlerMethodArgumentResolver.class);
                     var factory = applicationContext.getBean(QuerydslBindingsFactory.class);
                     var transactionManager = applicationContext.getBean(PlatformTransactionManager.class);
+                    var entityPathResolver = factory.getEntityPathResolver();
 
                     var defaultConversionService = new DefaultFormattingConversionService(); // ??
-                    var predicateBuilder = new AbacQuerydslPredicateBuilder(defaultConversionService, factory.getEntityPathResolver());
-                    var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(repositories, transactionManager);
+                    var predicateBuilder = new AbacQuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
+                    var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(repositories, transactionManager, entityPathResolver);
 
 
                     return new AbacRootResourceInformationHandlerMethodArgumentResolver(

@@ -1,7 +1,10 @@
 package com.contentgrid.thunx.spring.data.rest;
 
+import com.contentgrid.thunx.predicates.querydsl.PathBuilderFactory;
+import com.contentgrid.thunx.spring.data.querydsl.EntityPathResolverBasedPathBuilderFactory;
 import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
+import org.springframework.data.querydsl.EntityPathResolver;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.data.repository.support.RepositoryInvoker;
@@ -10,8 +13,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 @AllArgsConstructor
 public class AbacRepositoryInvokerAdapterFactory {
 
-    private Repositories repositories;
-    private PlatformTransactionManager transactionManager;
+    private final Repositories repositories;
+    private final PlatformTransactionManager transactionManager;
+    private final PathBuilderFactory pathBuilderFactory;
+
+    public AbacRepositoryInvokerAdapterFactory(Repositories repositories, PlatformTransactionManager transactionManager, EntityPathResolver entityPathResolver) {
+        this(repositories, transactionManager, new EntityPathResolverBasedPathBuilderFactory(entityPathResolver));
+    }
 
     public RepositoryInvoker createRepositoryInvoker(RepositoryInvoker repositoryInvoker, Class<?> domainType,
             Predicate predicate) {
@@ -24,7 +32,7 @@ public class AbacRepositoryInvokerAdapterFactory {
         var entityInformation = repositories.getEntityInformationFor(domainType);
 
         return new AbacRepositoryInvokerAdapter(repositoryInvoker, executor, predicate, transactionManager,
-                repositoryInformation, persistentEntity, entityInformation);
+                repositoryInformation, persistentEntity, entityInformation, pathBuilderFactory.create(domainType));
     }
 
 }
