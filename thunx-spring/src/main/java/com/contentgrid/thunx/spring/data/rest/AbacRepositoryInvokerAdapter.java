@@ -3,7 +3,7 @@ package com.contentgrid.thunx.spring.data.rest;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilderFactory;
+import com.querydsl.core.types.dsl.PathBuilder;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -31,9 +31,6 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     private final PlatformTransactionManager transactionManager;
 
     @NonNull
-    private final Class<?> domainType;
-
-    @NonNull
     private final Class<?> idPropertyType;
 
     @NonNull
@@ -41,6 +38,9 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
 
     @NonNull
     private final Function<Object, Optional<?>> idFunction;
+
+    @NonNull
+    private final PathBuilder<?> pathBuilder;
 
     private final ConversionService conversionService = new DefaultFormattingConversionService();
 
@@ -51,10 +51,14 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             PlatformTransactionManager transactionManager,
             RepositoryMetadata repositoryMetadata,
             PersistentEntity<?, ?> persistentEntity,
-            EntityInformation<Object, ?> entityInformation) {
-        this(delegate, executor, predicate, transactionManager, repositoryMetadata.getDomainType(),
-                repositoryMetadata.getIdType(), persistentEntity.getRequiredIdProperty().getName(),
-                entity -> Optional.ofNullable(entityInformation.getId(entity)));
+            EntityInformation<Object, ?> entityInformation,
+            PathBuilder<?> pathBuilder
+    ) {
+        this(delegate, executor, predicate, transactionManager, repositoryMetadata.getIdType(),
+                persistentEntity.getRequiredIdProperty().getName(),
+                entity -> Optional.ofNullable(entityInformation.getId(entity)),
+                pathBuilder
+        );
     }
 
     public AbacRepositoryInvokerAdapter(
@@ -62,19 +66,19 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             QuerydslPredicateExecutor<Object> executor,
             Predicate predicate,
             PlatformTransactionManager transactionManager,
-            Class<?> domainType,
             Class<?> idType,
             String idPropertyName,
-            Function<Object, Optional<?>> idFunction
+            Function<Object, Optional<?>> idFunction,
+            PathBuilder<?> pathBuilder
     ) {
         super(delegate, executor, predicate);
         this.executor = executor;
         this.predicate = predicate;
         this.transactionManager = transactionManager;
-        this.domainType = domainType;
         this.idPropertyType = idType;
         this.idName = idPropertyName;
         this.idFunction = idFunction;
+        this.pathBuilder = pathBuilder;
 
     }
 
@@ -91,7 +95,6 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(predicate);
 
-        var pathBuilder = new PathBuilderFactory().create(this.domainType);
         var entityIdPath = pathBuilder.get(this.idName, this.idPropertyType);
         Assert.notNull(entityIdPath, "id expression cannot be null");
 

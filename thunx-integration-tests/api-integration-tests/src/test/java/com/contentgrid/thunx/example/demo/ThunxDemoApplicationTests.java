@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.contentgrid.spring.test.fixture.invoicing.InvoicingApplication;
 import com.contentgrid.spring.test.fixture.invoicing.model.Customer;
 import com.contentgrid.spring.test.fixture.invoicing.model.Invoice;
 import com.contentgrid.spring.test.fixture.invoicing.model.Order;
@@ -43,16 +44,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.rest.webmvc.ContentGridSpringDataRestConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @Transactional
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
-@SpringBootTest(classes = com.contentgrid.spring.test.fixture.invoicing.InvoicingApplication.class)
-@Import(ContentGridSpringDataRestConfiguration.class)
+@SpringBootTest(classes = InvoicingApplication.class)
 class ThunxDemoApplicationTests {
 
     static final String INVOICE_1 = "I-2022-0001";
@@ -97,9 +95,15 @@ class ThunxDemoApplicationTests {
 
     );
 
+    final Comparison POLICY_ORDERS_XENIT = Comparison.areEqual(
+            SymbolicReference.of("entity", path -> path.string("customer").string("vat")),
+            Scalar.of("BE0887582365")
+    );
+
     static String PROMO_XMAS, PROMO_CYBER, PROMO_GORILLA;
 
     UUID ORDER_1;
+    UUID ORDER_3;
 
     @BeforeEach
     void setupTestData() {
@@ -113,6 +117,7 @@ class ThunxDemoApplicationTests {
         ORDER_1 = orders.save(new Order(xenit)).getId();
         var order2 = orders.save(new Order(xenit));
         var order3 = orders.save(new Order(inbev));
+        ORDER_3 = order3.getId();
 
         invoices.saveAll(List.of(
                 new Invoice(INVOICE_1, true, false, xenit,
@@ -723,15 +728,15 @@ class ThunxDemoApplicationTests {
 
                 @Test
                 void deleteToOneAssoc_policyOk_shouldReturn_http204() throws Exception {
-                    // policy can access all _UN_paid invoices
-                    var policyUnpaidInvoices = Comparison.areEqual(
-                            SymbolicReference.of("entity", path -> path.string("paid")),
-                            Scalar.of(false));
+                    // policy can access all orders without an invoice
+                    var ordersWithoutInvoice = Comparison.notEqual(
+                            SymbolicReference.of("entity", path -> path.string("invoice").string("id")),
+                            Scalar.nullValue()
+                    );
 
-                    // fictive example: dis-associate the customer from the invoice
-                    // note that this would be classified as fraud in reality :grimacing:
-                    mockMvc.perform(delete("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(policyUnpaidInvoices))
+                    // fictive example: dis-associate the customer from the order
+                    mockMvc.perform(delete("/orders/" + ORDER_1 + "/customer")
+                                    .header("X-ABAC-Context", headerEncode(ordersWithoutInvoice))
                                     .accept("application/json"))
                             .andExpect(status().isNoContent());
                 }
@@ -739,22 +744,21 @@ class ThunxDemoApplicationTests {
 
                 @Test
                 void deleteToOneAssoc_policyFail_preDelete_shouldReturn_http404() throws Exception {
-                    // fictive example: dis-associate the customer from the invoice
-                    // note that this would be classified as fraud in reality :grimacing:
+                    // fictive example: dis-associate the customer from the order
 
-                    // user does not have access to invoice-2
-                    mockMvc.perform(delete("/invoices/" + invoiceIdByNumber(INVOICE_2) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                    // user does not have access to order-3
+                    mockMvc.perform(delete("/orders/" + ORDER_3 + "/customer")
+                                    .header("X-ABAC-Context", headerEncode(POLICY_ORDERS_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
 
                 @Test
                 void deleteToOneAssoc_policyFail_postDelete_shouldReturn_http404() throws Exception {
-                    // fictive example: dis-associate the customer from the invoice
-                    // user has access to invoice-1 - as long as customer = xenit
-                    mockMvc.perform(delete("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                    // fictive example: dis-associate the customer from the order
+                    // user has access to order-1 - as long as customer = xenit
+                    mockMvc.perform(delete("/orders/" + ORDER_1 + "/customer")
+                                    .header("X-ABAC-Context", headerEncode(POLICY_ORDERS_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
