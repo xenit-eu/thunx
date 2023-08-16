@@ -38,3 +38,9 @@ include 'thunx-integration-tests:api-integration-tests'
 //    }
 //}
 
+
+sourceControl {
+    gitRepository(uri('https://github.com/xenit-eu/contentgrid-spring')) {
+        producesModule('com.contentgrid.spring:contentgrid-spring-data-rest')
+    }
+}
