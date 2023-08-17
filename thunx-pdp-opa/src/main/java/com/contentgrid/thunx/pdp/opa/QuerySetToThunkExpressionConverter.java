@@ -11,6 +11,7 @@ import com.contentgrid.opa.rego.ast.Term.Call;
 import com.contentgrid.opa.rego.ast.Term.Null;
 import com.contentgrid.opa.rego.ast.Term.Numeric;
 import com.contentgrid.opa.rego.ast.Term.Ref;
+import com.contentgrid.opa.rego.ast.Term.SetTerm;
 import com.contentgrid.opa.rego.ast.Term.Text;
 import com.contentgrid.opa.rego.ast.Term.Var;
 import com.contentgrid.thunx.predicates.model.Comparison;
@@ -248,7 +249,7 @@ public class QuerySetToThunkExpressionConverter {
         public ThunkExpression<?> visit(Call call) {
             // 1st term is the operator
             // 2nd..Nth term are the arguments
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -279,7 +280,12 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            return null;
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ThunkExpression<?> visit(SetTerm setTerm) {
+            throw new UnsupportedOperationException();
         }
     }
 
