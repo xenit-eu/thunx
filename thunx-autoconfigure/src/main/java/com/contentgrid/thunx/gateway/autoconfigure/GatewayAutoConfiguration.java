@@ -10,19 +10,19 @@ import com.contentgrid.thunx.pdp.opa.OpenPolicyAgentPDPClient;
 import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import com.contentgrid.thunx.spring.security.DefaultOpaInputProvider;
 import com.contentgrid.thunx.spring.security.ReactivePolicyAuthorizationManager;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.web.server.ServerWebExchange;
 
-@Configuration
+@AutoConfiguration
 @ConditionalOnClass({OpaClient.class, AbstractGatewayFilterFactory.class})
 @EnableConfigurationProperties(OpaProperties.class)
 public class GatewayAutoConfiguration {
