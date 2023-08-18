@@ -12,6 +12,7 @@ import java.util.Map;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JsonCollectionValueDtoTest {
 
@@ -44,6 +45,6 @@ class JsonCollectionValueDtoTest {
         var json = "{ \"type\": \"array\", \"value\": null }";
 
         JsonExpressionDto scalar = mapper.readValue(json, JsonExpressionDto.class);
-        assertThat(scalar).isEqualTo(new JsonCollectionValueDto("array", new ArrayList<>()));
+        assertThat(scalar).isEqualTo(new JsonCollectionValueDto("array", null));
     }
 }

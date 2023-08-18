@@ -10,8 +10,6 @@ import com.contentgrid.thunx.predicates.model.Variable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -22,11 +20,7 @@ public class ExpressionJsonConverter {
     private final JsonEncoderVisitor visitor = new JsonEncoderVisitor();
 
     public ExpressionJsonConverter() {
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(JsonExpressionDto.class, new CollectionValueDeserializer(JsonCollectionValueDto.class));
-        mapper.registerModule(module);
-        this.objectMapper = mapper;
+        this(new ObjectMapper());
     }
 
     public ExpressionJsonConverter(ObjectMapper objectMapper) {

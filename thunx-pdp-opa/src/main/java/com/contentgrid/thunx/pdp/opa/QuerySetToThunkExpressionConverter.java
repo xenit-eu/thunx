@@ -15,6 +15,7 @@ import com.contentgrid.opa.rego.ast.Term.Ref;
 import com.contentgrid.opa.rego.ast.Term.SetTerm;
 import com.contentgrid.opa.rego.ast.Term.Text;
 import com.contentgrid.opa.rego.ast.Term.Var;
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.NumericFunction;
@@ -295,87 +296,16 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            ScalarCollectingRegoVisitor collectingRegoVisitor = new ScalarCollectingRegoVisitor();
-            return Scalar.of(
-                    (List) arrayTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(collectingRegoVisitor)).collect(Collectors.toList())
-            );
-        }
-
-        @Override
-        public ThunkExpression<?> visit(SetTerm setTerm) {
-            ScalarCollectingRegoVisitor collectingRegoVisitor = new ScalarCollectingRegoVisitor();
-
-            return Scalar.of(
-                    (Set) setTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(collectingRegoVisitor)).collect(Collectors.toSet())
-            );
-        }
-    }
-
-    static class ScalarCollectingRegoVisitor implements RegoVisitor<ThunkExpression<?>> {
-
-        @Override
-        public ThunkExpression<?> visit(QuerySet querySet) {
-            throw new UnsupportedOperationException("QuerySet is not supported in collection");
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Query query) {
-            throw new UnsupportedOperationException("Query is not supported in collection");
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Expression expression) {
-            throw new UnsupportedOperationException("Expression is not supported in collection");
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Ref ref) {
-            throw new UnsupportedOperationException("Reference is not supported in collection");
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Call call) {
-            throw new UnsupportedOperationException("Call is not supported in collection");
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Var var) {
-            throw new UnsupportedOperationException("Variable is not supported in collection");
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Numeric numeric) {
-            return Scalar.of(numeric.getValue());
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Text text) {
-            return Scalar.of(text.getValue());
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Bool bool) {
-            return Scalar.of(bool.getValue());
-        }
-
-        @Override
-        public ThunkExpression<?> visit(Null aNull) {
-            return Scalar.nullValue();
-        }
-
-        @Override
-        public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            return Scalar.of(
+            return new CollectionValue(
                     (List) arrayTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(this)).collect(Collectors.toList())
             );
         }
 
         @Override
         public ThunkExpression<?> visit(SetTerm setTerm) {
-            return Scalar.of(
+            return new CollectionValue(
                     (Set) setTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(this)).collect(Collectors.toSet())
             );
         }
     }
-
 }

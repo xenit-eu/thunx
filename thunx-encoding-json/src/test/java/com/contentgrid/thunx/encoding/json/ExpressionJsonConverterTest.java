@@ -76,8 +76,8 @@ class ExpressionJsonConverterTest {
 
             @Test
             void collection_set_toJson() {
-                var expr = Scalar.of(Set.of(Scalar.of(1),
-                        Scalar.of(2), Scalar.of(Set.of(Scalar.of(3), Scalar.of(4)))));
+                var expr = new CollectionValue(Set.of(Scalar.of(1),
+                        Scalar.of(2), new CollectionValue(Set.of(Scalar.of(3), Scalar.of(4)))));
                 var result = converter.encode(expr);
 
                 assertThatJson(result).isEqualTo("{type: 'set',value:" +
@@ -91,8 +91,8 @@ class ExpressionJsonConverterTest {
 
             @Test
             void collection_array_toJson() {
-                var expr = Scalar.of(List.of(Scalar.of(1),
-                        Scalar.of(2), Scalar.of(List.of(Scalar.of(3), Scalar.of(4)))));
+                var expr = new CollectionValue(List.of(Scalar.of(1),
+                        Scalar.of(2), new CollectionValue(List.of(Scalar.of(3), Scalar.of(4)))));
                 var result = converter.encode(expr);
 
                 assertThatJson(result).isEqualTo("{type: 'array',value:" +
@@ -235,7 +235,7 @@ class ExpressionJsonConverterTest {
                 // input.entity.security in {4, 5}
                 var expr = Comparison.in(
                         SymbolicReference.of("entity", path -> path.string("security")),
-                        Scalar.of(Set.of(Scalar.of(4), Scalar.of(5)))
+                        new CollectionValue(Set.of(Scalar.of(4), Scalar.of(5)))
                 );
 
                 var result = converter.encode(expr);
@@ -406,8 +406,8 @@ class ExpressionJsonConverterTest {
                         "}";
                 var result = converter.decode(expr);
 
-                CollectionValue expected = Scalar.of(Set.of(Scalar.of(1),
-                        Scalar.of(2), Scalar.of(Set.of(Scalar.of(3), Scalar.of(4)))));
+                CollectionValue expected = new CollectionValue(Set.of(Scalar.of(1),
+                        Scalar.of(2), new CollectionValue(Set.of(Scalar.of(3), Scalar.of(4)))));
                 assertThat(result).isEqualTo(expected);
             }
 
@@ -423,8 +423,8 @@ class ExpressionJsonConverterTest {
                         "}";
                 var result = converter.decode(expr);
 
-                CollectionValue expected = Scalar.of(List.of(Scalar.of(1),
-                        Scalar.of(2), Scalar.of(List.of(Scalar.of(3), Scalar.of(4)))));
+                CollectionValue expected = new CollectionValue(List.of(Scalar.of(1),
+                        Scalar.of(2), new CollectionValue(List.of(Scalar.of(3), Scalar.of(4)))));
 
                 assertThat(result).isEqualTo(expected);
             }

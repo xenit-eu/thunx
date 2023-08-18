@@ -6,6 +6,7 @@ import com.contentgrid.opa.rego.ast.Expression;
 import com.contentgrid.opa.rego.ast.Query;
 import com.contentgrid.opa.rego.ast.QuerySet;
 import com.contentgrid.opa.rego.ast.Term;
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
@@ -152,7 +153,7 @@ class QuerySetToThunkExpressionConverterTest {
 
             assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.in(
                     SymbolicReference.of("entity", path -> path.string("security")),
-                    Scalar.of(Set.of(Scalar.of(4), Scalar.of(5)))
+                    new CollectionValue(Set.of(Scalar.of(4), Scalar.of(5)))
             ));
         }
 
@@ -213,8 +214,8 @@ class QuerySetToThunkExpressionConverterTest {
 
         assertThat(converter.convert(opaExpr)).isEqualTo(Comparison.in(
                 SymbolicReference.of("entity", path -> path.string("security")),
-                Scalar.of(Set.of(Scalar.of(4), Scalar.of(5),
-                        Scalar.of(Set.of(Scalar.of(6), Scalar.of(7))))
+                new CollectionValue(Set.of(Scalar.of(4), Scalar.of(5),
+                        new CollectionValue(Set.of(Scalar.of(6), Scalar.of(7))))
         )));
     }
 

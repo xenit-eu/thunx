@@ -21,6 +21,10 @@ public class CollectionValue implements Scalar<Collection<Scalar<?>>> {
         this.type = type;
     }
 
+    public CollectionValue(Collection<Scalar<?>> value) {
+        this(value, (Class<? extends Collection<Scalar<?>>>)value.getClass());
+    }
+
     @Override
     public Class<? extends Collection<Scalar<?>>> getResultType() {
         return type;

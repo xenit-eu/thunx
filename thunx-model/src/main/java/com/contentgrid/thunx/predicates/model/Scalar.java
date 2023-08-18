@@ -1,7 +1,6 @@
 package com.contentgrid.thunx.predicates.model;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 
 public interface Scalar<T> extends ThunkExpression<T> {
 
@@ -29,10 +28,6 @@ public interface Scalar<T> extends ThunkExpression<T> {
 
     static BooleanValue of(boolean value) {
         return new BooleanValue(value);
-    }
-
-    static CollectionValue of(Collection<Scalar<?>> value) {
-        return new CollectionValue(value, (Class<? extends Collection<Scalar<?>>>)value.getClass());
     }
 
     static NullValue nullValue() {

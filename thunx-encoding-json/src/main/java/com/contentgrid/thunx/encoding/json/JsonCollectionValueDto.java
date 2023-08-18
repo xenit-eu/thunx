@@ -1,25 +1,25 @@
 package com.contentgrid.thunx.encoding.json;
 
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@JsonDeserialize(using = CollectionValueDeserializer.class)
 public class JsonCollectionValueDto extends JsonScalarDto<Collection<JsonScalarDto<?>>> {
 
     private static final Map<Class<?>, String> COLLECTION_TYPES = Map.of(
@@ -37,20 +37,26 @@ public class JsonCollectionValueDto extends JsonScalarDto<Collection<JsonScalarD
                 Set<JsonScalarDto<?>> setValues = (Set) super.getValue();
                 Set<? extends ThunkExpression<?>> setExpressions = setValues.stream()
                         .map(JsonScalarDto::toExpression).collect(Collectors.toSet());
-                return Scalar.of((Collection<Scalar<?>>) setExpressions);
+                return new CollectionValue((Collection<Scalar<?>>) setExpressions);
             case "array":
                 List<JsonScalarDto<?>> listValues = (List) super.getValue();
                 List<? extends ThunkExpression<?>> listExpressions = listValues.stream()
                         .map(JsonScalarDto::toExpression).collect(Collectors.toList());
-                return Scalar.of((Collection<Scalar<?>>) listExpressions);
+                return new CollectionValue((Collection<Scalar<?>>) listExpressions);
             default:
                 String message = String.format("Collection of type: '%s' is not supported", this.getType());
                 throw new UnsupportedOperationException(message);
         }
     }
 
-    public static JsonCollectionValueDto of(String type, @NonNull Collection<JsonScalarDto<?>> value) {
-        return new JsonCollectionValueDto(type, value);
+    @JsonCreator
+    public static JsonCollectionValueDto of(@JsonProperty("type") String type, @JsonProperty("value") Collection<JsonScalarDto<?>> value) {
+        if (type.equals("set")) {
+            return new JsonCollectionValueDto(type, value == null ? null : new HashSet<>(value));
+        } else if (type.equals("array")) {
+            return new JsonCollectionValueDto(type, value == null ? null : new ArrayList<>(value));
+        }
+        throw new UnsupportedOperationException("Type " + type + " is not supported");
     }
 
     public static String getTypeByClass(Class type) {
