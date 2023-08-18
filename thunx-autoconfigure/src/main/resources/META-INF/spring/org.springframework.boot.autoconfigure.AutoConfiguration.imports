@@ -1,0 +1,2 @@
+com.contentgrid.thunx.api.autoconfigure.AbacAutoConfiguration
+com.contentgrid.thunx.gateway.autoconfigure.GatewayAutoConfiguration

@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-	implementation platform("org.springframework.boot:spring-boot-dependencies:2.7.13")
+	implementation platform("org.springframework.boot:spring-boot-dependencies:3.1.2")
 	implementation platform(project(":thunx-bom"))
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -16,7 +16,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-web'
 
-	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.4.3')
+	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest') {
+		version {
+			branch = 'spring-boot-3'
+		}
+	}
 
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'org.testcontainers:postgresql:1.18.3'

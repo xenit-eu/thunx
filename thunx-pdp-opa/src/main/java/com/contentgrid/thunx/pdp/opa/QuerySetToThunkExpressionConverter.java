@@ -265,7 +265,7 @@ public class QuerySetToThunkExpressionConverter {
         public ThunkExpression<?> visit(Call call) {
             // 1st term is the operator
             // 2nd..Nth term are the arguments
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override

@@ -29,13 +29,13 @@ import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
+import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
-import javax.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +46,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 @Transactional
@@ -111,8 +112,8 @@ class ThunxDemoApplicationTests {
         PROMO_XMAS = promos.save(new PromotionCampaign("XMAS", "Happy Holidays")).getPromoCode();
         PROMO_GORILLA = promos.save(new PromotionCampaign("GORILLA", "Huge Customers")).getPromoCode();
 
-        var xenit = customers.save(new Customer(null, "XeniT", ORG_XENIT_VAT, new HashSet<>(), new HashSet<>()));
-        var inbev = customers.save(new Customer(null, "AB InBev", ORG_INBEV_VAT, new HashSet<>(), new HashSet<>()));
+        var xenit = customers.save(new Customer(null, "XeniT", ORG_XENIT_VAT, null, new HashSet<>(), new HashSet<>()));
+        var inbev = customers.save(new Customer(null, "AB InBev", ORG_INBEV_VAT, null, new HashSet<>(), new HashSet<>()));
 
         ORDER_1 = orders.save(new Order(xenit)).getId();
         var order2 = orders.save(new Order(xenit));
@@ -138,7 +139,7 @@ class ThunxDemoApplicationTests {
                 mockMvc.perform(get("/invoices")
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$._embedded.invoices.length()").value(2));
+                        .andExpect(jsonPath("$._embedded.item.length()").value(2));
             }
 
             @Test
@@ -147,8 +148,8 @@ class ThunxDemoApplicationTests {
                                 .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$._embedded.invoices.length()").value(1))
-                        .andExpect(jsonPath("$._embedded.invoices[0].number").value(INVOICE_1));
+                        .andExpect(jsonPath("$._embedded.item.length()").value(1))
+                        .andExpect(jsonPath("$._embedded.item[0].number").value(INVOICE_1));
             }
         }
 
