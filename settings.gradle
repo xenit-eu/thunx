@@ -37,10 +37,3 @@ include 'thunx-integration-tests:api-integration-tests'
 //        substitute module('com.contentgrid.opa-java-client:rego-java') with project(':rego-java')
 //    }
 //}
-
-
-sourceControl {
-    gitRepository(uri('https://github.com/xenit-eu/contentgrid-spring')) {
-        producesModule('com.contentgrid.spring:contentgrid-spring-data-rest')
-    }
-}
