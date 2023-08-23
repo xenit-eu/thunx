@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.data.querydsl.binding.AbacQuerydslPredicateBuilder;
+import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateBuilder;
 import org.springframework.data.querydsl.binding.QuerydslBindings;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.repository.support.Repositories;
