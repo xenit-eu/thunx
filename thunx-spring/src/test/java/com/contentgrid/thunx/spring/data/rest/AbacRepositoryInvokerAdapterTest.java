@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 
@@ -55,7 +56,8 @@ class AbacRepositoryInvokerAdapterTest {
     void setUp() {
         this.adapter = new AbacRepositoryInvokerAdapter(delegate, executor, predicate, transactionManager,
                 UUID.class, "id", (entity) -> Optional.ofNullable(((MyEntity) entity).getId()),
-                new PathBuilder<>(MyEntity.class, "myEntity")
+                new PathBuilder<>(MyEntity.class, "myEntity"),
+                new DefaultFormattingConversionService()
         );
     }
 

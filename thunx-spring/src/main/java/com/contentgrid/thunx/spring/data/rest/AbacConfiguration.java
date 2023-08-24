@@ -83,7 +83,7 @@ public class AbacConfiguration {
                     var defaultConversionService = new DefaultFormattingConversionService(); // ??
                     var querydslPredicateBuilder = new QuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
                     var abacPredicateBuilder = new AbacQuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
-                    var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(repositories, transactionManager, entityPathResolver);
+                    var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(repositories, transactionManager, entityPathResolver, defaultConversionService);
 
 
                     return new AbacRootResourceInformationHandlerMethodArgumentResolver(
