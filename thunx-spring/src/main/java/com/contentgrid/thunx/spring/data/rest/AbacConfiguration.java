@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.data.querydsl.binding.AbacQuerydslPredicateBuilder;
+import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateBuilder;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.support.Repositories;
