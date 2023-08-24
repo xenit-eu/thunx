@@ -1,5 +1,8 @@
 package com.contentgrid.thunx.spring.data.rest;
 
+import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateBuilder;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import java.util.Arrays;
 import java.util.Map;
@@ -7,9 +10,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateBuilder;
-import org.springframework.data.querydsl.binding.QuerydslBindings;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
+import org.springframework.data.querydsl.binding.QuerydslPredicateBuilder;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.data.repository.support.RepositoryInvokerFactory;
@@ -24,18 +27,20 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
     extends RootResourceInformationHandlerMethodArgumentResolver {
 
     private final Repositories repositories;
-    private final AbacQuerydslPredicateBuilder predicateBuilder;
+    private final QuerydslPredicateBuilder querydslPredicateBuilder;
+    private final AbacQuerydslPredicateBuilder abacPredicateBuilder;
     private final QuerydslBindingsFactory querydslBindingsFactory;
     private final AbacRepositoryInvokerAdapterFactory repositoryInvokerFactory;
 
     /**
      * Creates a new {@link AbacRootResourceInformationHandlerMethodArgumentResolver} using the given
-     * {@link Repositories}, {@link RepositoryInvokerFactory} and {@link ResourceMetadataHandlerMethodArgumentResolver}.
+     * {@link Repositories}, {@link RepositoryInvokerFactory} and
+     * {@link ResourceMetadataHandlerMethodArgumentResolver}.
      *
      * @param repositories must not be {@literal null}.
      * @param invokerFactory must not be {@literal null}.
      * @param resourceMetadataResolver must not be {@literal null}.
-     * @param predicateBuilder must not be {@literal null}.
+     * @param abacPredicateBuilder must not be {@literal null}.
      * @param querydslBindingsFactory must not be {@literal null}.
      * @param repositoryInvokerFactory must not be {@literal null}.
      */
@@ -43,19 +48,20 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
             Repositories repositories,
             RepositoryInvokerFactory invokerFactory,
             ResourceMetadataHandlerMethodArgumentResolver resourceMetadataResolver,
-            AbacQuerydslPredicateBuilder predicateBuilder,
+            QuerydslPredicateBuilder querydslPredicateBuilder, AbacQuerydslPredicateBuilder abacPredicateBuilder,
             QuerydslBindingsFactory querydslBindingsFactory,
             AbacRepositoryInvokerAdapterFactory repositoryInvokerFactory) {
 
         super(repositories, invokerFactory, resourceMetadataResolver);
+        this.querydslPredicateBuilder = querydslPredicateBuilder;
 
         Assert.notNull(repositories, "Repositories must not be null!");
-        Assert.notNull(predicateBuilder, "predicateBuilder must not be null!");
+        Assert.notNull(abacPredicateBuilder, "predicateBuilder must not be null!");
         Assert.notNull(querydslBindingsFactory, "querydslBindingsFactory must not be null!");
         Assert.notNull(repositoryInvokerFactory, "repositoryInvokerFactory must not be null!");
 
         this.repositories = repositories;
-        this.predicateBuilder = predicateBuilder;
+        this.abacPredicateBuilder = abacPredicateBuilder;
         this.querydslBindingsFactory = querydslBindingsFactory;
         this.repositoryInvokerFactory = repositoryInvokerFactory;
     }
@@ -70,18 +76,21 @@ public class AbacRootResourceInformationHandlerMethodArgumentResolver
 
         return repositories.getRepositoryFor(domainType)
                 .filter(QuerydslPredicateExecutor.class::isInstance)
-                .flatMap(executor -> getPredicate(domainType, parameters))
+                .flatMap(executor -> getPredicate(parameter, domainType, parameters))
                 .map(predicate -> repositoryInvokerFactory.createRepositoryInvoker(invoker, domainType, predicate))
                 .orElse(invoker);
     }
 
-    private Optional<Predicate> getPredicate(Class<?> domainType, Map<String, String[]> parameters) {
+    private Optional<Predicate> getPredicate(MethodParameter parameter, Class<?> domainType, Map<String, String[]> parameters) {
 
         ClassTypeInformation<?> type = ClassTypeInformation.from(domainType);
-        QuerydslBindings bindings = querydslBindingsFactory.createBindingsFor(type);
-        Predicate predicate = predicateBuilder.getPredicate(type, toMultiValueMap(parameters), bindings);
+        Predicate abacPredicate = abacPredicateBuilder.getPredicate(type);
+        var bindings = querydslBindingsFactory.createBindingsFor(type);
+        Predicate querydslPredicate = parameter.hasParameterAnnotation(QuerydslPredicate.class)?
+                querydslPredicateBuilder.getPredicate(type, toMultiValueMap(parameters), bindings):
+                null;
 
-        return Optional.ofNullable(predicate);
+        return Optional.ofNullable(ExpressionUtils.allOf(abacPredicate, querydslPredicate));
     }
 
     /**

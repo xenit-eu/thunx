@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateBuilder;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
+import org.springframework.data.querydsl.binding.QuerydslPredicateBuilder;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.data.repository.support.RepositoryInvokerFactory;
@@ -80,7 +81,8 @@ public class AbacConfiguration {
                     var entityPathResolver = factory.getEntityPathResolver();
 
                     var defaultConversionService = new DefaultFormattingConversionService(); // ??
-                    var predicateBuilder = new AbacQuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
+                    var querydslPredicateBuilder = new QuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
+                    var abacPredicateBuilder = new AbacQuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
                     var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(repositories, transactionManager, entityPathResolver);
 
 
@@ -88,7 +90,8 @@ public class AbacConfiguration {
                             repositories,
                             invokerFactory,
                             resourceMetadataResolver,
-                            predicateBuilder,
+                            querydslPredicateBuilder,
+                            abacPredicateBuilder,
                             factory,
                             repositoryInvokerFactory
                     );

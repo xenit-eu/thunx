@@ -22,38 +22,29 @@ import org.springframework.util.MultiValueMap;
 @Slf4j
 public class AbacQuerydslPredicateBuilder {
 
-    private final QuerydslPredicateBuilder querydslPredicateBuilder;
     private final QueryDslConverter queryDslConverter;
 
     public AbacQuerydslPredicateBuilder(ConversionService conversionService, EntityPathResolver resolver) {
 
         Assert.notNull(conversionService, "ConversionService must not be null!");
 
-        this.querydslPredicateBuilder = new QuerydslPredicateBuilder(conversionService, resolver);
-
         this.queryDslConverter = new QueryDslConverter(new FieldByReflectionAccessStrategy(), new EntityPathResolverBasedPathBuilderFactory(
                 resolver));
     }
 
     @Nullable
-    public Predicate getPredicate(TypeInformation<?> type, MultiValueMap<String, String> values, QuerydslBindings bindings) {
-
-        Assert.notNull(bindings, "Context must not be null!");
-
-        BooleanBuilder builder = new BooleanBuilder();
-
+    public Predicate getPredicate(TypeInformation<?> type) {
         var abacContext = AbacContext.getCurrentAbacContext();
         if (abacContext != null) {
             Predicate queryDslPredicate = this.queryDslConverter.from(abacContext, type.getType());
             Assert.notNull(queryDslPredicate, "abac expression cannot be null");
             log.debug("ABAC Querydsl Predicate: {}", queryDslPredicate);
 
-            builder.and(queryDslPredicate);
+            return queryDslPredicate;
+
         }
 
-        builder.and(querydslPredicateBuilder.getPredicate(type, values, bindings));
-
-        return builder.getValue();
+        return null;
     }
 
 }
