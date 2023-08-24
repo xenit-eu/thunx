@@ -3,6 +3,7 @@ package com.contentgrid.thunx.spring.data.rest;
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
+import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -14,8 +15,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateBuilder;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.querydsl.binding.QuerydslPredicateBuilder;
 import org.springframework.data.repository.Repository;
@@ -23,7 +24,6 @@ import org.springframework.data.repository.support.Repositories;
 import org.springframework.data.repository.support.RepositoryInvokerFactory;
 import org.springframework.data.rest.webmvc.config.ResourceMetadataHandlerMethodArgumentResolver;
 import org.springframework.data.rest.webmvc.config.RootResourceInformationHandlerMethodArgumentResolver;
-import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -80,7 +80,7 @@ public class AbacConfiguration {
                     var transactionManager = applicationContext.getBean(PlatformTransactionManager.class);
                     var entityPathResolver = factory.getEntityPathResolver();
 
-                    var defaultConversionService = new DefaultFormattingConversionService(); // ??
+                    var defaultConversionService = applicationContext.getBean("defaultConversionService", ConversionService.class);
                     var querydslPredicateBuilder = new QuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
                     var abacPredicateBuilder = new AbacQuerydslPredicateBuilder(defaultConversionService, entityPathResolver);
                     var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(repositories, transactionManager, entityPathResolver, defaultConversionService);
