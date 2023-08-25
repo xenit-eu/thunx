@@ -2,7 +2,8 @@ package com.contentgrid.thunx.spring.data.rest;
 
 import com.contentgrid.thunx.predicates.querydsl.PathBuilderFactory;
 import com.contentgrid.thunx.spring.data.querydsl.EntityPathResolverBasedPathBuilderFactory;
-import com.querydsl.core.types.Predicate;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.EntityPathResolver;
@@ -12,7 +13,7 @@ import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @AllArgsConstructor
-public class AbacRepositoryInvokerAdapterFactory {
+class AbacRepositoryInvokerAdapterFactory implements RepositoryInvokerAdapterFactory {
 
     private final Repositories repositories;
     private final PlatformTransactionManager transactionManager;
@@ -25,11 +26,13 @@ public class AbacRepositoryInvokerAdapterFactory {
             EntityPathResolver entityPathResolver,
             ConversionService conversionService
     ) {
-        this(repositories, transactionManager, new EntityPathResolverBasedPathBuilderFactory(entityPathResolver), conversionService);
+        this(repositories, transactionManager, new EntityPathResolverBasedPathBuilderFactory(entityPathResolver),
+                conversionService);
     }
 
-    public RepositoryInvoker createRepositoryInvoker(RepositoryInvoker repositoryInvoker, Class<?> domainType,
-            Predicate predicate) {
+    @Override
+    public RepositoryInvoker adaptRepositoryInvoker(RepositoryInvoker repositoryInvoker, Class<?> domainType,
+            OperationPredicates predicate) {
         var executor = repositories.getRepositoryFor(domainType)
                 .map(QuerydslPredicateExecutor.class::cast)
                 .orElseThrow();
@@ -39,7 +42,8 @@ public class AbacRepositoryInvokerAdapterFactory {
         var entityInformation = repositories.getEntityInformationFor(domainType);
 
         return new AbacRepositoryInvokerAdapter(repositoryInvoker, executor, predicate, transactionManager,
-                repositoryInformation, persistentEntity, entityInformation, pathBuilderFactory.create(domainType), conversionService);
+                repositoryInformation, persistentEntity, entityInformation, pathBuilderFactory.create(domainType),
+                conversionService);
     }
 
 }

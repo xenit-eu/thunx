@@ -8,6 +8,7 @@ dependencies {
     internalPlatform platform(project(':thunx-dependencies'))
 
     api project(':thunx-spring')
+    api project(':spring-data-querydsl-predicate-injector')
     api project(':thunx-autoconfigure')
 
     implementation project(":thunx-predicates-querydsl")

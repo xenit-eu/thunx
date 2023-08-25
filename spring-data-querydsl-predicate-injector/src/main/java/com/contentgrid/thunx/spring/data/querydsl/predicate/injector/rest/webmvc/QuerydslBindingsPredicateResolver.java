@@ -1,6 +1,8 @@
-package com.contentgrid.thunx.spring.data.querydsl;
+package com.contentgrid.thunx.spring.data.querydsl.predicate.injector.rest.webmvc;
 
-import com.querydsl.core.types.Predicate;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.CollectionFilteringOnlyOperationPredicates;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,14 +18,16 @@ import org.springframework.util.MultiValueMap;
 
 /**
  * Resolves the QueryDSL Predicate from request query parameters using bindings provided with
- * {@link QuerydslBindingsFactory}
+ * {@link QuerydslBindingsFactory}.
+ * <p>
+ * This is equivalent to the built-in functionality of Spring DATA REST with QueryDSL integration
  */
-public class DefaultQuerydslPredicateResolver implements QuerydslPredicateResolver {
+public class QuerydslBindingsPredicateResolver implements QuerydslPredicateResolver {
 
     private final QuerydslPredicateBuilder predicateBuilder;
     private final QuerydslBindingsFactory querydslBindingsFactory;
 
-    public DefaultQuerydslPredicateResolver(ConversionService conversionService,
+    QuerydslBindingsPredicateResolver(ConversionService conversionService,
             QuerydslBindingsFactory querydslBindingsFactory) {
         this.predicateBuilder = new QuerydslPredicateBuilder(
                 conversionService,
@@ -33,7 +37,7 @@ public class DefaultQuerydslPredicateResolver implements QuerydslPredicateResolv
     }
 
     @Override
-    public Optional<Predicate> resolve(MethodParameter methodParameter, Class<?> domainType,
+    public Optional<OperationPredicates> resolve(MethodParameter methodParameter, Class<?> domainType,
             Map<String, String[]> parameters) {
         if (!methodParameter.hasParameterAnnotation(QuerydslPredicate.class)) {
             return Optional.empty();
@@ -42,7 +46,8 @@ public class DefaultQuerydslPredicateResolver implements QuerydslPredicateResolv
         var domainTypeInfo = TypeInformation.of(domainType);
         var bindings = querydslBindingsFactory.createBindingsFor(domainTypeInfo);
 
-        return Optional.of(predicateBuilder.getPredicate(domainTypeInfo, toMultiValueMap(parameters), bindings));
+        return Optional.of(predicateBuilder.getPredicate(domainTypeInfo, toMultiValueMap(parameters), bindings))
+                .map(CollectionFilteringOnlyOperationPredicates::new);
     }
 
     /**

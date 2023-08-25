@@ -17,6 +17,9 @@ dependencies {
         api project(':thunx-encoding-json')
         api project(':thunx-predicates-querydsl')
 
+        api project(':spring-data-querydsl-predicate-injector')
+        api project(':thunx-visitor-reducer')
+
         api 'com.contentgrid.opa-java-client:opa-async-java-client:0.5.0'
     }
 }

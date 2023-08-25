@@ -3,6 +3,8 @@ package com.contentgrid.thunx.spring.data.querydsl;
 import com.contentgrid.thunx.predicates.querydsl.FieldByReflectionAccessStrategy;
 import com.contentgrid.thunx.predicates.querydsl.QueryDslConverter;
 import com.contentgrid.thunx.spring.data.context.AbacContext;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
 import com.querydsl.core.types.Predicate;
 import java.util.Map;
 import java.util.Optional;
@@ -28,14 +30,14 @@ public class AbacQuerydslPredicateResolver implements QuerydslPredicateResolver 
     }
 
     @Override
-    public Optional<Predicate> resolve(MethodParameter methodParameter, Class<?> domainType,
+    public Optional<OperationPredicates> resolve(MethodParameter methodParameter, Class<?> domainType,
             Map<String, String[]> parameters) {
         var abacContext = AbacContext.getCurrentAbacContext();
         if (abacContext != null) {
             Predicate queryDslPredicate = this.queryDslConverter.from(abacContext, domainType);
             Assert.notNull(queryDslPredicate, "abac expression cannot be null");
             log.debug("ABAC Querydsl Predicate: {}", queryDslPredicate);
-            return Optional.of(queryDslPredicate);
+            return Optional.of(new AllOperationPredicates(queryDslPredicate));
         }
         return Optional.empty();
     }

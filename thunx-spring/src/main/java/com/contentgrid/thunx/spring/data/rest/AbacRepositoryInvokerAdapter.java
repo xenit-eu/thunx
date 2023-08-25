@@ -1,5 +1,6 @@
 package com.contentgrid.thunx.spring.data.rest;
 
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
@@ -16,18 +17,17 @@ import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
-import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.Assert;
 
-public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
+class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
 
     @NonNull
     private final QuerydslPredicateExecutor<Object> executor;
     @NonNull
-    private final Predicate predicate;
+    private final OperationPredicates predicate;
     private final PlatformTransactionManager transactionManager;
 
     @NonNull
@@ -47,7 +47,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     public AbacRepositoryInvokerAdapter(
             RepositoryInvoker delegate,
             QuerydslPredicateExecutor<Object> executor,
-            Predicate predicate,
+            OperationPredicates predicate,
             PlatformTransactionManager transactionManager,
             RepositoryMetadata repositoryMetadata,
             PersistentEntity<?, ?> persistentEntity,
@@ -66,7 +66,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     public AbacRepositoryInvokerAdapter(
             RepositoryInvoker delegate,
             QuerydslPredicateExecutor<Object> executor,
-            Predicate predicate,
+            OperationPredicates predicate,
             PlatformTransactionManager transactionManager,
             Class<?> idType,
             String idPropertyName,
@@ -74,7 +74,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             PathBuilder<?> pathBuilder,
             ConversionService conversionService
     ) {
-        super(delegate, executor, predicate);
+        super(delegate, executor, predicate.readPredicate());
         this.executor = executor;
         this.predicate = predicate;
         this.transactionManager = transactionManager;
@@ -96,6 +96,10 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
      */
     @Override
     public <T> Optional<T> invokeFindById(Object id) {
+        return invokeFindById(id, predicate.readPredicate());
+    }
+
+    private <T> Optional<T> invokeFindById(Object id, Predicate predicate) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(predicate);
 
@@ -153,7 +157,10 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
                 status = transactionManager.getTransaction(new DefaultTransactionDefinition());
             }
 
-            // when object has no id, there is no pre-save-check required
+            var maybePreSaveId = idFunction.apply(object);
+
+            Predicate postSavePredicate;
+            // when object has no id, there is no pre-save-check required, because it is a newly created entity
             // when object has an 'id', do:
             //   1. invokeFindById without predicate
             //   2. invokeFindById with predicate
@@ -161,18 +168,28 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             //   case b) - both (1) and (2) are present: update -> check afterwards the updates are allowed
             //   case c) - if (1) is NOT present, but (2) is: impossible case
             //   case d) - if (1) is present, but (2) is NOT: permission denied
-            this.idFunction.apply(object).ifPresent(id -> {
-                if (super.invokeFindById(id) /* without predicate */.isPresent()) {
-                    if (this.invokeFindById(id) /* with predicate */.isEmpty()) {
-                        throw new ResourceNotFoundException(String.format("id: %s", id));
+            if (maybePreSaveId.isPresent()) {
+                var preSaveId = maybePreSaveId.get();
+                if (super.invokeFindById(preSaveId) /* without predicate */.isPresent()) {
+                    // Id set, entity found in DB -> is an existing entity
+                    if (this.invokeFindById(preSaveId,
+                            predicate.beforeUpdatePredicate()) /* with predicate */.isEmpty()) {
+                        throw new ResourceNotFoundException(String.format("id: %s", preSaveId));
                     }
+                    postSavePredicate = predicate.afterUpdatePredicate();
+                } else {
+                    // Id set, but entity not found in DB -> always a new entity (with app-generated ID)
+                    postSavePredicate = predicate.afterCreatePredicate();
                 }
-            });
+            } else {
+                // No id is set -> always a new entity (with db-generated ID)
+                postSavePredicate = predicate.afterCreatePredicate();
+            }
 
             T savedEntity = super.invokeSave(object);
 
             Object id = this.idFunction.apply(savedEntity).orElseThrow();
-            Optional<T> fetchedEntity = this.invokeFindById(id);
+            Optional<T> fetchedEntity = this.invokeFindById(id, postSavePredicate);
             if (fetchedEntity.isEmpty()) {
                 throw new ResourceNotFoundException(String.format("id: %s", id));
             }
@@ -195,5 +212,13 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
         }
 
         return entityToReturn;
+    }
+
+    @Override
+    public void invokeDeleteById(Object id) {
+        if (this.invokeFindById(id, predicate.beforeDeletePredicate()).isEmpty()) {
+            throw new ResourceNotFoundException(String.format("id: %s", id));
+        }
+        super.invokeDeleteById(id);
     }
 }

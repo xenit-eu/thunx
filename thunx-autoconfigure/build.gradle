@@ -6,36 +6,44 @@ plugins {
 dependencies {
     internalPlatform platform(project(':thunx-dependencies'))
 
-    annotationProcessor platform(project(':thunx-dependencies'))
     annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
     annotationProcessor "org.projectlombok:lombok"
+    compileOnly "org.projectlombok:lombok"
 
     implementation "org.springframework.boot:spring-boot-autoconfigure"
 
-    compileOnly "org.projectlombok:lombok"
-
     compileOnly project(':thunx-spring')
-    compileOnly project(':thunx-pdp-opa')
 
+    // Spring data
+    compileOnly project(':spring-data-querydsl-predicate-injector')
+    compileOnly 'org.springframework.data:spring-data-rest-core'
+    compileOnly 'org.springframework.data:spring-data-rest-webmvc'
+
+    // Spring gateway
+    compileOnly project(':thunx-pdp-opa')
+    compileOnly 'org.springframework.cloud:spring-cloud-gateway-server'
     compileOnly 'org.springframework.security:spring-security-web'
 
-    compileOnly 'org.springframework.data:spring-data-rest-core'
-    compileOnly 'org.springframework.cloud:spring-cloud-starter-gateway'
-
+    // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
-    testImplementation "org.springframework.boot:spring-boot-test"
+
+    testImplementation project(':thunx-spring')
+
+    // Spring data
+    testImplementation project(':thunx-predicates-querydsl')
+    testImplementation project(':spring-data-querydsl-predicate-injector')
     testImplementation "org.springframework.boot:spring-boot-starter-data-jpa"
     testImplementation "org.springframework.boot:spring-boot-starter-data-rest"
-    testImplementation 'org.springframework.security:spring-security-web'
-    testImplementation 'org.springframework.cloud:spring-cloud-starter-gateway'
     testImplementation 'com.querydsl:querydsl-core'
-    testImplementation project(':thunx-spring')
-    testImplementation project(':thunx-pdp-opa')
-    testImplementation project(':thunx-predicates-querydsl')
 
     testRuntimeOnly 'com.h2database:h2'
+
+    // Spring gateway
+    testImplementation project(':thunx-pdp-opa')
+    testImplementation 'org.springframework.security:spring-security-web'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-gateway'
 }
 
 test {
