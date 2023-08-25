@@ -7,7 +7,7 @@ dependencies {
     implementation platform(project(":thunx-bom"))
     internalPlatform platform(project(':thunx-dependencies'))
 
-    api project(':thunx-spring')
+    api project(':thunx-spring-api')
     api project(':spring-data-querydsl-predicate-injector')
     api project(':thunx-autoconfigure')
 

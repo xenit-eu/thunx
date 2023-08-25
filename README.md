@@ -86,7 +86,8 @@ This repository has several modules:
 * `thunx-pdp-opa` is a PDP implementation using [OpenPolicyAgent](https://www.openpolicyagent.org/).
 * `thunx-encoding-json` is a JSON-serialization library for thunk-expressions
 * `thunx-predicates-querydsl` is a library to convert thunk-expressions into QueryDSL predicates
-* `thunx-spring` provides an integration with Spring Cloud Gateway and Spring Data REST
+* `thunx-spring-api` provides an integration with Spring Data REST
+* `thunx-spring-gateway` provides an integration with Spring Cloud Gateway
 * `thunx-spring-querydsl-predicate-resolver` is a library to inject additional [QueryDSL] predicates to be processed
   together with the predicates from the [Spring Data QueryDSL Extension]
 

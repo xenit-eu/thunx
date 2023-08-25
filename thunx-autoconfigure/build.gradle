@@ -12,14 +12,14 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-autoconfigure"
 
-    compileOnly project(':thunx-spring')
-
     // Spring data
+    compileOnly project(':thunx-spring-api')
     compileOnly project(':spring-data-querydsl-predicate-injector')
     compileOnly 'org.springframework.data:spring-data-rest-core'
     compileOnly 'org.springframework.data:spring-data-rest-webmvc'
 
     // Spring gateway
+    compileOnly project(':thunx-spring-gateway')
     compileOnly project(':thunx-pdp-opa')
     compileOnly 'org.springframework.cloud:spring-cloud-gateway-server'
     compileOnly 'org.springframework.security:spring-security-web'
@@ -29,9 +29,8 @@ dependencies {
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
 
-    testImplementation project(':thunx-spring')
-
     // Spring data
+    testImplementation project(':thunx-spring-api')
     testImplementation project(':thunx-predicates-querydsl')
     testImplementation project(':spring-data-querydsl-predicate-injector')
     testImplementation "org.springframework.boot:spring-boot-starter-data-jpa"
@@ -41,6 +40,7 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2'
 
     // Spring gateway
+    testImplementation project(':thunx-spring-gateway')
     testImplementation project(':thunx-pdp-opa')
     testImplementation 'org.springframework.security:spring-security-web'
     testImplementation 'org.springframework.cloud:spring-cloud-starter-gateway'
