@@ -75,6 +75,7 @@ that fulfill the conditional authorization predicate.
 ### Solution mechanics
 
 #### Gateway
+
 #### Spring Data REST
 
 ### Subprojects
