@@ -42,7 +42,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
     @NonNull
     private final PathBuilder<?> pathBuilder;
 
-    private final ConversionService conversionService = new DefaultFormattingConversionService();
+    private final ConversionService conversionService;
 
     public AbacRepositoryInvokerAdapter(
             RepositoryInvoker delegate,
@@ -52,12 +52,14 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             RepositoryMetadata repositoryMetadata,
             PersistentEntity<?, ?> persistentEntity,
             EntityInformation<Object, ?> entityInformation,
-            PathBuilder<?> pathBuilder
+            PathBuilder<?> pathBuilder,
+            ConversionService conversionService
     ) {
         this(delegate, executor, predicate, transactionManager, repositoryMetadata.getIdType(),
                 persistentEntity.getRequiredIdProperty().getName(),
                 entity -> Optional.ofNullable(entityInformation.getId(entity)),
-                pathBuilder
+                pathBuilder,
+                conversionService
         );
     }
 
@@ -69,7 +71,8 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
             Class<?> idType,
             String idPropertyName,
             Function<Object, Optional<?>> idFunction,
-            PathBuilder<?> pathBuilder
+            PathBuilder<?> pathBuilder,
+            ConversionService conversionService
     ) {
         super(delegate, executor, predicate);
         this.executor = executor;
@@ -79,6 +82,7 @@ public class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapt
         this.idName = idPropertyName;
         this.idFunction = idFunction;
         this.pathBuilder = pathBuilder;
+        this.conversionService = conversionService;
 
     }
 

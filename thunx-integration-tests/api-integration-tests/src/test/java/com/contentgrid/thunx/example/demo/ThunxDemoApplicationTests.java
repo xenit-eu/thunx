@@ -151,6 +151,25 @@ class ThunxDemoApplicationTests {
                         .andExpect(jsonPath("$._embedded.item.length()").value(1))
                         .andExpect(jsonPath("$._embedded.item[0].number").value(INVOICE_1));
             }
+
+            @Test
+            void listInvoices_policyOk_withMatchingFilter_shouldReturn_http200_ok() throws Exception {
+                mockMvc.perform(get("/invoices?number={number}", INVOICE_1)
+                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .contentType("application/json"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.item.length()").value(1))
+                        .andExpect(jsonPath("$._embedded.item[0].number").value(INVOICE_1));
+            }
+
+            @Test
+            void listInvoices_policyOk_withNonMatchingFilter_shouldReturn_http200_ok() throws Exception {
+                mockMvc.perform(get("/invoices?number={number}", INVOICE_2)
+                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .contentType("application/json"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$._embedded.item.length()").value(0));
+            }
         }
 
         @Nested
@@ -221,6 +240,18 @@ class ThunxDemoApplicationTests {
             @Test
             void getInvoice_policyOk_shouldReturn_http200_ok() throws Exception {
                 mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1))
+                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .contentType("application/json"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.number").value(INVOICE_1));
+            }
+
+            /**
+             * This tests that a GET on an individual resource has the query parameters that match filter params ignored
+             */
+            @Test
+            void getInvoice_policyOk_withFilter_ignored_shouldReturn_http200_ok() throws Exception {
+                mockMvc.perform(get("/invoices/{id}?number={number}", invoiceIdByNumber(INVOICE_1), INVOICE_2)
                                 .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
