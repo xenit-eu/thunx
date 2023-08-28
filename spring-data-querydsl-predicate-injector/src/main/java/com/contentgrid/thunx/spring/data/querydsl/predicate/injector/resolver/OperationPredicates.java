@@ -20,7 +20,13 @@ public interface OperationPredicates {
     }
 
     /**
-     * @return Predicate used for reading an entity
+     * @return Predicate used for filtering a collection of entities
+     */
+    @Nullable
+    Predicate collectionFilterPredicate();
+
+    /**
+     * @return Predicate used for reading a single entity
      */
     @Nullable
     Predicate readPredicate();

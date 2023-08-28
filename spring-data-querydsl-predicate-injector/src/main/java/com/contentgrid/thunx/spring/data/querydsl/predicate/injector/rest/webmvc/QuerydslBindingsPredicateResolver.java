@@ -2,7 +2,7 @@ package com.contentgrid.thunx.spring.data.querydsl.predicate.injector.rest.webmv
 
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
-import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.CollectionFilteringOnlyOperationPredicates;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.CollectionFilteringOperationPredicates;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,7 +47,7 @@ public class QuerydslBindingsPredicateResolver implements QuerydslPredicateResol
         var bindings = querydslBindingsFactory.createBindingsFor(domainTypeInfo);
 
         return Optional.of(predicateBuilder.getPredicate(domainTypeInfo, toMultiValueMap(parameters), bindings))
-                .map(CollectionFilteringOnlyOperationPredicates::new);
+                .map(CollectionFilteringOperationPredicates::new);
     }
 
     /**

@@ -74,7 +74,7 @@ class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
             PathBuilder<?> pathBuilder,
             ConversionService conversionService
     ) {
-        super(delegate, executor, predicate.readPredicate());
+        super(delegate, executor, predicate.collectionFilterPredicate());
         this.executor = executor;
         this.predicate = predicate;
         this.transactionManager = transactionManager;

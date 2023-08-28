@@ -28,6 +28,11 @@ class CompositeOperationPredicates implements OperationPredicates {
     }
 
     @Override
+    public Predicate collectionFilterPredicate() {
+        return combine(OperationPredicates::collectionFilterPredicate);
+    }
+
+    @Override
     public Predicate readPredicate() {
         return combine(OperationPredicates::readPredicate);
     }

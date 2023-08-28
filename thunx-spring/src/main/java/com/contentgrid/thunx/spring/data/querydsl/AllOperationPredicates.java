@@ -6,7 +6,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 class AllOperationPredicates implements OperationPredicates {
+
     private final Predicate sharedPredicate;
+
+    @Override
+    public Predicate collectionFilterPredicate() {
+        return sharedPredicate;
+    }
 
     @Override
     public Predicate readPredicate() {

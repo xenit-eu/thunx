@@ -65,6 +65,11 @@ class AbacRepositoryInvokerAdapterTest {
         private final Predicate predicate;
 
         @Override
+        public Predicate collectionFilterPredicate() {
+            return predicate;
+        }
+
+        @Override
         public Predicate readPredicate() {
             return predicate;
         }
@@ -115,6 +120,7 @@ class AbacRepositoryInvokerAdapterTest {
             return true;
         }));
 
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate, atLeastOnce()).readPredicate();
         verifyNoMoreInteractions(predicate);
     }
@@ -144,7 +150,7 @@ class AbacRepositoryInvokerAdapterTest {
         verify(transactionManager).commit(any(TransactionStatus.class));
         verify(transactionManager, never()).rollback(any(TransactionStatus.class));
 
-        verify(predicate, atMostOnce()).readPredicate();
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate).afterCreatePredicate();
         verifyNoMoreInteractions(predicate);
     }
@@ -174,7 +180,7 @@ class AbacRepositoryInvokerAdapterTest {
         inOrderVerifier.verify(transactionManager).commit(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
 
-        verify(predicate, atMostOnce()).readPredicate();
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate).afterCreatePredicate();
         verifyNoMoreInteractions(predicate);
     }
@@ -214,7 +220,7 @@ class AbacRepositoryInvokerAdapterTest {
         inOrderVerifier.verify(transactionManager).commit(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
 
-        verify(predicate, atMostOnce()).readPredicate();
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate).beforeUpdatePredicate();
         verify(predicate).afterUpdatePredicate();
         verifyNoMoreInteractions(predicate);
@@ -243,7 +249,7 @@ class AbacRepositoryInvokerAdapterTest {
         inOrderVerifier.verify(transactionManager).rollback(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
 
-        verify(predicate, atMostOnce()).readPredicate();
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate).beforeUpdatePredicate();
         verify(predicate, atMostOnce()).afterUpdatePredicate();
         verifyNoMoreInteractions(predicate);
@@ -277,7 +283,7 @@ class AbacRepositoryInvokerAdapterTest {
         inOrderVerifier.verify(transactionManager).rollback(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
 
-        verify(predicate, atMostOnce()).readPredicate();
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate).beforeUpdatePredicate();
         verify(predicate).afterUpdatePredicate();
         verifyNoMoreInteractions(predicate);
@@ -295,7 +301,7 @@ class AbacRepositoryInvokerAdapterTest {
 
         verify(delegate).invokeDeleteById(id);
 
-        verify(predicate, atMostOnce()).readPredicate();
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate).beforeDeletePredicate();
         verifyNoMoreInteractions(predicate);
     }
@@ -311,7 +317,7 @@ class AbacRepositoryInvokerAdapterTest {
 
         verify(delegate, never()).invokeDeleteById(id);
 
-        verify(predicate, atMostOnce()).readPredicate();
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
         verify(predicate).beforeDeletePredicate();
         verifyNoMoreInteractions(predicate);
     }

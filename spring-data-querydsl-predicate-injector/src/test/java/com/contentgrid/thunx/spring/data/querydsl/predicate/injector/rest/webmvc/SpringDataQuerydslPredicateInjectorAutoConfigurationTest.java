@@ -1,7 +1,7 @@
 package com.contentgrid.thunx.spring.data.querydsl.predicate.injector.rest.webmvc;
 
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
-import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.CollectionFilteringOnlyOperationPredicates;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.CollectionFilteringOperationPredicates;
 import com.querydsl.core.types.EntityPath;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
@@ -26,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
@@ -59,7 +58,7 @@ class SpringDataQuerydslPredicateInjectorAutoConfigurationTest {
         QuerydslPredicateResolver additionalPredicate() {
             return (methodParameter, domainType, parameters) -> {
                 if(parameters.containsKey("test") && domainType == TestEntity.class) {
-                    return Optional.of(new CollectionFilteringOnlyOperationPredicates(
+                    return Optional.of(new CollectionFilteringOperationPredicates(
                             QSpringDataQuerydslPredicateInjectorAutoConfigurationTest_TestEntity.testEntity
                                     .value
                                     .eq("entity2")

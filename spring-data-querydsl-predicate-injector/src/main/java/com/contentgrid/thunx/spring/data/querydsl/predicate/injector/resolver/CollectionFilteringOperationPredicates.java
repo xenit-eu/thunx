@@ -12,24 +12,29 @@ import lombok.RequiredArgsConstructor;
  * box {@link RepositoryInvokerAdapterFactory}
  */
 @RequiredArgsConstructor
-public class CollectionFilteringOnlyOperationPredicates implements OperationPredicates {
+public class CollectionFilteringOperationPredicates implements OperationPredicates {
 
     private final Predicate predicate;
 
     @Override
     public OperationPredicates and(OperationPredicates predicate) {
-        if (predicate instanceof CollectionFilteringOnlyOperationPredicates) {
-            return new CollectionFilteringOnlyOperationPredicates(ExpressionUtils.and(
-                    this.readPredicate(),
-                    predicate.readPredicate()
+        if (predicate instanceof CollectionFilteringOperationPredicates) {
+            return new CollectionFilteringOperationPredicates(ExpressionUtils.and(
+                    this.collectionFilterPredicate(),
+                    predicate.collectionFilterPredicate()
             ));
         }
         return OperationPredicates.super.and(predicate);
     }
 
     @Override
-    public Predicate readPredicate() {
+    public Predicate collectionFilterPredicate() {
         return predicate;
+    }
+
+    @Override
+    public Predicate readPredicate() {
+        return null;
     }
 
     @Override
