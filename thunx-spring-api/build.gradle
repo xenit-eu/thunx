@@ -1,0 +1,30 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    internalPlatform platform(project(':thunx-dependencies'))
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation project(':thunx-encoding-json')
+    implementation project(":thunx-pdp-opa")
+    implementation project(':thunx-predicates-querydsl')
+    implementation project(':spring-data-querydsl-predicate-injector')
+
+    implementation 'org.springframework.boot:spring-boot'
+    implementation 'org.springframework.data:spring-data-rest-webmvc'
+    implementation 'jakarta.servlet:jakarta.servlet-api'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.querydsl:querydsl-core'
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,34 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    internalPlatform platform(project(':thunx-dependencies'))
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation project(':thunx-encoding-json')
+    implementation project(":thunx-pdp-opa")
+
+    implementation "org.springframework.security:spring-security-core"
+    implementation 'org.springframework.security:spring-security-web'
+    implementation 'org.springframework.cloud:spring-cloud-gateway-server'
+
+    // Used only for optional DefaultOpaInputProvider & AuthenticationContextMapper
+    compileOnly 'org.springframework.security:spring-security-oauth2-core'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.security:spring-security-oauth2-core'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'net.javacrumbs.json-unit:json-unit-assertj'
+}
+
+test {
+    useJUnitPlatform()
+}
