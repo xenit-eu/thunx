@@ -4,6 +4,7 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
@@ -19,41 +20,40 @@ class CompositeOperationPredicates implements OperationPredicates {
         return new CompositeOperationPredicates(copy);
     }
 
-    @Nullable
-    private Predicate combine(Function<OperationPredicates, Predicate> extractor) {
+    private Optional<Predicate> combine(Function<OperationPredicates, Optional<Predicate>> extractor) {
         return predicates.stream()
                 .map(extractor)
-                .reduce(ExpressionUtils::and)
-                .orElse(null);
+                .flatMap(Optional::stream)
+                .reduce(ExpressionUtils::and);
     }
 
     @Override
-    public Predicate collectionFilterPredicate() {
+    public Optional<Predicate> collectionFilterPredicate() {
         return combine(OperationPredicates::collectionFilterPredicate);
     }
 
     @Override
-    public Predicate readPredicate() {
+    public Optional<Predicate> readPredicate() {
         return combine(OperationPredicates::readPredicate);
     }
 
     @Override
-    public Predicate afterCreatePredicate() {
+    public Optional<Predicate> afterCreatePredicate() {
         return combine(OperationPredicates::afterCreatePredicate);
     }
 
     @Override
-    public Predicate beforeUpdatePredicate() {
+    public Optional<Predicate> beforeUpdatePredicate() {
         return combine(OperationPredicates::beforeUpdatePredicate);
     }
 
     @Override
-    public Predicate afterUpdatePredicate() {
+    public Optional<Predicate> afterUpdatePredicate() {
         return combine(OperationPredicates::afterUpdatePredicate);
     }
 
     @Override
-    public Predicate beforeDeletePredicate() {
+    public Optional<Predicate> beforeDeletePredicate() {
         return combine(OperationPredicates::beforeDeletePredicate);
     }
 }

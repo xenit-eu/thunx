@@ -4,6 +4,7 @@ import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.CollectionFilteringOperationPredicates;
 import com.querydsl.core.types.Predicate;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.QuerydslRepositoryInvokerAdapter;
@@ -25,12 +26,15 @@ public class QuerydslRepositoryInvokerAdapterFactory implements RepositoryInvoke
         return repositories.getRepositoryFor(domainType)
                 .filter(QuerydslPredicateExecutor.class::isInstance)
                 .map(QuerydslPredicateExecutor.class::cast)
-                .<RepositoryInvoker>map(
-                        it -> new QuerydslRepositoryInvokerAdapter(invoker, it, unwrapQuerydslPredicates(predicate)))
+                .<RepositoryInvoker>flatMap(predicateExecutor -> {
+                    return unwrapQuerydslPredicates(predicate)
+                            .map(collectionFilterPredicate -> new QuerydslRepositoryInvokerAdapter(invoker,
+                                    predicateExecutor, collectionFilterPredicate));
+                })
                 .orElse(invoker);
     }
 
-    private Predicate unwrapQuerydslPredicates(OperationPredicates operationPredicates) {
+    private Optional<Predicate> unwrapQuerydslPredicates(OperationPredicates operationPredicates) {
         if (operationPredicates instanceof CollectionFilteringOperationPredicates) {
             return operationPredicates.collectionFilterPredicate();
         }

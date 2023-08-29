@@ -36,7 +36,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.verification.VerificationMode;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.support.RepositoryInvoker;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -65,33 +64,33 @@ class AbacRepositoryInvokerAdapterTest {
         private final Predicate predicate;
 
         @Override
-        public Predicate collectionFilterPredicate() {
-            return predicate;
+        public Optional<Predicate> collectionFilterPredicate() {
+            return Optional.ofNullable(predicate);
         }
 
         @Override
-        public Predicate readPredicate() {
-            return predicate;
+        public Optional<Predicate> readPredicate() {
+            return Optional.ofNullable(predicate);
         }
 
         @Override
-        public Predicate afterCreatePredicate() {
-            return predicate;
+        public Optional<Predicate> afterCreatePredicate() {
+            return Optional.ofNullable(predicate);
         }
 
         @Override
-        public Predicate beforeUpdatePredicate() {
-            return predicate;
+        public Optional<Predicate> beforeUpdatePredicate() {
+            return Optional.ofNullable(predicate);
         }
 
         @Override
-        public Predicate afterUpdatePredicate() {
-            return predicate;
+        public Optional<Predicate> afterUpdatePredicate() {
+            return Optional.ofNullable(predicate);
         }
 
         @Override
-        public Predicate beforeDeletePredicate() {
-            return predicate;
+        public Optional<Predicate> beforeDeletePredicate() {
+            return Optional.ofNullable(predicate);
         }
     }
 
@@ -116,7 +115,7 @@ class AbacRepositoryInvokerAdapterTest {
         verify(executor).findOne(argThat(pred -> {
             var terms = Set.of(pred.toString().split(" && "));
             assertThat(terms).containsExactlyInAnyOrder("myEntity.id = " + objectId,
-                    predicate.readPredicate().toString());
+                    predicate.readPredicate().get().toString());
             return true;
         }));
 

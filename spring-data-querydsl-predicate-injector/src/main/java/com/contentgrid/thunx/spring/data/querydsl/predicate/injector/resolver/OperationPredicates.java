@@ -2,6 +2,7 @@ package com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver;
 
 import com.querydsl.core.types.Predicate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.lang.Nullable;
 
 /**
@@ -22,36 +23,30 @@ public interface OperationPredicates {
     /**
      * @return Predicate used for filtering a collection of entities
      */
-    @Nullable
-    Predicate collectionFilterPredicate();
+    Optional<Predicate> collectionFilterPredicate();
 
     /**
      * @return Predicate used for reading a single entity
      */
-    @Nullable
-    Predicate readPredicate();
+    Optional<Predicate> readPredicate();
 
     /**
      * @return Predicate used to check permissions for creating an entity with certain values
      */
-    @Nullable
-    Predicate afterCreatePredicate();
+    Optional<Predicate> afterCreatePredicate();
 
     /**
      * @return Predicate used to check permission before updating an entity
      */
-    @Nullable
-    Predicate beforeUpdatePredicate();
+    Optional<Predicate> beforeUpdatePredicate();
 
     /**
      * @return Predicate used to check permissions for updating an entity with certain values
      */
-    @Nullable
-    Predicate afterUpdatePredicate();
+    Optional<Predicate> afterUpdatePredicate();
 
     /**
      * @return Predicate used for deleting an entity
      */
-    @Nullable
-    Predicate beforeDeletePredicate();
+    Optional<Predicate> beforeDeletePredicate();
 }

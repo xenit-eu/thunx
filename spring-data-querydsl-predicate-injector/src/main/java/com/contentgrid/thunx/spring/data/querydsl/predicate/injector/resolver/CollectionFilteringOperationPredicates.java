@@ -3,6 +3,7 @@ package com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -20,40 +21,40 @@ public class CollectionFilteringOperationPredicates implements OperationPredicat
     public OperationPredicates and(OperationPredicates predicate) {
         if (predicate instanceof CollectionFilteringOperationPredicates) {
             return new CollectionFilteringOperationPredicates(ExpressionUtils.and(
-                    this.collectionFilterPredicate(),
-                    predicate.collectionFilterPredicate()
+                    this.collectionFilterPredicate().orElse(null),
+                    predicate.collectionFilterPredicate().orElse(null)
             ));
         }
         return OperationPredicates.super.and(predicate);
     }
 
     @Override
-    public Predicate collectionFilterPredicate() {
-        return predicate;
+    public Optional<Predicate> collectionFilterPredicate() {
+        return Optional.ofNullable(predicate);
     }
 
     @Override
-    public Predicate readPredicate() {
-        return null;
+    public Optional<Predicate> readPredicate() {
+        return Optional.empty();
     }
 
     @Override
-    public Predicate afterCreatePredicate() {
-        return null;
+    public Optional<Predicate> afterCreatePredicate() {
+        return Optional.empty();
     }
 
     @Override
-    public Predicate beforeUpdatePredicate() {
-        return null;
+    public Optional<Predicate> beforeUpdatePredicate() {
+        return Optional.empty();
     }
 
     @Override
-    public Predicate afterUpdatePredicate() {
-        return null;
+    public Optional<Predicate> afterUpdatePredicate() {
+        return Optional.empty();
     }
 
     @Override
-    public Predicate beforeDeletePredicate() {
-        return null;
+    public Optional<Predicate> beforeDeletePredicate() {
+        return Optional.empty();
     }
 }

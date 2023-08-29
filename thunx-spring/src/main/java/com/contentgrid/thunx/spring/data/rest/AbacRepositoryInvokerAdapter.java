@@ -74,7 +74,7 @@ class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
             PathBuilder<?> pathBuilder,
             ConversionService conversionService
     ) {
-        super(delegate, executor, predicate.collectionFilterPredicate());
+        super(delegate, executor, predicate.collectionFilterPredicate().orElse(new BooleanBuilder()));
         this.executor = executor;
         this.predicate = predicate;
         this.transactionManager = transactionManager;
@@ -99,9 +99,9 @@ class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
         return invokeFindById(id, predicate.readPredicate());
     }
 
-    private <T> Optional<T> invokeFindById(Object id, Predicate predicate) {
+    private <T> Optional<T> invokeFindById(Object id, Optional<Predicate> predicate) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(predicate);
+        predicate.ifPresent(builder::and);
 
         var entityIdPath = pathBuilder.get(this.idName, this.idPropertyType);
         Assert.notNull(entityIdPath, "id expression cannot be null");
@@ -159,7 +159,7 @@ class AbacRepositoryInvokerAdapter extends QuerydslRepositoryInvokerAdapter {
 
             var maybePreSaveId = idFunction.apply(object);
 
-            Predicate postSavePredicate;
+            Optional<Predicate> postSavePredicate;
             // when object has no id, there is no pre-save-check required, because it is a newly created entity
             // when object has an 'id', do:
             //   1. invokeFindById without predicate

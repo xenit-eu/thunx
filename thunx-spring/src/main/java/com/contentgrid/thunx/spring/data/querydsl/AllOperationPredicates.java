@@ -2,40 +2,47 @@ package com.contentgrid.thunx.spring.data.querydsl;
 
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
 import com.querydsl.core.types.Predicate;
+import java.util.Optional;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class AllOperationPredicates implements OperationPredicates {
 
-    private final Predicate sharedPredicate;
+    private final Optional<Predicate> sharedPredicate;
+
+    public AllOperationPredicates(Predicate sharedPredicate) {
+        this(Optional.ofNullable(sharedPredicate));
+    }
+
 
     @Override
-    public Predicate collectionFilterPredicate() {
+    public Optional<Predicate> collectionFilterPredicate() {
         return sharedPredicate;
     }
 
     @Override
-    public Predicate readPredicate() {
+    public Optional<Predicate> readPredicate() {
         return sharedPredicate;
     }
 
     @Override
-    public Predicate afterCreatePredicate() {
+    public Optional<Predicate> afterCreatePredicate() {
         return sharedPredicate;
     }
 
     @Override
-    public Predicate beforeUpdatePredicate() {
+    public Optional<Predicate> beforeUpdatePredicate() {
         return sharedPredicate;
     }
 
     @Override
-    public Predicate afterUpdatePredicate() {
+    public Optional<Predicate> afterUpdatePredicate() {
         return sharedPredicate;
     }
 
     @Override
-    public Predicate beforeDeletePredicate() {
+    public Optional<Predicate> beforeDeletePredicate() {
         return sharedPredicate;
     }
 }
