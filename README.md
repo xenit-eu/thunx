@@ -69,7 +69,8 @@ that fulfill the conditional authorization predicate.
 ![overview](./resources/diagrams/container-diagram-overview.png)
 
 [C4 model]: https://c4model.com/
-[QueryDSL support in Spring Data]: https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#core.extensions.querydsl]
+
+[Spring Data QueryDSL Extension]: https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#core.extensions.querydsl]
 
 ### Solution mechanics
 
@@ -86,20 +87,23 @@ This repository has several modules:
 * `thunx-encoding-json` is a JSON-serialization library for thunk-expressions
 * `thunx-predicates-querydsl` is a library to convert thunk-expressions into QueryDSL predicates
 * `thunx-spring` provides an integration with Spring Cloud Gateway and Spring Data REST
+* `thunx-spring-querydsl-predicate-resolver` is a library to inject additional [QueryDSL] predicates to be processed
+  together with the predicates from the [Spring Data QueryDSL Extension]
 
 ## Getting Started
 
 ### Installation
 
 Requirements:
-* Java 11+
+
+* Java 17+
 
 #### Spring Cloud Gateway
+
 Using Gradle:
 
 ```groovy
-implementation "com.contentgrid.thunx:thunx-spring:${thunxVersion}"
-implementation "com.contentgrid.thunx:thunx-pdp-opa:${thunxVersion}"
+implementation "com.contentgrid.thunx:thunx-gateway-spring-boot-starter:${thunxVersion}"
 ```
 
 #### Spring Data REST Service
@@ -107,11 +111,9 @@ implementation "com.contentgrid.thunx:thunx-pdp-opa:${thunxVersion}"
 Using Gradle:
 
 ```groovy
-implementation "com.contentgrid.thunx:thunx-spring:${thunxVersion}"
-runtimeOnly "com.contentgrid.thunx:thunx-predicates-querydsl:${thunxVersion}"
+implementation "com.contentgrid.thunx:thunx-gateway-spring-boot-starter:${thunxVersion}"
 
-implementation "com.querydsl:querydsl-core"
-implementation "com.querydsl:querydsl-jpa"
+implementation "com.querydsl:querydsl-jpa" // Or another QueryDSL implementation, dependent on the spring data flavor you're using
 ```
 
 

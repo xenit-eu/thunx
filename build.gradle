@@ -9,8 +9,10 @@ allprojects {
                 canBeConsumed = false
                 canBeResolved = false
             }
+            annotationProcessor.extendsFrom(internalPlatform)
             compileClasspath.extendsFrom(internalPlatform)
             runtimeClasspath.extendsFrom(internalPlatform)
+            testAnnotationProcessor.extendsFrom(internalPlatform)
             testCompileClasspath.extendsFrom(internalPlatform)
             testRuntimeClasspath.extendsFrom(internalPlatform)
         }

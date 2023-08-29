@@ -3,8 +3,9 @@ package com.contentgrid.thunx.spring.data.rest;
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.contentgrid.thunx.spring.data.querydsl.DefaultQuerydslPredicateResolver;
-import com.contentgrid.thunx.spring.data.querydsl.QuerydslPredicateResolver;
+import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -19,13 +20,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.support.Repositories;
-import org.springframework.data.repository.support.RepositoryInvokerFactory;
-import org.springframework.data.rest.webmvc.config.ResourceMetadataHandlerMethodArgumentResolver;
-import org.springframework.data.rest.webmvc.config.RootResourceInformationHandlerMethodArgumentResolver;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -67,56 +64,23 @@ public class AbacConfiguration {
     }
 
     @Bean
-    public BeanPostProcessor interceptRepositoryRestMvcConfiguration(ApplicationContext applicationContext)
-    {
-        return new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-
-
-                if (bean instanceof RootResourceInformationHandlerMethodArgumentResolver) {
-                    var repositories = applicationContext.getBean(Repositories.class);
-                    var invokerFactory = applicationContext.getBean(RepositoryInvokerFactory.class);
-                    var resourceMetadataResolver = applicationContext.getBean(ResourceMetadataHandlerMethodArgumentResolver.class);
-                    var factory = applicationContext.getBean(QuerydslBindingsFactory.class);
-                    var transactionManager = applicationContext.getBean(PlatformTransactionManager.class);
-                    var entityPathResolver = factory.getEntityPathResolver();
-
-                    var defaultConversionService = applicationContext.getBean("defaultConversionService", ConversionService.class);
-                    var predicateResolvers = applicationContext.getBeanProvider(QuerydslPredicateResolver.class);
-                    var repositoryInvokerFactory = new AbacRepositoryInvokerAdapterFactory(
-                            repositories,
-                            transactionManager,
-                            entityPathResolver,
-                            defaultConversionService
-                    );
-
-
-                    return new AbacRootResourceInformationHandlerMethodArgumentResolver(
-                            repositories,
-                            invokerFactory,
-                            resourceMetadataResolver,
-                            predicateResolvers,
-                            repositoryInvokerFactory
-                    );
-                }
-
-                return bean;
-            }
-        };
-    }
-
-    @Bean
-    QuerydslPredicateResolver defaultQuerydslPredicateResolver(
-            @Qualifier("defaultConversionService") ConversionService conversionService,
-            QuerydslBindingsFactory querydslBindingsFactory
-    ) {
-        return new DefaultQuerydslPredicateResolver(conversionService, querydslBindingsFactory);
-    }
-
-    @Bean
     QuerydslPredicateResolver abacQuerydslPredicateResolver(QuerydslBindingsFactory querydslBindingsFactory) {
         return new AbacQuerydslPredicateResolver(querydslBindingsFactory.getEntityPathResolver());
+    }
+
+    @Bean
+    RepositoryInvokerAdapterFactory abacRepositoryInvokerAdapterFactory(
+            Repositories repositories,
+            PlatformTransactionManager transactionManager,
+            QuerydslBindingsFactory querydslBindingsFactory,
+            @Qualifier("defaultConversionService") ConversionService conversionService
+    ) {
+        return new AbacRepositoryInvokerAdapterFactory(
+                repositories,
+                transactionManager,
+                querydslBindingsFactory.getEntityPathResolver(),
+                conversionService
+        );
     }
 
     @Bean
@@ -124,7 +88,6 @@ public class AbacConfiguration {
         return new BeanPostProcessor() {
             @Override
             public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-
 
                 if (bean instanceof Repository) {
                     if (bean instanceof QuerydslPredicateExecutor == false) {

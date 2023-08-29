@@ -5,11 +5,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Answers.RETURNS_MOCKS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
 import java.util.Optional;
@@ -23,11 +27,14 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.support.RepositoryInvoker;
@@ -46,9 +53,46 @@ class AbacRepositoryInvokerAdapterTest {
     @Mock(answer = RETURNS_MOCKS)
     PlatformTransactionManager transactionManager;
 
-    Predicate predicate = new PathBuilder<>(MyEntity.class, "myEntity")
+    @Spy
+    OperationPredicates predicate = new TestOperationPredicates(new PathBuilder<>(MyEntity.class, "myEntity")
             .get("attribute", String.class)
-            .eq("foo");
+            .eq("foo"));
+
+    @RequiredArgsConstructor
+    private static class TestOperationPredicates implements OperationPredicates {
+
+        private final Predicate predicate;
+
+        @Override
+        public Optional<Predicate> collectionFilterPredicate() {
+            return Optional.ofNullable(predicate);
+        }
+
+        @Override
+        public Optional<Predicate> readPredicate() {
+            return Optional.ofNullable(predicate);
+        }
+
+        @Override
+        public Optional<Predicate> afterCreatePredicate() {
+            return Optional.ofNullable(predicate);
+        }
+
+        @Override
+        public Optional<Predicate> beforeUpdatePredicate() {
+            return Optional.ofNullable(predicate);
+        }
+
+        @Override
+        public Optional<Predicate> afterUpdatePredicate() {
+            return Optional.ofNullable(predicate);
+        }
+
+        @Override
+        public Optional<Predicate> beforeDeletePredicate() {
+            return Optional.ofNullable(predicate);
+        }
+    }
 
     AbacRepositoryInvokerAdapter adapter;
 
@@ -70,10 +114,14 @@ class AbacRepositoryInvokerAdapterTest {
         verify(delegate, never()).invokeFindById(objectId);
         verify(executor).findOne(argThat(pred -> {
             var terms = Set.of(pred.toString().split(" && "));
-            assertThat(terms).containsExactlyInAnyOrder("myEntity.id = " + objectId, predicate.toString());
+            assertThat(terms).containsExactlyInAnyOrder("myEntity.id = " + objectId,
+                    predicate.readPredicate().get().toString());
             return true;
         }));
 
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate, atLeastOnce()).readPredicate();
+        verifyNoMoreInteractions(predicate);
     }
 
     @Test
@@ -100,6 +148,10 @@ class AbacRepositoryInvokerAdapterTest {
 
         verify(transactionManager).commit(any(TransactionStatus.class));
         verify(transactionManager, never()).rollback(any(TransactionStatus.class));
+
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate).afterCreatePredicate();
+        verifyNoMoreInteractions(predicate);
     }
 
     @Test
@@ -126,6 +178,10 @@ class AbacRepositoryInvokerAdapterTest {
         // expect a commit now
         inOrderVerifier.verify(transactionManager).commit(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
+
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate).afterCreatePredicate();
+        verifyNoMoreInteractions(predicate);
     }
 
     @Test
@@ -162,6 +218,11 @@ class AbacRepositoryInvokerAdapterTest {
         // expect a commit now
         inOrderVerifier.verify(transactionManager).commit(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
+
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate).beforeUpdatePredicate();
+        verify(predicate).afterUpdatePredicate();
+        verifyNoMoreInteractions(predicate);
     }
 
     @Test
@@ -186,6 +247,11 @@ class AbacRepositoryInvokerAdapterTest {
         // expect a txn rollback
         inOrderVerifier.verify(transactionManager).rollback(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
+
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate).beforeUpdatePredicate();
+        verify(predicate, atMostOnce()).afterUpdatePredicate();
+        verifyNoMoreInteractions(predicate);
     }
 
     @Test
@@ -215,6 +281,44 @@ class AbacRepositoryInvokerAdapterTest {
         // expect a txn rollback
         inOrderVerifier.verify(transactionManager).rollback(any(TransactionStatus.class));
         inOrderVerifier.verifyNoMoreInteractions();
+
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate).beforeUpdatePredicate();
+        verify(predicate).afterUpdatePredicate();
+        verifyNoMoreInteractions(predicate);
+    }
+
+    @Test
+    void invokeDeleteById_predicateMatches() {
+        var id = UUID.randomUUID();
+        var existingEntity = new MyEntity(id, "foo");
+
+        when(executor.findOne(any(Predicate.class))).thenReturn(Optional.of(existingEntity));
+        Mockito.doNothing().when(delegate).invokeDeleteById(id);
+
+        adapter.invokeDeleteById(id);
+
+        verify(delegate).invokeDeleteById(id);
+
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate).beforeDeletePredicate();
+        verifyNoMoreInteractions(predicate);
+    }
+
+    @Test
+    void invokeDeleteById_predicateMismatch() {
+        var id = UUID.randomUUID();
+
+        when(executor.findOne(any(Predicate.class))).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> adapter.invokeDeleteById(id))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(delegate, never()).invokeDeleteById(id);
+
+        verify(predicate, atMostOnce()).collectionFilterPredicate();
+        verify(predicate).beforeDeletePredicate();
+        verifyNoMoreInteractions(predicate);
     }
 }
 
