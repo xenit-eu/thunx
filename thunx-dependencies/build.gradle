@@ -14,7 +14,7 @@ dependencies {
     api platform("org.testcontainers:testcontainers-bom:1.19.0")
 
     constraints {
-        api 'net.javacrumbs.json-unit:json-unit-assertj:3.0.0'
+        api 'net.javacrumbs.json-unit:json-unit-assertj:3.2.2'
     }
 }
 
