@@ -35,7 +35,7 @@ public class DefaultOpaInputProvider implements OpaInputProvider<Authentication,
         var requestContext = webExchange.getRequest();
         return Map.of(
                 "path", uriToPathArray(requestContext.getURI()),
-                "method", requestContext.getMethodValue(),
+                "method", requestContext.getMethod().name(),
                 "queryParams", requestContext.getQueryParams(),
                 "auth", authContext,
                 "user", authContext.getUser() // temp for backwards compat with existing policies
