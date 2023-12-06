@@ -775,7 +775,7 @@ class ThunxDemoApplicationTests {
                     assertThat(order.getShippingAddress()).isNotNull();
 
                     // policy: allows access to delete the shipping address, when customer.name is XeniT
-                    // (a better example would be when the order has not shipped yet, but :shrug")
+                    // (a better example would be when the order has not shipped yet, but :shrug:)
                     var ordersWithoutInvoice = Comparison.areEqual(
                             SymbolicReference.of("entity", path -> path.string("customer").string("name")),
                             Scalar.of("XeniT")
