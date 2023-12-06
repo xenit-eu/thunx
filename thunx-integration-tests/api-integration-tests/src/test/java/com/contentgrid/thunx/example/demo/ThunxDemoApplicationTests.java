@@ -17,11 +17,12 @@ import com.contentgrid.spring.test.fixture.invoicing.model.Customer;
 import com.contentgrid.spring.test.fixture.invoicing.model.Invoice;
 import com.contentgrid.spring.test.fixture.invoicing.model.Order;
 import com.contentgrid.spring.test.fixture.invoicing.model.PromotionCampaign;
-import com.contentgrid.spring.test.fixture.invoicing.model.QOrder;
+import com.contentgrid.spring.test.fixture.invoicing.model.ShippingAddress;
 import com.contentgrid.spring.test.fixture.invoicing.repository.CustomerRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.InvoiceRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.OrderRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.PromotionCampaignRepository;
+import com.contentgrid.spring.test.fixture.invoicing.repository.ShippingAddressRepository;
 import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
 import com.contentgrid.thunx.predicates.model.BooleanOperation;
 import com.contentgrid.thunx.predicates.model.Comparison;
@@ -34,8 +35,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +47,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 @Transactional
@@ -71,6 +71,9 @@ class ThunxDemoApplicationTests {
 
     @Autowired
     OrderRepository orders;
+
+    @Autowired
+    ShippingAddressRepository shippingAddresses;
 
     @Autowired
     PromotionCampaignRepository promos;
@@ -112,10 +115,14 @@ class ThunxDemoApplicationTests {
         PROMO_XMAS = promos.save(new PromotionCampaign("XMAS", "Happy Holidays")).getPromoCode();
         PROMO_GORILLA = promos.save(new PromotionCampaign("GORILLA", "Huge Customers")).getPromoCode();
 
-        var xenit = customers.save(new Customer(null, "XeniT", ORG_XENIT_VAT, null, new HashSet<>(), new HashSet<>()));
-        var inbev = customers.save(new Customer(null, "AB InBev", ORG_INBEV_VAT, null, new HashSet<>(), new HashSet<>()));
+        var address_northPole = shippingAddresses.save(new ShippingAddress("123 Elf Road", "88888", "North Pole"));
 
-        ORDER_1 = orders.save(new Order(xenit)).getId();
+        var xenit = customers.save(
+                new Customer(null, "XeniT", ORG_XENIT_VAT, null, null, null, new HashSet<>(), new HashSet<>()));
+        var inbev = customers.save(
+                new Customer(null, "AB InBev", ORG_INBEV_VAT, null, null, null, new HashSet<>(), new HashSet<>()));
+
+        ORDER_1 = orders.save(new Order(xenit, address_northPole, Set.of())).getId();
         var order2 = orders.save(new Order(xenit));
         var order3 = orders.save(new Order(inbev));
         ORDER_3 = order3.getId();
@@ -315,9 +322,10 @@ class ThunxDemoApplicationTests {
                                 .content("""
                                         {
                                             "number": "%s",
-                                            "paid": true
+                                            "paid": true,
+                                            "counterparty": "/customers/%s"
                                         }
-                                        """.formatted(INVOICE_2)))
+                                        """.formatted(INVOICE_2, customerIdByVat(ORG_INBEV_VAT))))
                         .andExpect(status().isNotFound());
             }
 
@@ -338,11 +346,12 @@ class ThunxDemoApplicationTests {
                                 .header("X-ABAC-Context", headerEncode(policyPaidInvoices))
                                 .contentType("application/json")
                                 .content("""
-                                        {
+                                         {
                                             "number": "%s",
-                                            "paid": false
+                                            "paid": false,
+                                            "counterparty": "/customers/%s"
                                         }
-                                        """.formatted(INVOICE_2)))
+                                        """.formatted(INVOICE_2, customerIdByVat(ORG_INBEV_VAT))))
                         .andExpect(status().isNotFound());
             }
         }
@@ -744,8 +753,8 @@ class ThunxDemoApplicationTests {
                     // assert orders collection has not been altered
                     assertThat(orders.findById(ORDER_1))
                             .hasValueSatisfying(order -> {
-                        assertThat(order.getPromos()).isEmpty();
-                    });
+                                assertThat(order.getPromos()).isEmpty();
+                            });
                 }
             }
 
@@ -760,14 +769,20 @@ class ThunxDemoApplicationTests {
 
                 @Test
                 void deleteToOneAssoc_policyOk_shouldReturn_http204() throws Exception {
-                    // policy can access all orders without an invoice
-                    var ordersWithoutInvoice = Comparison.notEqual(
-                            SymbolicReference.of("entity", path -> path.string("invoice").string("id")),
-                            Scalar.nullValue()
+                    // order-1 should have customer.name=xenit and a shipping address
+                    var order = orders.findById(ORDER_1).orElseThrow();
+                    assertThat(order.getCustomer()).isNotNull();
+                    assertThat(order.getShippingAddress()).isNotNull();
+
+                    // policy: allows access to delete the shipping address, when customer.name is XeniT
+                    // (a better example would be when the order has not shipped yet, but :shrug")
+                    var ordersWithoutInvoice = Comparison.areEqual(
+                            SymbolicReference.of("entity", path -> path.string("customer").string("name")),
+                            Scalar.of("XeniT")
                     );
 
-                    // fictive example: dis-associate the customer from the order
-                    mockMvc.perform(delete("/orders/" + ORDER_1 + "/customer")
+                    // unlink the shipping address from the order
+                    mockMvc.perform(delete("/orders/" + ORDER_1 + "/shippingAddress")
                                     .header("X-ABAC-Context", headerEncode(ordersWithoutInvoice))
                                     .accept("application/json"))
                             .andExpect(status().isNoContent());
@@ -826,13 +841,13 @@ class ThunxDemoApplicationTests {
 
                 @Test
                 void getInvoicesOrderItem_policyOk_shouldReturn_http302() throws Exception {
-                    var ordersIterable = orders.findAll(QOrder.order.invoice.number.eq(INVOICE_1));
-                    var result = StreamSupport.stream(ordersIterable.spliterator(), false).toList();
+                    var invoice = invoices.findByNumber(INVOICE_1).orElseThrow();
+                    var result = invoice.getOrders().stream().toList();
                     assertThat(result).hasSize(2);
 
                     var firstOrderId = result.get(0).getId();
 
-                    mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/orders/" + firstOrderId)
+                    mockMvc.perform(get("/invoices/{invoice}/orders/{order}", invoiceIdByNumber(INVOICE_1), firstOrderId)
                                     .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isFound())
@@ -842,13 +857,13 @@ class ThunxDemoApplicationTests {
 
                 @Test
                 void getInvoicesOrderItem_policyFail_shouldReturn_http404() throws Exception {
-                    var ordersIterable = orders.findAll(QOrder.order.invoice.number.eq(INVOICE_2));
-                    var result = StreamSupport.stream(ordersIterable.spliterator(), false).toList();
+                    var invoice = invoices.findByNumber(INVOICE_2).orElseThrow();
+                    var result = invoice.getOrders().stream().toList();
                     assertThat(result).hasSize(1);
 
                     var orderId = result.get(0).getId();
 
-                    mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_2) + "/orders/" + orderId)
+                    mockMvc.perform(get("/invoices/{invoice}/orders/{order}", invoiceIdByNumber(INVOICE_2), orderId)
                                     .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
