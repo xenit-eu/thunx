@@ -5,14 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import com.contentgrid.opa.client.OpaClient;
-import com.contentgrid.thunx.api.autoconfigure.AbacAutoConfiguration;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.opa.OpaQueryProvider;
 import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
@@ -22,13 +21,13 @@ import org.springframework.web.server.ServerWebExchange;
 
 public class GatewayAutoConfigurationTest {
 
+    ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    GatewayAutoConfiguration.class
+            ));
+
     @Test
     public void shouldUseDefaultsWithoutProperties() {
-
-        ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-                .withConfiguration(AutoConfigurations.of(
-                        GatewayAutoConfiguration.class
-                ));
 
         contextRunner.withUserConfiguration(TestContext.class)
                 .run((context) -> {
@@ -45,11 +44,6 @@ public class GatewayAutoConfigurationTest {
 
     @Test
     public void shouldEnableGatewayBeans() {
-
-        ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-                .withConfiguration(AutoConfigurations.of(
-                        GatewayAutoConfiguration.class
-                ));
 
         var OPA_SERVICE_URL = "https://some/opa/service";
         contextRunner.withUserConfiguration(TestContext.class)
@@ -70,11 +64,6 @@ public class GatewayAutoConfigurationTest {
     @Test
     public void shouldUseProvidedGatewayBeans() {
 
-        ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-                .withConfiguration(AutoConfigurations.of(
-                        GatewayAutoConfiguration.class
-                ));
-
         contextRunner.withUserConfiguration(TestContextWithBeans.class)
                 .run((context) -> {
                     assertThat(context.getBean(OpaClient.class)).isSameAs(context.getBean(TestContextWithBeans.class).opaClient());
@@ -86,20 +75,12 @@ public class GatewayAutoConfigurationTest {
     }
 
     @Configuration
-    @EnableAutoConfiguration(exclude={
-            org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration.class,
-            org.springframework.cloud.gateway.config.GatewayAutoConfiguration.class,
-            AbacAutoConfiguration.class
-    })
+    @EnableAutoConfiguration
     public static class TestContext {
     }
 
     @Configuration
-    @EnableAutoConfiguration(exclude={
-            org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration.class,
-            org.springframework.cloud.gateway.config.GatewayAutoConfiguration.class,
-            AbacAutoConfiguration.class
-    })
+    @EnableAutoConfiguration
     public static class TestContextWithBeans {
 
         @Bean

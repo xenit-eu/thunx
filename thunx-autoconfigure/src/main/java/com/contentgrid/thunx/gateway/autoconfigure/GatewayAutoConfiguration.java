@@ -13,6 +13,8 @@ import com.contentgrid.thunx.spring.security.ReactivePolicyAuthorizationManager;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,7 @@ import org.springframework.web.server.ServerWebExchange;
 @AutoConfiguration
 @ConditionalOnClass({OpaClient.class, AbstractGatewayFilterFactory.class})
 @EnableConfigurationProperties(OpaProperties.class)
+@ConditionalOnWebApplication(type = Type.REACTIVE)
 public class GatewayAutoConfiguration {
 
     @Bean
