@@ -1,5 +1,6 @@
 package com.contentgrid.thunx.gateway.autoconfigure;
 
+import static com.contentgrid.thunx.gateway.autoconfigure.OpaProperties.DEFAULT_SERVICE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -22,7 +23,7 @@ import org.springframework.web.server.ServerWebExchange;
 public class GatewayAutoConfigurationTest {
 
     @Test
-    public void shouldEnableGatewayBeans() {
+    public void shouldUseDefaultsWithoutProperties() {
 
         ApplicationContextRunner contextRunner = new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(
@@ -30,8 +31,34 @@ public class GatewayAutoConfigurationTest {
                 ));
 
         contextRunner.withUserConfiguration(TestContext.class)
-            .withPropertyValues("opa.service.url=https://some/opa/service")
+                .run((context) -> {
+                    assertThat(context.getBean(OpaProperties.class))
+                            .isNotNull()
+                            .satisfies(opa -> assertThat(opa.getService().getUrl()).isEqualTo(DEFAULT_SERVICE_URL));
+                    assertThat(context.getBean(OpaClient.class)).isNotNull();
+                    assertThat(context.getBean(OpaQueryProvider.class)).isNotNull();
+                    assertThat(context.getBean(PolicyDecisionPointClient.class)).isNotNull();
+                    assertThat(context.getBean(ReactiveAuthorizationManager.class)).isNotNull();
+                    assertThat(context.getBean(AbacGatewayFilterFactory.class)).isNotNull();
+                });
+    }
+
+    @Test
+    public void shouldEnableGatewayBeans() {
+
+        ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(
+                        GatewayAutoConfiguration.class
+                ));
+
+        var OPA_SERVICE_URL = "https://some/opa/service";
+        contextRunner.withUserConfiguration(TestContext.class)
+            .withPropertyValues("opa.service.url="+OPA_SERVICE_URL)
             .run((context) -> {
+                assertThat(context.getBean(OpaProperties.class))
+                        .isNotNull()
+                        .satisfies(opa -> assertThat(opa.getService().getUrl()).isEqualTo(OPA_SERVICE_URL));
+
                 assertThat(context.getBean(OpaClient.class)).isNotNull();
                 assertThat(context.getBean(OpaQueryProvider.class)).isNotNull();
                 assertThat(context.getBean(PolicyDecisionPointClient.class)).isNotNull();
