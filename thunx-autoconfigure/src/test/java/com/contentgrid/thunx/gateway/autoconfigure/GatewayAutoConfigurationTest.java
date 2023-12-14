@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.gateway.autoconfigure;
 
-import static com.contentgrid.thunx.gateway.autoconfigure.OpaProperties.DEFAULT_SERVICE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -11,6 +10,8 @@ import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,18 +28,17 @@ public class GatewayAutoConfigurationTest {
             ));
 
     @Test
-    public void shouldUseDefaultsWithoutProperties() {
+    public void conditionalOnPropertyOpaServiceUrl() {
 
         contextRunner.withUserConfiguration(TestContext.class)
                 .run((context) -> {
-                    assertThat(context.getBean(OpaProperties.class))
-                            .isNotNull()
-                            .satisfies(opa -> assertThat(opa.getService().getUrl()).isEqualTo(DEFAULT_SERVICE_URL));
-                    assertThat(context.getBean(OpaClient.class)).isNotNull();
-                    assertThat(context.getBean(OpaQueryProvider.class)).isNotNull();
-                    assertThat(context.getBean(PolicyDecisionPointClient.class)).isNotNull();
-                    assertThat(context.getBean(ReactiveAuthorizationManager.class)).isNotNull();
-                    assertThat(context.getBean(AbacGatewayFilterFactory.class)).isNotNull();
+                    assertThat(context).hasSingleBean(OpaProperties.class);
+                    assertThat(context).hasSingleBean(OpaQueryProvider.class);
+
+                    assertThat(context).doesNotHaveBean(OpaClient.class);
+                    assertThat(context).doesNotHaveBean(PolicyDecisionPointClient.class);
+                    assertThat(context).doesNotHaveBean(ReactiveAuthorizationManager.class);
+                    assertThat(context).doesNotHaveBean(AbacGatewayFilterFactory.class);
                 });
     }
 
@@ -47,17 +47,18 @@ public class GatewayAutoConfigurationTest {
 
         var OPA_SERVICE_URL = "https://some/opa/service";
         contextRunner.withUserConfiguration(TestContext.class)
+            .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
             .withPropertyValues("opa.service.url="+OPA_SERVICE_URL)
             .run((context) -> {
-                assertThat(context.getBean(OpaProperties.class))
-                        .isNotNull()
+                assertThat(context).hasSingleBean(OpaProperties.class)
+                        .getBean(OpaProperties.class)
                         .satisfies(opa -> assertThat(opa.getService().getUrl()).isEqualTo(OPA_SERVICE_URL));
 
-                assertThat(context.getBean(OpaClient.class)).isNotNull();
-                assertThat(context.getBean(OpaQueryProvider.class)).isNotNull();
-                assertThat(context.getBean(PolicyDecisionPointClient.class)).isNotNull();
-                assertThat(context.getBean(ReactiveAuthorizationManager.class)).isNotNull();
-                assertThat(context.getBean(AbacGatewayFilterFactory.class)).isNotNull();
+                assertThat(context).hasSingleBean(OpaClient.class);
+                assertThat(context).hasSingleBean(OpaQueryProvider.class);
+                assertThat(context).hasSingleBean(PolicyDecisionPointClient.class);
+                assertThat(context).hasSingleBean(ReactiveAuthorizationManager.class);
+                assertThat(context).hasSingleBean(AbacGatewayFilterFactory.class);
         });
     }
 
@@ -66,11 +67,11 @@ public class GatewayAutoConfigurationTest {
 
         contextRunner.withUserConfiguration(TestContextWithBeans.class)
                 .run((context) -> {
-                    assertThat(context.getBean(OpaClient.class)).isSameAs(context.getBean(TestContextWithBeans.class).opaClient());
-                    assertThat(context.getBean(OpaQueryProvider.class)).isSameAs(context.getBean(TestContextWithBeans.class).customQueryProvider());
-                    assertThat(context.getBean(PolicyDecisionPointClient.class)).isSameAs(context.getBean(TestContextWithBeans.class).pdpClient());
-                    assertThat(context.getBean(ReactiveAuthorizationManager.class)).isSameAs(context.getBean(TestContextWithBeans.class).reactiveAuthenticationManager());
-                    assertThat(context.getBean(AbacGatewayFilterFactory.class)).isSameAs(context.getBean(TestContextWithBeans.class).abacGatewayFilterFactory());
+                    assertThat(context).getBean(OpaClient.class).isSameAs(context.getBean(TestContextWithBeans.class).opaClient());
+                    assertThat(context).getBean(OpaQueryProvider.class).isSameAs(context.getBean(TestContextWithBeans.class).customQueryProvider());
+                    assertThat(context).getBean(PolicyDecisionPointClient.class).isSameAs(context.getBean(TestContextWithBeans.class).pdpClient());
+                    assertThat(context).getBean(ReactiveAuthorizationManager.class).isSameAs(context.getBean(TestContextWithBeans.class).reactiveAuthenticationManager());
+                    assertThat(context).getBean(AbacGatewayFilterFactory.class).isSameAs(context.getBean(TestContextWithBeans.class).abacGatewayFilterFactory());
                 });
     }
 

@@ -11,8 +11,10 @@ import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
 import com.contentgrid.thunx.spring.security.DefaultOpaInputProvider;
 import com.contentgrid.thunx.spring.security.ReactivePolicyAuthorizationManager;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,6 +33,7 @@ public class GatewayAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty("opa.service.url")
     public OpaClient opaClient(OpaProperties opaProperties) {
         return OpaClient.builder()
                 .httpLogging(RestClientConfiguration.LogSpecification::all)
@@ -52,12 +55,14 @@ public class GatewayAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean({OpaClient.class})
     public PolicyDecisionPointClient<Authentication, ServerWebExchange> pdpClient(OpaClient opaClient, OpaQueryProvider<ServerWebExchange> queryProvider, OpaInputProvider<Authentication, ServerWebExchange> inputProvider) {
         return new OpenPolicyAgentPDPClient<>(opaClient, queryProvider, inputProvider);
     }
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean(PolicyDecisionPointClient.class)
     public ReactiveAuthorizationManager<AuthorizationContext> reactiveAuthenticationManager(
             PolicyDecisionPointClient<Authentication, ServerWebExchange> pdpClient) {
         return new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl<>(pdpClient));
@@ -65,6 +70,7 @@ public class GatewayAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnBean(PolicyDecisionPointClient.class)
     public AbacGatewayFilterFactory abacGatewayFilterFactory() {
         return new AbacGatewayFilterFactory();
     }
