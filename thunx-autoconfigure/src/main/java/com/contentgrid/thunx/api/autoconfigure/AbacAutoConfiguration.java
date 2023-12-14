@@ -11,7 +11,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @AutoConfiguration(
         before = SpringDataQuerydslPredicateInjectorAutoConfiguration.class,
-        after = RepositoryRestMvcAutoConfiguration.class)
+        after = RepositoryRestMvcAutoConfiguration.class
+)
 @ConditionalOnClass(RepositoryRestResource.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 public class AbacAutoConfiguration {
