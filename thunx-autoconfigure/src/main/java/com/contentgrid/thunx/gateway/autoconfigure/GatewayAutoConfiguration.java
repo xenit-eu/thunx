@@ -55,7 +55,7 @@ public class GatewayAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean({OpaClient.class})
+    @ConditionalOnBean(OpaClient.class)
     public PolicyDecisionPointClient<Authentication, ServerWebExchange> pdpClient(OpaClient opaClient, OpaQueryProvider<ServerWebExchange> queryProvider, OpaInputProvider<Authentication, ServerWebExchange> inputProvider) {
         return new OpenPolicyAgentPDPClient<>(opaClient, queryProvider, inputProvider);
     }
