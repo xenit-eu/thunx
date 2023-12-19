@@ -6,7 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "opa")
 public class OpaProperties {
-    private OpaServiceProperties service;
+
+    private OpaServiceProperties service = new OpaServiceProperties();
     private String query;
 
     @Data
