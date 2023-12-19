@@ -2,7 +2,6 @@ package com.contentgrid.thunx.spring.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.contentgrid.thunx.pdp.PolicyDecision;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponentImpl;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.PolicyDecisions;
@@ -18,6 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -26,7 +26,7 @@ class ReactivePolicyAuthorizationManagerTest {
     @Test
     void accessGranted() {
         var authorizationManager = new ReactivePolicyAuthorizationManager(
-                new PolicyDecisionComponentImpl(policySaysYes()));
+                new PolicyDecisionComponentImpl<>(policySaysYes()));
 
         var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost"));
         var context = new AuthorizationContext(exchange);
@@ -39,7 +39,7 @@ class ReactivePolicyAuthorizationManagerTest {
     @Test
     void accessDenied() {
         var authorizationManager = new ReactivePolicyAuthorizationManager(
-                new PolicyDecisionComponentImpl(policySaysNo()));
+                new PolicyDecisionComponentImpl<>(policySaysNo()));
 
         var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost"));
         var context = new AuthorizationContext(exchange);
@@ -54,7 +54,7 @@ class ReactivePolicyAuthorizationManagerTest {
         var thunk = Comparison.areEqual(Scalar.of(42), Variable.named("foo"));
         var pdpClient = policySaysMaybe(thunk);
 
-        var authorizationManager = new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl(pdpClient));
+        var authorizationManager = new ReactivePolicyAuthorizationManager(new PolicyDecisionComponentImpl<>(pdpClient));
 
         var exchange = MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost"));
         var context = new AuthorizationContext(exchange);
@@ -78,33 +78,15 @@ class ReactivePolicyAuthorizationManagerTest {
         return Mono.just(new TestingAuthenticationToken("mario", null));
     }
 
-    private static PolicyDecisionPointClient<?, ?> policySaysYes() {
-        return new PolicyDecisionPointClient<>() {
-            @Override
-            public CompletableFuture<PolicyDecision> conditional(Object authContext,
-                    Object requestContext) {
-                return CompletableFuture.completedFuture(PolicyDecisions.allowed());
-            }
-        };
+    private static PolicyDecisionPointClient<Authentication, ServerWebExchange> policySaysYes() {
+        return (authentication, exchange) -> CompletableFuture.completedFuture(PolicyDecisions.allowed());
     }
 
-    private static PolicyDecisionPointClient<?, ?> policySaysNo() {
-        return new PolicyDecisionPointClient<>() {
-            @Override
-            public CompletableFuture<PolicyDecision> conditional(Object authContext,
-                    Object requestContext) {
-                return CompletableFuture.completedFuture(PolicyDecisions.denied());
-            }
-        };
+    private static PolicyDecisionPointClient<Authentication, ServerWebExchange> policySaysNo() {
+        return (authentication, exchange) -> CompletableFuture.completedFuture(PolicyDecisions.denied());
     }
 
-    private static PolicyDecisionPointClient<?, ?> policySaysMaybe(ThunkExpression<Boolean> expression) {
-        return new PolicyDecisionPointClient<>() {
-            @Override
-            public CompletableFuture<PolicyDecision> conditional(Object authContext,
-                    Object requestContext) {
-                return CompletableFuture.completedFuture(PolicyDecisions.conditional(expression));
-            }
-        };
+    private static PolicyDecisionPointClient<Authentication, ServerWebExchange> policySaysMaybe(ThunkExpression<Boolean> expression) {
+        return (authentication, exchange) -> CompletableFuture.completedFuture(PolicyDecisions.conditional(expression));
     }
 }

@@ -35,15 +35,13 @@ public class NumericFunction implements FunctionExpression<Number> {
     }
 
     public static NumericFunction multiply(List<ThunkExpression<?>> terms) {
-        if (terms.size() < 2) {
-            throw new IllegalArgumentException("Expected 2 or more terms");
-        }
+        assertHasMinimumSize(terms, 2);
 
         return terms.stream()
                 // multiplication is an associative operation
                 .reduce(NumericFunction::multiply)
                 .map(NumericFunction.class::cast)
-                .orElseThrow(() -> new IllegalArgumentException("Expected 1 or more terms"));
+                .orElseThrow();
     }
 
     public static NumericFunction plus(ThunkExpression<?> left, ThunkExpression<?> right) {
@@ -52,9 +50,8 @@ public class NumericFunction implements FunctionExpression<Number> {
 
 
     public static NumericFunction plus(@NonNull List<ThunkExpression<?>> terms) {
-        if (terms.size() < 2) {
-            throw new IllegalArgumentException("Expected 2 or more terms");
-        }
+        assertHasMinimumSize(terms, 2);
+
         return terms.stream()
                 // addition is an associative operation
                 .reduce(NumericFunction::plus)
@@ -63,9 +60,7 @@ public class NumericFunction implements FunctionExpression<Number> {
     }
 
     public static NumericFunction divide(@NonNull List<ThunkExpression<?>> terms) {
-        if (terms.size() != 2) {
-            throw new IllegalArgumentException("Expected exactly 2 terms");
-        }
+        assertHasSize(terms, 2);
 
         return divide(terms.get(0), terms.get(1));
     }
@@ -75,9 +70,7 @@ public class NumericFunction implements FunctionExpression<Number> {
     }
 
     public static NumericFunction minus(@NonNull List<ThunkExpression<?>> terms) {
-        if (terms.size() != 2) {
-            throw new IllegalArgumentException("Expected exactly 2 terms");
-        }
+        assertHasSize(terms, 2);
 
         return minus(terms.get(0), terms.get(1));
     }
@@ -87,15 +80,25 @@ public class NumericFunction implements FunctionExpression<Number> {
     }
 
     public static NumericFunction modulus(@NonNull List<ThunkExpression<?>> terms) {
-        if (terms.size() != 2) {
-            throw new IllegalArgumentException("Expected exactly 2 terms");
-        }
+        assertHasSize(terms, 2);
 
         return modulus(terms.get(0), terms.get(1));
     }
 
     public static NumericFunction modulus(ThunkExpression<?> left, ThunkExpression<?> right) {
         return new NumericFunction(Operator.MODULUS, left, right);
+    }
+
+    private static void assertHasSize(List<?> terms, int expectedSize) {
+        if (terms.size() != expectedSize) {
+            throw new IllegalArgumentException("Expected exactly %s terms".formatted(expectedSize));
+        }
+    }
+
+    private static void assertHasMinimumSize(List<?> terms, int minimumSize) {
+        if (terms.size() < minimumSize) {
+            throw new IllegalArgumentException("Expected %s or more terms".formatted(minimumSize));
+        }
     }
 
 }
