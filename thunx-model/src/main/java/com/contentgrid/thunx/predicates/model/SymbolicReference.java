@@ -3,13 +3,13 @@ package com.contentgrid.thunx.predicates.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode
@@ -52,15 +52,11 @@ public class SymbolicReference implements ThunkExpression<Object> {
         return of(Variable.named(variable), path);
     }
 
-    public static SymbolicReference of(Variable variable, PathElement... path) {
-        Objects.requireNonNull(variable, "variable cannot be null");
-
+    public static SymbolicReference of(@NonNull Variable variable, PathElement... path) {
         return new SymbolicReference(new SymbolicRefSubject(variable), Arrays.asList(path));
     }
 
-    public static SymbolicReference of(String varName, Consumer<PathBuilder> pathCallback) {
-        Objects.requireNonNull(varName, "variable cannot be null");
-
+    public static SymbolicReference of(@NonNull String varName, Consumer<PathBuilder> pathCallback) {
         var pathBuilder = new PathBuilder();
         pathCallback.accept(pathBuilder);
 
@@ -70,23 +66,18 @@ public class SymbolicReference implements ThunkExpression<Object> {
     /**
      * Parse the reference and split by '.' while assuming all path-elements are string-types
      */
-    public static SymbolicReference parse(String reference) {
-        Objects.requireNonNull(reference, "variable cannot be null");
+    public static SymbolicReference parse(@NonNull String reference) {
         var parts = reference.split("\\.");
         var subject = parts[0];
 
         return of(Variable.named(subject), Arrays.stream(parts).skip(1).map(part -> path(part)));
     }
 
-    public static SymbolicReference of(Variable variable, Stream<PathElement> path) {
-        Objects.requireNonNull(variable, "variable cannot be null");
-
+    public static SymbolicReference of(@NonNull Variable variable, @NonNull Stream<PathElement> path) {
         return SymbolicReference.of(variable, path.collect(Collectors.toList()));
     }
 
-    public static SymbolicReference of(Variable variable, List<PathElement> path) {
-        Objects.requireNonNull(variable, "variable cannot be null");
-
+    public static SymbolicReference of(@NonNull Variable variable, @NonNull List<PathElement> path) {
         return new SymbolicReference(new SymbolicRefSubject(variable), path);
     }
 
