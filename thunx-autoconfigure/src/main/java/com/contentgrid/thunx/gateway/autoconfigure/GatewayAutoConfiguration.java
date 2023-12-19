@@ -70,7 +70,6 @@ public class GatewayAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean(PolicyDecisionPointClient.class)
     public AbacGatewayFilterFactory abacGatewayFilterFactory() {
         return new AbacGatewayFilterFactory();
     }

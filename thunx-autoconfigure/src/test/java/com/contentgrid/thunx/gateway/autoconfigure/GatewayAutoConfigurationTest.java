@@ -38,7 +38,6 @@ public class GatewayAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(OpaClient.class);
                     assertThat(context).doesNotHaveBean(PolicyDecisionPointClient.class);
                     assertThat(context).doesNotHaveBean(ReactiveAuthorizationManager.class);
-                    assertThat(context).doesNotHaveBean(AbacGatewayFilterFactory.class);
                 });
     }
 

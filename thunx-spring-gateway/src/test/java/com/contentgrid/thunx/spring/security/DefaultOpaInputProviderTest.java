@@ -2,7 +2,6 @@ package com.contentgrid.thunx.spring.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.contentgrid.thunx.spring.security.DefaultOpaInputProvider;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 
