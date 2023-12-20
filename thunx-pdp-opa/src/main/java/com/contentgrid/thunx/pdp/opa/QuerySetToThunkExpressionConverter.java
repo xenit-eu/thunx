@@ -1,6 +1,7 @@
 package com.contentgrid.thunx.pdp.opa;
 
 
+import com.contentgrid.opa.rego.ast.Expression;
 import com.contentgrid.opa.rego.ast.Query;
 import com.contentgrid.opa.rego.ast.QuerySet;
 import com.contentgrid.opa.rego.ast.RegoVisitor;
@@ -14,6 +15,7 @@ import com.contentgrid.opa.rego.ast.Term.Ref;
 import com.contentgrid.opa.rego.ast.Term.SetTerm;
 import com.contentgrid.opa.rego.ast.Term.Text;
 import com.contentgrid.opa.rego.ast.Term.Var;
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.NumericFunction;
@@ -22,8 +24,20 @@ import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.StringPathElement;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
+
+import java.math.BigDecimal;
+import java.util.Collection;
+
+import java.util.HashSet;
+
+import java.util.Set;
+
+import lombok.Getter;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -58,6 +72,7 @@ public class QuerySetToThunkExpressionConverter {
 
         var expressions = query.stream()
                 .map(this::convert)
+                .filter(Objects::nonNull)
                 .peek(expr -> {
                     if (!Boolean.class.isAssignableFrom(expr.getResultType())) {
                         // there are non-boolean expressions in here ?
@@ -93,7 +108,8 @@ public class QuerySetToThunkExpressionConverter {
                 Map.entry("gt", Comparison::greater),
                 Map.entry("gte", Comparison::greaterOrEquals),
                 Map.entry("lt", Comparison::less),
-                Map.entry("lte", Comparison::lessOrEquals)
+                Map.entry("lte", Comparison::lessOrEquals),
+                Map.entry("internal.member_2", Comparison::in)
         );
 
         @Override
@@ -280,13 +296,16 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            throw new UnsupportedOperationException();
+            return new CollectionValue(
+                    (List) arrayTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(this)).collect(Collectors.toList())
+            );
         }
 
         @Override
         public ThunkExpression<?> visit(SetTerm setTerm) {
-            throw new UnsupportedOperationException();
+            return new CollectionValue(
+                    (Set) setTerm.getValue().stream().map(scalarTerm -> scalarTerm.accept(this)).collect(Collectors.toSet())
+            );
         }
     }
-
 }
