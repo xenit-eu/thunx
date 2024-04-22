@@ -1,10 +1,9 @@
 package com.contentgrid.thunx.spring.gateway.filter;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionEncoder;
+import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.spring.security.ReactivePolicyAuthorizationManager;
-import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -37,7 +36,7 @@ public class AbacGatewayFilterFactory extends AbstractGatewayFilterFactory<AbacG
     private final ThunkExpressionEncoder encoder;
 
     public AbacGatewayFilterFactory() {
-        this(expression -> new ExpressionJsonConverter().encode(expression).getBytes(StandardCharsets.UTF_8));
+        this(new JsonThunkExpressionCoder());
     }
 
     public AbacGatewayFilterFactory(ThunkExpressionEncoder encoder) {

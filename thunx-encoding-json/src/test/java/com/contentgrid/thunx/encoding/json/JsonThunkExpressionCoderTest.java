@@ -4,22 +4,22 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.contentgrid.thunx.predicates.model.LogicalOperation;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.contentgrid.thunx.encoding.json.InvalidExpressionDataException.InvalidExpressionValueException;
 import com.contentgrid.thunx.predicates.model.Comparison;
+import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.Variable;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class ExpressionJsonConverterTest {
+class JsonThunkExpressionCoderTest {
 
-    private final ExpressionJsonConverter converter = new ExpressionJsonConverter();
+    private final JsonThunkExpressionCoder converter = new JsonThunkExpressionCoder();
 
     @Nested
     class Encoder {
@@ -30,37 +30,37 @@ class ExpressionJsonConverterTest {
             @Test
             void string_toJson() {
                 var expr = Scalar.of("foobar");
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result).isEqualTo("{ type: 'string', value: 'foobar' }");
             }
 
             @Test
             void intNumber_toJson() {
-                var result = converter.encode(Scalar.of(42));
+                var result = converter.encodeToJson(Scalar.of(42));
                 assertThatJson(result).isEqualTo("{ type: 'number', value: 42 }");
             }
 
             @Test
             void doubleNumber_toJson() {
                 var expr = Scalar.of(Math.PI);
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result).isEqualTo("{ type: 'number', value: 3.141592653589793 }");
             }
 
             @Test
             void boolean_toJson() {
-                var jsonExprTrue = converter.encode(Scalar.of(true));
+                var jsonExprTrue = converter.encodeToJson(Scalar.of(true));
                 assertThatJson(jsonExprTrue).isEqualTo("{ type: 'bool', value: true }");
 
-                var jsonExprFalse = converter.encode(Scalar.of(false));
+                var jsonExprFalse = converter.encodeToJson(Scalar.of(false));
                 assertThatJson(jsonExprFalse).isEqualTo("{ type: 'bool', value: false }");
             }
 
             @Test
             void null_toJson() {
-                String result = converter.encode(Scalar.nullValue());
+                var result = converter.encodeToJson(Scalar.nullValue());
 
                 // Map.of(...) does not support null-values :facepalm:
                 assertThatJson(result).isEqualTo("{ type: 'null' }");
@@ -74,7 +74,7 @@ class ExpressionJsonConverterTest {
             void is_equal() {
                 // answer == 42
                 var expr = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'eq', terms: ["
@@ -87,7 +87,7 @@ class ExpressionJsonConverterTest {
             void is_not_equal() {
                 // answer != 42
                 var expr = Comparison.notEqual(Variable.named("answer"), Scalar.of(42));
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'neq', terms: ["
@@ -100,7 +100,7 @@ class ExpressionJsonConverterTest {
             void is_greater_than() {
                 // answer > 42
                 var expr = Comparison.greater(Variable.named("answer"), Scalar.of(42));
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'gt', terms: ["
@@ -113,7 +113,7 @@ class ExpressionJsonConverterTest {
             void is_greater_or_equals() {
                 // answer >= 42
                 var expr = Comparison.greaterOrEquals(Variable.named("answer"), Scalar.of(42));
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'gte', terms: ["
@@ -126,7 +126,7 @@ class ExpressionJsonConverterTest {
             void is_less_than() {
                 // answer < 42
                 var expr = Comparison.less(Variable.named("answer"), Scalar.of(42));
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'lt', terms: ["
@@ -139,7 +139,7 @@ class ExpressionJsonConverterTest {
             void is_less_or_equals() {
                 // answer <= 42
                 var expr = Comparison.lessOrEquals(Variable.named("answer"), Scalar.of(42));
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'lte', terms: ["
@@ -155,7 +155,7 @@ class ExpressionJsonConverterTest {
                 var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
                 var disjunction = LogicalOperation.disjunction(rule1, rule2);
 
-                var result = converter.encode(disjunction);
+                var result = converter.encodeToJson(disjunction);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'or', terms: ["
@@ -171,7 +171,7 @@ class ExpressionJsonConverterTest {
                 var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
                 var disjunction = LogicalOperation.conjunction(rule1, rule2);
 
-                var result = converter.encode(disjunction);
+                var result = converter.encodeToJson(disjunction);
 
                 assertThatJson(result)
                         .isEqualTo("{ type: 'function', operator: 'and', terms: ["
@@ -184,7 +184,7 @@ class ExpressionJsonConverterTest {
             void logical_negation() throws InvalidExpressionDataException, JsonProcessingException {
                 // not(answer)
                 var expression = LogicalOperation.uncheckedNegation(List.of(Variable.named("answer")));
-                var json = converter.encode(expression);
+                var json = converter.encodeToJson(expression);
 
                 assertThatJson(json)
                         .isEqualTo("{ type: 'function', operator: 'not', terms: ["
@@ -200,7 +200,7 @@ class ExpressionJsonConverterTest {
             @Test
             void variable() {
                 var expr = Variable.named("foo");
-                var result = converter.encode(expr);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result).isEqualTo("{ type: 'var', name: 'foo' }");
             }
@@ -213,8 +213,7 @@ class ExpressionJsonConverterTest {
             void references() {
                 // answers.life
                 var expr = SymbolicReference.of("answers", path -> path.string("life"));
-                var result = converter.encode(expr);
-                System.out.println(result);
+                var result = converter.encodeToJson(expr);
 
                 assertThatJson(result)
                         .isEqualTo("{ "
@@ -236,98 +235,98 @@ class ExpressionJsonConverterTest {
 
             @Test
             void string() throws JsonProcessingException, InvalidExpressionDataException {
-                var json = mapper.writeValueAsString(Map.of(
+                var json = mapper.valueToTree(Map.of(
                         "type", "string",
                         "value", "foobar"
                 ));
 
-                var actual = converter.decode(json);
+                var actual = converter.decodeFromJson(json);
                 assertThat(actual).isEqualTo(Scalar.of("foobar"));
             }
 
             @Test
-            void string_invalidValue() throws JsonProcessingException {
-                var json = mapper.writeValueAsString(Map.of(
+            void string_invalidValue() {
+                var json = mapper.valueToTree(Map.of(
                         "type", "string",
                         "value", true
                 ));
 
-                assertThatThrownBy(() -> converter.decode(json))
+                assertThatThrownBy(() -> converter.decodeFromJson(json))
                         .isInstanceOf(InvalidExpressionValueException.class);
             }
 
             @Test
-            void string_nullValue() {
-                var json = "{ \"type\": \"string\", \"value\": null }";
+            void string_nullValue() throws JsonProcessingException {
+                var json = mapper.readTree("{ \"type\": \"string\", \"value\": null }");
 
-                assertThatThrownBy(() -> converter.decode(json))
+                assertThatThrownBy(() -> converter.decodeFromJson(json))
                         .isInstanceOf(InvalidExpressionValueException.class);
             }
 
             @Test
             void number_intValue() throws JsonProcessingException, InvalidExpressionDataException {
-                var json = mapper.writeValueAsString(Map.of(
+                var json = mapper.valueToTree(Map.of(
                         "type", "number",
                         "value", 42
                 ));
 
-                var actual = converter.decode(json);
+                var actual = converter.decodeFromJson(json);
                 assertThat(actual).isEqualTo(Scalar.of(42));
             }
 
             @Test
             void number_doubleValue() throws JsonProcessingException, InvalidExpressionDataException {
-                var json = mapper.writeValueAsString(Map.of(
+                var json = mapper.valueToTree(Map.of(
                         "type", "number",
                         "value", Math.PI
                 ));
 
-                var actual = converter.decode(json);
+                var actual = converter.decodeFromJson(json);
                 assertThat(actual).isEqualTo(Scalar.of(3.141592653589793));
             }
 
             @Test
-            void number_nullValue_shouldFail() {
-                var json = "{ \"type\": \"number\", \"value\": null }";
+            void number_nullValue_shouldFail() throws JsonProcessingException {
+                var json = mapper.readTree("{ \"type\": \"number\", \"value\": null }");
 
-                assertThatThrownBy(() -> converter.decode(json))
+                assertThatThrownBy(() -> converter.decodeFromJson(json))
                         .isInstanceOf(InvalidExpressionValueException.class);
             }
 
             @Test
-            void number_stringValue_shouldFail() {
-                var json = "{ \"type\": \"number\", \"value\": \"5\" }";
+            void number_stringValue_shouldFail() throws JsonProcessingException {
+                var json = mapper.readTree("{ \"type\": \"number\", \"value\": \"5\" }");
 
-                assertThatThrownBy(() -> converter.decode(json))
+                assertThatThrownBy(() -> converter.decodeFromJson(json))
                         .isInstanceOf(InvalidExpressionValueException.class);
             }
 
             @Test
             void booleanValue_true() throws JsonProcessingException, InvalidExpressionDataException {
-                var json = mapper.writeValueAsString(Map.of(
+                var json = mapper.valueToTree(Map.of(
                         "type", "bool",
                         "value", true
                 ));
-                var actual = converter.decode(json);
+                var actual = converter.decodeFromJson(json);
                 assertThat(actual).isEqualTo(Scalar.of(true));
             }
 
             @Test
             void booleanValue_false() throws JsonProcessingException, InvalidExpressionDataException {
-                var json = mapper.writeValueAsString(Map.of(
+                var json = mapper.valueToTree(Map.of(
                         "type", "bool",
                         "value", false
                 ));
-                var actual = converter.decode(json);
+                var actual = converter.decodeFromJson(json);
                 assertThat(actual).isEqualTo(Scalar.of(false));
             }
 
             @Test
             void nullValue() throws JsonProcessingException, InvalidExpressionDataException {
-                var json = mapper.writeValueAsString(Map.of(
+                var json = mapper.valueToTree(Map.of(
                         "type", "null"
                 ));
-                var actual = converter.decode(json);
+                var actual = converter.decodeFromJson(json);
                 assertThat(actual).isEqualTo(Scalar.nullValue());
             }
         }
@@ -337,8 +336,8 @@ class ExpressionJsonConverterTest {
 
             @Test
             void variable() throws JsonProcessingException {
-                var json = "{ \"type\": \"var\", \"name\": \"foo\" }";
-                var actual = converter.decode(json);
+                var json = mapper.readTree("{ \"type\": \"var\", \"name\": \"foo\" }");
+                var actual = converter.decodeFromJson(json);
 
                 assertThat(actual).isEqualTo(Variable.named("foo"));
             }
@@ -350,12 +349,12 @@ class ExpressionJsonConverterTest {
             @Test
             void references() throws JsonProcessingException {
                 // answers.life
-                var json = mapper.writeValueAsString(Map.of(
+                var json = mapper.valueToTree(Map.of(
                     "type", "ref",
                         "subject", Map.of("type", "var", "name", "answers"),
                         "path", List.of(Map.of("type", "string", "value", "life"))
                 ));
-                var actual = converter.decode(json);
+                var actual = converter.decodeFromJson(json);
 
                 assertThatJson(actual)
                         .isEqualTo(SymbolicReference.of("answers", path -> path.string("life")));
@@ -366,7 +365,7 @@ class ExpressionJsonConverterTest {
         class Operators {
 
             @Test
-            void is_equal() throws InvalidExpressionDataException, JsonProcessingException {
+            void is_equal() throws InvalidExpressionDataException {
                 // answer == 42
                 var json = converter.encode(Comparison.areEqual(Variable.named("answer"), Scalar.of(42)));
                 var expr = converter.decode(json);
@@ -375,7 +374,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void is_not_equal() throws InvalidExpressionDataException, JsonProcessingException {
+            void is_not_equal() throws InvalidExpressionDataException {
                 // answer != 42
                 var json = converter.encode(Comparison.notEqual(Variable.named("answer"), Scalar.of(42)));
                 var expr = converter.decode(json);
@@ -384,7 +383,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void is_greater_than() throws InvalidExpressionDataException, JsonProcessingException {
+            void is_greater_than() throws InvalidExpressionDataException {
                 // answer > 42
                 var json = converter.encode(Comparison.greater(Variable.named("answer"), Scalar.of(42)));
                 var expr = converter.decode(json);
@@ -393,7 +392,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void is_greater_or_equals() throws InvalidExpressionDataException, JsonProcessingException {
+            void is_greater_or_equals() throws InvalidExpressionDataException {
                 // answer >= 42
                 var json = converter.encode(Comparison.greaterOrEquals(Variable.named("answer"), Scalar.of(42)));
                 var expr = converter.decode(json);
@@ -402,7 +401,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void is_less_than() throws InvalidExpressionDataException, JsonProcessingException {
+            void is_less_than() throws InvalidExpressionDataException {
                 // answer < 42
                 var json = converter.encode(Comparison.less(Variable.named("answer"), Scalar.of(42)));
                 var expr = converter.decode(json);
@@ -411,7 +410,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void is_less_or_equals() throws InvalidExpressionDataException, JsonProcessingException {
+            void is_less_or_equals() throws InvalidExpressionDataException {
                 // answer <= 42
                 var json = converter.encode(Comparison.lessOrEquals(Variable.named("answer"), Scalar.of(42)));
                 var expr = converter.decode(json);
@@ -420,7 +419,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void logical_disjunction() throws JsonProcessingException {
+            void logical_disjunction() {
                 // rules: answer == 42 OR user.admin == true
                 var rule1 = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
                 var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
@@ -433,7 +432,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void logical_conjunction() throws JsonProcessingException {
+            void logical_conjunction() {
                 // rules: answer == 42 AND user.admin == true
                 var rule1 = Comparison.areEqual(Variable.named("answer"), Scalar.of(42));
                 var rule2 = Comparison.areEqual(SymbolicReference.of("user.admin"), Scalar.of(true));
@@ -446,7 +445,7 @@ class ExpressionJsonConverterTest {
             }
 
             @Test
-            void logical_negation() throws InvalidExpressionDataException, JsonProcessingException {
+            void logical_negation() throws InvalidExpressionDataException {
                 // not(answer)
                 var expression = LogicalOperation.uncheckedNegation(List.of(Variable.named("answer")));
                 var json = converter.encode(expression);
