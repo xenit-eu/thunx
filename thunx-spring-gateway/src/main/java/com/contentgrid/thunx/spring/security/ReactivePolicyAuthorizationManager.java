@@ -2,6 +2,8 @@ package com.contentgrid.thunx.spring.security;
 
 import com.contentgrid.thunx.pdp.PolicyDecision;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponent;
+import com.contentgrid.thunx.predicates.model.Comparison;
+import com.contentgrid.thunx.predicates.model.Scalar;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -34,10 +36,13 @@ public class ReactivePolicyAuthorizationManager implements ReactiveAuthorization
                     // - conditions
 
                     if (policyDecision.isAllowed()) {
+                        var attrs = authzContext.getExchange().getAttributes();
                         if (policyDecision.hasPredicate()) {
                             // partial evaluation!
-                            var attrs = authzContext.getExchange().getAttributes();
                             attrs.put(ABAC_POLICY_PREDICATE_ATTR, policyDecision.getPredicate());
+                        } else {
+                            // Put default: true = true
+                            attrs.put(ABAC_POLICY_PREDICATE_ATTR, Comparison.areEqual(Scalar.of(true), Scalar.of(true)));
                         }
 
                         return new AuthorizationDecision(true);
