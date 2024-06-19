@@ -34,6 +34,17 @@ class ReactivePolicyAuthorizationManagerTest {
         StepVerifier.create(authorizationManager.verify(authentication(), context))
                 .expectComplete()
                 .verify();
+
+        // context should be updated with an 'ABAC_POLICY_PREDICATE' attribute
+        StepVerifier.create(authorizationManager.verify(authentication(), context))
+                .expectComplete()
+                .verify();
+
+        ThunkExpression<Boolean> predicateAttr = context.getExchange().getAttribute(
+                ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
+        assertThat(predicateAttr)
+                .isNotNull()
+                .isEqualTo(Comparison.areEqual(Scalar.of(true), Scalar.of(true)));
     }
 
     @Test
