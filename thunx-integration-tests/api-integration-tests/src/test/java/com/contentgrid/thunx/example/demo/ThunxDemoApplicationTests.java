@@ -1,6 +1,7 @@
 package com.contentgrid.thunx.example.demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.endsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +25,6 @@ import com.contentgrid.spring.test.fixture.invoicing.repository.OrderRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.PromotionCampaignRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.ShippingAddressRepository;
 import com.contentgrid.spring.test.security.WithMockJwt;
-import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
 import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.predicates.model.BooleanOperation;
 import com.contentgrid.thunx.predicates.model.Comparison;
@@ -33,7 +33,6 @@ import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import jakarta.transaction.Transactional;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
@@ -150,11 +149,10 @@ class ThunxDemoApplicationTests {
         class Get {
 
             @Test
-            void listInvoices_noPolicy() throws Exception {
-                mockMvc.perform(get("/invoices")
-                                .contentType("application/json"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$._embedded.item.length()").value(2));
+            void listInvoices_noPolicy_shouldFail_http500() {
+                assertThatThrownBy(() -> mockMvc.perform(get("/invoices")
+                                .contentType("application/json")), "No X-ABAC-Context context present.")
+                        .isInstanceOf(IllegalStateException.class);
             }
 
             @Test
@@ -244,12 +242,11 @@ class ThunxDemoApplicationTests {
         class Get {
 
             @Test
-            void getInvoice_policyNone_shouldReturn_http200_ok() throws Exception {
+            void getInvoice_policyNone_shouldFail_http500() {
 
-                mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1))
-                                .contentType("application/json"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.number").value(INVOICE_1));
+                assertThatThrownBy(() -> mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1))
+                                .contentType("application/json")), "No X-ABAC-Context context present.")
+                        .isInstanceOf(IllegalStateException.class);
             }
 
             @Test

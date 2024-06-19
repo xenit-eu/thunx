@@ -17,9 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 public class AbacRequestFilter implements Filter {
 
     private final ThunkExpressionDecoder thunkDecoder;
+    private final boolean allowMissingAbac;
 
-    public AbacRequestFilter(ThunkExpressionDecoder thunkDecoder) {
+    public AbacRequestFilter(ThunkExpressionDecoder thunkDecoder, boolean allowMissingAbac) {
         this.thunkDecoder = thunkDecoder;
+        this.allowMissingAbac = allowMissingAbac;
     }
 
     @Override
@@ -37,7 +39,11 @@ public class AbacRequestFilter implements Filter {
             log.debug("ABAC Context: {}", abacExpression);
             AbacContext.setCurrentAbacContext(abacExpression);
         } else {
-            log.warn("No X-ABAC-Context context present.");
+            var message = "No X-ABAC-Context context present.";
+            log.warn(message);
+            if (!allowMissingAbac) {
+                throw new IllegalStateException(message);
+            }
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
