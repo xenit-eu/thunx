@@ -8,8 +8,8 @@ import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.Qu
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -25,9 +25,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 public class AbacConfiguration {
 
-    @Autowired
-    ApplicationContext applicationContext;
-
     @Bean
     public ThunkExpressionDecoder thunkDecoder() {
         return new JsonThunkExpressionCoder();
@@ -39,9 +36,8 @@ public class AbacConfiguration {
     }
 
     @Bean
-    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder) {
-        var allowMissingAbac = applicationContext.getEnvironment()
-                .getProperty("contentgrid.thunx.allow-missing-abac", boolean.class, false);
+    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder,
+            @Value("${contentgrid.thunx.allow-missing-abac:false}") boolean allowMissingAbac) {
         return new AbacRequestFilter(thunkDecoder, allowMissingAbac);
     }
 

@@ -42,7 +42,7 @@ public class AbacRequestFilter implements Filter {
             var message = "No X-ABAC-Context context present.";
             log.warn(message);
             if (!allowMissingAbac) {
-                throw new IllegalStateException(message);
+                throw new IllegalArgumentException(message);
             }
         }
 

@@ -52,7 +52,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @Transactional
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
-@SpringBootTest(classes = InvoicingApplication.class)
+@SpringBootTest(classes = InvoicingApplication.class, properties = "contentgrid.thunx.allow-missing-abac=false")
 @WithMockJwt
 class ThunxDemoApplicationTests {
 
@@ -152,7 +152,7 @@ class ThunxDemoApplicationTests {
             void listInvoices_noPolicy_shouldFail_http500() {
                 assertThatThrownBy(() -> mockMvc.perform(get("/invoices")
                                 .contentType("application/json")), "No X-ABAC-Context context present.")
-                        .isInstanceOf(IllegalStateException.class);
+                        .isInstanceOf(IllegalArgumentException.class);
             }
 
             @Test
@@ -246,7 +246,7 @@ class ThunxDemoApplicationTests {
 
                 assertThatThrownBy(() -> mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1))
                                 .contentType("application/json")), "No X-ABAC-Context context present.")
-                        .isInstanceOf(IllegalStateException.class);
+                        .isInstanceOf(IllegalArgumentException.class);
             }
 
             @Test
