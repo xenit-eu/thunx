@@ -18,7 +18,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-web'
 
-	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.11.1')
+	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.14.1')
+	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.14.1'
 
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'org.testcontainers:postgresql:1.19.8'
