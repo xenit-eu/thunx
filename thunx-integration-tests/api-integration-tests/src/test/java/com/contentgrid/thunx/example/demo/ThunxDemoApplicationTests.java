@@ -23,6 +23,7 @@ import com.contentgrid.spring.test.fixture.invoicing.repository.InvoiceRepositor
 import com.contentgrid.spring.test.fixture.invoicing.repository.OrderRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.PromotionCampaignRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.ShippingAddressRepository;
+import com.contentgrid.spring.test.security.WithMockJwt;
 import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
 import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.predicates.model.BooleanOperation;
@@ -53,6 +54,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @Transactional
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
 @SpringBootTest(classes = InvoicingApplication.class)
+@WithMockJwt
 class ThunxDemoApplicationTests {
 
     static final String INVOICE_1 = "I-2022-0001";
@@ -118,10 +120,15 @@ class ThunxDemoApplicationTests {
 
         var address_northPole = shippingAddresses.save(new ShippingAddress("123 Elf Road", "88888", "North Pole"));
 
-        var xenit = customers.save(
-                new Customer(null, "XeniT", ORG_XENIT_VAT, null, null, null, new HashSet<>(), new HashSet<>()));
-        var inbev = customers.save(
-                new Customer(null, "AB InBev", ORG_INBEV_VAT, null, null, null, new HashSet<>(), new HashSet<>()));
+        var xenit = new Customer();
+        xenit.setName("XeniT");
+        xenit.setVat(ORG_XENIT_VAT);
+        xenit = customers.save(xenit);
+
+        var inbev = new Customer();
+        inbev.setName("AB InBev");
+        inbev.setVat(ORG_INBEV_VAT);
+        inbev = customers.save(inbev);
 
         ORDER_1 = orders.save(new Order(xenit, address_northPole, Set.of())).getId();
         var order2 = orders.save(new Order(xenit));
