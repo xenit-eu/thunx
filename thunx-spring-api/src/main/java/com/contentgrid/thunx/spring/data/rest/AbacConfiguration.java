@@ -1,14 +1,10 @@
 package com.contentgrid.thunx.spring.data.rest;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
-import com.contentgrid.thunx.predicates.model.ThunkExpression;
+import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
@@ -30,16 +26,7 @@ public class AbacConfiguration {
 
     @Bean
     public ThunkExpressionDecoder thunkDecoder() {
-        return data -> {
-            try {
-                var json = new String(data, StandardCharsets.UTF_8);
-                var expression = new ExpressionJsonConverter().decode(json);
-
-                return ((ThunkExpression<Boolean>) expression);
-            } catch (JsonProcessingException e) {
-                throw new UncheckedIOException(e);
-            }
-        };
+        return new JsonThunkExpressionCoder();
     }
 
     @Bean

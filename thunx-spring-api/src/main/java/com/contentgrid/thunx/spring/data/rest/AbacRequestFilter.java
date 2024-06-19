@@ -33,7 +33,7 @@ public class AbacRequestFilter implements Filter {
         if (abacContext != null) {
             byte[] abacContextBytes = Base64.getDecoder().decode(abacContext);
             // which (version of?) decoder should we use ? -> get that info from JWT or other header ?
-            ThunkExpression<Boolean> abacExpression = this.thunkDecoder.decoder(abacContextBytes);
+            ThunkExpression<Boolean> abacExpression = this.thunkDecoder.decode(abacContextBytes);
             log.debug("ABAC Context: {}", abacExpression);
             AbacContext.setCurrentAbacContext(abacExpression);
         } else {

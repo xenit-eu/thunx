@@ -24,6 +24,7 @@ import com.contentgrid.spring.test.fixture.invoicing.repository.OrderRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.PromotionCampaignRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.ShippingAddressRepository;
 import com.contentgrid.thunx.encoding.json.ExpressionJsonConverter;
+import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.predicates.model.BooleanOperation;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
@@ -912,8 +913,7 @@ class ThunxDemoApplicationTests {
     }
 
     private static String headerEncode(ThunkExpression<Boolean> expression) {
-
-        var bytes = new ExpressionJsonConverter().encode(expression).getBytes(StandardCharsets.UTF_8);
+        var bytes = new JsonThunkExpressionCoder().encode(expression);
         return Base64.getEncoder().encodeToString(bytes);
     }
 

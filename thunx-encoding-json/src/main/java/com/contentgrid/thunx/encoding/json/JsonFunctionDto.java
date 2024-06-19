@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.encoding.json;
 
-import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.FunctionExpression.Operator;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import java.util.ArrayList;
