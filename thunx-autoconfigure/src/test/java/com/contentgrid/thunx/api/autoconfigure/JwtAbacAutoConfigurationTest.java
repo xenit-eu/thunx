@@ -52,7 +52,8 @@ class JwtAbacAutoConfigurationTest {
                 .withSystemProperties("contentgrid.thunx.abac.source=jwt")
                 .run(context -> {
                     assertThat(context).hasFailed();
-                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class);
+                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("Property 'contentgrid.thunx.abac.source' contains an unknown value");
                 });
     }
 
@@ -63,7 +64,8 @@ class JwtAbacAutoConfigurationTest {
                 .withSystemProperties("contentgrid.thunx.abac.source=jwt")
                 .run(context -> {
                     assertThat(context).hasFailed();
-                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class);
+                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("Property 'contentgrid.thunx.abac.source' contains an unknown value");
                 });
     }
 

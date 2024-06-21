@@ -82,7 +82,8 @@ public class AbacAutoConfigurationTest {
                 .withSystemProperties("contentgrid.thunx.abac.source=invalid")
                 .run(context -> {
                     assertThat(context).hasFailed();
-                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class);
+                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("Property 'contentgrid.thunx.abac.source' contains an unknown value");
                 });
     }
 
