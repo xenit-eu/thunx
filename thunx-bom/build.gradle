@@ -13,6 +13,7 @@ dependencies {
         api project(':thunx-pdp')
         api project(':thunx-pdp-opa')
         api project(':thunx-predicates-querydsl')
+        api project(':thunx-security')
         api project(':thunx-spring-api')
         api project(':thunx-spring-gateway')
         api project(':thunx-visitor-reducer')

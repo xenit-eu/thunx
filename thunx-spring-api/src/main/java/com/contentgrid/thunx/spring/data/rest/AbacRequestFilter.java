@@ -37,13 +37,11 @@ public class AbacRequestFilter implements Filter {
             log.debug("ABAC Context: {}", abacExpression);
             AbacContext.setCurrentAbacContext(abacExpression);
         } else {
-            log.warn("No X-ABAC-Context context present.");
+            throw new IllegalArgumentException("No X-ABAC-Context context present.");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
 
-        if(abacContext != null) {
-            AbacContext.clear();
-        }
+        AbacContext.clear();
     }
 }

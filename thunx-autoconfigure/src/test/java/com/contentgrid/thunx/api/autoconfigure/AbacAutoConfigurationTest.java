@@ -18,23 +18,71 @@ public class AbacAutoConfigurationTest {
 
     WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
             .withPropertyValues("spring.cloud.gateway.enabled=false")
+            .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
             .withConfiguration(AutoConfigurations.of(
                     AbacAutoConfiguration.class
             ));
 
     @Test
-    public void shouldEnableAbac() {
+    public void shouldEnableAbacByDefault() {
 
         contextRunner.withUserConfiguration(TestContext.class)
-                .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
                 .run((context) -> {
-                    assertThat(context.getBean(QuerydslBindingsFactory.class)).isNotNull();
-                    assertThat(context.getBean(ThunkExpressionDecoder.class)).isNotNull();
-                    assertThat(context.getBean(AbacExceptionHandler.class)).isNotNull();
-                    assertThat(context.getBean(AbacRequestFilter.class)).isNotNull();
-                    assertThat(context.getBean("abacFilterRegistration")).isNotNull();
-                    assertThat(context.getBean("interceptRepositoryRestMvcConfiguration")).isNotNull();
-                    assertThat(context.getBean("ensureQueryDslPredication")).isNotNull();
+                    assertThat(context).hasSingleBean(QuerydslBindingsFactory.class);
+                    assertThat(context).hasSingleBean(ThunkExpressionDecoder.class);
+                    assertThat(context).hasSingleBean(AbacExceptionHandler.class);
+                    assertThat(context).hasSingleBean(AbacRequestFilter.class);
+                    assertThat(context).hasBean("abacFilterRegistration");
+                    assertThat(context).hasBean("interceptRepositoryRestMvcConfiguration");
+                    assertThat(context).hasBean("ensureQueryDslPredication");
+                    assertThat(context).hasBean("ensureAbacQueryDslResolverExist");
+                    assertThat(context).doesNotHaveBean("abacJwtAuthenticationConverter");
+                });
+    }
+
+    @Test
+    public void shouldEnableAbacWhenPropertyEqualsHeader() {
+
+        contextRunner.withUserConfiguration(TestContext.class)
+                .withSystemProperties("contentgrid.thunx.abac.source=header")
+                .run((context) -> {
+                    assertThat(context).hasSingleBean(QuerydslBindingsFactory.class);
+                    assertThat(context).hasSingleBean(ThunkExpressionDecoder.class);
+                    assertThat(context).hasSingleBean(AbacExceptionHandler.class);
+                    assertThat(context).hasSingleBean(AbacRequestFilter.class);
+                    assertThat(context).hasBean("abacFilterRegistration");
+                    assertThat(context).hasBean("interceptRepositoryRestMvcConfiguration");
+                    assertThat(context).hasBean("ensureQueryDslPredication");
+                    assertThat(context).hasBean("ensureAbacQueryDslResolverExist");
+                    assertThat(context).doesNotHaveBean("abacJwtAuthenticationConverter");
+                });
+    }
+
+    @Test
+    public void shouldDisableAbacWhenPropertyEqualsNone() {
+
+        contextRunner.withUserConfiguration(TestContext.class)
+                .withSystemProperties("contentgrid.thunx.abac.source=none")
+                .run((context) -> {
+                    assertThat(context).hasSingleBean(QuerydslBindingsFactory.class);
+                    assertThat(context).hasSingleBean(ThunkExpressionDecoder.class);
+                    assertThat(context).hasSingleBean(AbacExceptionHandler.class);
+                    assertThat(context).doesNotHaveBean(AbacRequestFilter.class);
+                    assertThat(context).doesNotHaveBean("abacFilterRegistration");
+                    assertThat(context).hasBean("interceptRepositoryRestMvcConfiguration");
+                    assertThat(context).hasBean("ensureQueryDslPredication");
+                    assertThat(context).hasBean("ensureAbacQueryDslResolverExist");
+                    assertThat(context).doesNotHaveBean("abacJwtAuthenticationConverter");
+                });
+    }
+
+    @Test
+    public void shouldFailWhenPropertyIsInvalid() {
+        contextRunner.withUserConfiguration(TestContext.class)
+                .withSystemProperties("contentgrid.thunx.abac.source=invalid")
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class);
                 });
     }
 

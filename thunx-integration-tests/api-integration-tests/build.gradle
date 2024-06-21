@@ -12,11 +12,14 @@ dependencies {
 	testImplementation project(":thunx-spring-api")
 	testImplementation project(':thunx-encoding-json')
 	testImplementation project(':thunx-model')
+	testImplementation project(':thunx-security')
 
 	testImplementation "com.querydsl:querydsl-core"
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	testImplementation 'org.springframework.security:spring-security-test'
 
 	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.14.1')
 	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.14.1'

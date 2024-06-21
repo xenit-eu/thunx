@@ -1,8 +1,8 @@
 package com.contentgrid.thunx.example.demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.endsWith;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
@@ -24,7 +24,6 @@ import com.contentgrid.spring.test.fixture.invoicing.repository.InvoiceRepositor
 import com.contentgrid.spring.test.fixture.invoicing.repository.OrderRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.PromotionCampaignRepository;
 import com.contentgrid.spring.test.fixture.invoicing.repository.ShippingAddressRepository;
-import com.contentgrid.spring.test.security.WithMockJwt;
 import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.predicates.model.BooleanOperation;
 import com.contentgrid.thunx.predicates.model.Comparison;
@@ -32,8 +31,8 @@ import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
+import com.contentgrid.thunx.security.AbacJwtGrantedAuthoritiesConverter;
 import jakarta.transaction.Transactional;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,13 +47,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 
 @Transactional
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
-@SpringBootTest(classes = InvoicingApplication.class, properties = "contentgrid.thunx.abac.source=header")
-@WithMockJwt
-class ThunxDemoApplicationTests {
+@SpringBootTest(classes = InvoicingApplication.class, properties = "contentgrid.thunx.abac.source=jwt")
+class JwtAbacDemoApplicationTests {
+
+    static final String JWT_ISSUER_NAMESPACE = "http://localhost/realms/thunx";
 
     static final String INVOICE_1 = "I-2022-0001";
     static final String INVOICE_2 = "I-2022-0002";
@@ -149,16 +150,16 @@ class ThunxDemoApplicationTests {
         class Get {
 
             @Test
-            void listInvoices_noPolicy_shouldFail_http500() {
-                assertThatThrownBy(() -> mockMvc.perform(get("/invoices")
-                        .contentType("application/json")), "No X-ABAC-Context context present.")
-                        .isInstanceOf(IllegalArgumentException.class);
+            void listInvoices_noPolicy_shouldFail_http401() throws Exception {
+                mockMvc.perform(get("/invoices")
+                                .contentType("application/json"))
+                        .andExpect(status().isUnauthorized());
             }
 
             @Test
             void listInvoices_policyOk_shouldReturn_http200_ok() throws Exception {
                 mockMvc.perform(get("/invoices")
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.item.length()").value(1))
@@ -168,7 +169,7 @@ class ThunxDemoApplicationTests {
             @Test
             void listInvoices_policyOk_withMatchingFilter_shouldReturn_http200_ok() throws Exception {
                 mockMvc.perform(get("/invoices?number={number}", INVOICE_1)
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.item.length()").value(1))
@@ -178,7 +179,7 @@ class ThunxDemoApplicationTests {
             @Test
             void listInvoices_policyOk_withNonMatchingFilter_shouldReturn_http200_ok() throws Exception {
                 mockMvc.perform(get("/invoices?number={number}", INVOICE_2)
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$._embedded.item.length()").value(0));
@@ -192,7 +193,7 @@ class ThunxDemoApplicationTests {
             @Test
             void checkInvoiceCollection_shouldReturn_http204_noContent() throws Exception {
                 mockMvc.perform(head("/invoices")
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isNoContent());
             }
@@ -206,7 +207,7 @@ class ThunxDemoApplicationTests {
             void createInvoice_policyOk_shouldReturn_http201_created() throws Exception {
                 var customerId = customers.findByVat(ORG_XENIT_VAT).orElseThrow().getId();
                 mockMvc.perform(post("/invoices")
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .content("""
                                         {
                                             "number": "I-2022-0003",
@@ -221,7 +222,7 @@ class ThunxDemoApplicationTests {
             void createInvoice_policyFail_shouldReturn_http404_notFound() throws Exception {
                 var customerId = customers.findByVat(ORG_INBEV_VAT).orElseThrow().getId();
                 mockMvc.perform(post("/invoices")
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .content("""
                                         {
                                             "number": "I-2022-0003",
@@ -242,17 +243,16 @@ class ThunxDemoApplicationTests {
         class Get {
 
             @Test
-            void getInvoice_noPolicy_shouldFail_http500() {
-
-                assertThatThrownBy(() -> mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1))
-                        .contentType("application/json")), "No X-ABAC-Context context present.")
-                        .isInstanceOf(IllegalArgumentException.class);
+            void getInvoice_noPolicy_shouldFail_http401() throws Exception {
+                mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1))
+                                .contentType("application/json"))
+                        .andExpect(status().isUnauthorized());
             }
 
             @Test
             void getInvoice_policyOk_shouldReturn_http200_ok() throws Exception {
                 mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.number").value(INVOICE_1));
@@ -264,7 +264,7 @@ class ThunxDemoApplicationTests {
             @Test
             void getInvoice_policyOk_withFilter_ignored_shouldReturn_http200_ok() throws Exception {
                 mockMvc.perform(get("/invoices/{id}?number={number}", invoiceIdByNumber(INVOICE_1), INVOICE_2)
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.number").value(INVOICE_1));
@@ -273,7 +273,7 @@ class ThunxDemoApplicationTests {
             @Test
             void getInvoice_policyFail_shouldReturn_http404_notFound() throws Exception {
                 mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isNotFound());
             }
@@ -286,7 +286,7 @@ class ThunxDemoApplicationTests {
             @Test
             void headInvoice_policyOk_shouldReturn_http204_noContent() throws Exception {
                 mockMvc.perform(head("/invoices/" + invoiceIdByNumber(INVOICE_1))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isNoContent());
             }
@@ -295,7 +295,7 @@ class ThunxDemoApplicationTests {
             void headInvoice_policyFail_shouldReturn_http404_notFound() throws Exception {
 
                 mockMvc.perform(head("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json"))
                         .andExpect(status().isNotFound());
             }
@@ -308,7 +308,7 @@ class ThunxDemoApplicationTests {
             @Test
             void putInvoice_policyOk_shouldReturn_http204_ok() throws Exception {
                 mockMvc.perform(put("/invoices/" + invoiceIdByNumber(INVOICE_1))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json")
                                 .content("""
                                         {
@@ -322,7 +322,7 @@ class ThunxDemoApplicationTests {
             @Test
             void putInvoice_policyFailsPreSave_shouldReturn_http404_notFound() throws Exception {
                 mockMvc.perform(put("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json")
                                 .content("""
                                         {
@@ -343,12 +343,12 @@ class ThunxDemoApplicationTests {
 
                 // check user has access to invoice-2
                 mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(policyPaidInvoices))
+                                .with(jwtEncode(policyPaidInvoices))
                                 .accept("application/json"))
                         .andExpect(status().isOk());
 
                 mockMvc.perform(put("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(policyPaidInvoices))
+                                .with(jwtEncode(policyPaidInvoices))
                                 .contentType("application/json")
                                 .content("""
                                          {
@@ -368,7 +368,7 @@ class ThunxDemoApplicationTests {
             @Test
             void patchInvoice_policyOk_shouldReturn_http204_ok() throws Exception {
                 mockMvc.perform(patch("/invoices/" + invoiceIdByNumber(INVOICE_1))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json")
                                 .content("""
                                         {
@@ -381,7 +381,7 @@ class ThunxDemoApplicationTests {
             @Test
             void patchInvoice_policyFailsPreSave_shouldReturn_http404_notFound() throws Exception {
                 mockMvc.perform(patch("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT))
                                 .contentType("application/json")
                                 .content("""
                                         {
@@ -400,12 +400,12 @@ class ThunxDemoApplicationTests {
 
                 // check user has access to invoice-2
                 mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(policyPaidInvoices))
+                                .with(jwtEncode(policyPaidInvoices))
                                 .accept("application/json"))
                         .andExpect(status().isOk());
 
                 mockMvc.perform(patch("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(policyPaidInvoices))
+                                .with(jwtEncode(policyPaidInvoices))
                                 .contentType("application/json")
                                 .content("""
                                         {
@@ -424,7 +424,7 @@ class ThunxDemoApplicationTests {
             @Test
             void deleteInvoice_policyOk_shouldReturn_http204_ok() throws Exception {
                 mockMvc.perform(delete("/invoices/" + invoiceIdByNumber(INVOICE_1))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_DRAFT)))
+                                .with(jwtEncode(POLICY_INVOICES_DRAFT)))
                         .andExpect(status().isNoContent());
 
                 assertThat(invoices.findByNumber(INVOICE_1)).isEmpty();
@@ -433,7 +433,7 @@ class ThunxDemoApplicationTests {
             @Test
             void deleteInvoice_policyFail_shouldReturn_http404_notFound() throws Exception {
                 mockMvc.perform(delete("/invoices/" + invoiceIdByNumber(INVOICE_2))
-                                .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT)))
+                                .with(jwtEncode(POLICY_INVOICES_XENIT)))
                         .andExpect(status().isNotFound());
 
                 assertThat(invoices.findByNumber(INVOICE_2)).isPresent();
@@ -455,7 +455,7 @@ class ThunxDemoApplicationTests {
                 void getInvoiceCustomer_policyOk_shouldReturn_http302_redirect() throws Exception {
 
                     mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isFound())
                             .andExpect(header().string(HttpHeaders.LOCATION,
@@ -467,7 +467,7 @@ class ThunxDemoApplicationTests {
                 void getInvoiceCustomer_policyFail_shouldReturn_http404_notFound() throws Exception {
 
                     mockMvc.perform(get("/invoices/" + invoiceIdByNumber(INVOICE_2) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
@@ -480,7 +480,7 @@ class ThunxDemoApplicationTests {
                 void getInvoicesForCustomer_policyOk_shouldReturn_http302() throws Exception {
 
                     mockMvc.perform(get("/customers/" + customerIdByVat(ORG_XENIT_VAT) + "/invoices")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_CUSTOMERS))
+                                    .with(jwtEncode(POLICY_CUSTOMERS))
                                     .accept("application/json"))
                             .andExpect(status().isFound());
                 }
@@ -504,7 +504,7 @@ class ThunxDemoApplicationTests {
                     // fictive example: fix the customer
                     var correctCustomerId = customers.findByVat(ORG_INBEV_VAT).orElseThrow().getId();
                     mockMvc.perform(put("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(policyUnpaidInvoices))
+                                    .with(jwtEncode(policyUnpaidInvoices))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -524,7 +524,7 @@ class ThunxDemoApplicationTests {
                     // user does not have access to invoice pre-update, should fail
                     var customerXenit = customers.findByVat(ORG_XENIT_VAT).orElseThrow().getId();
                     mockMvc.perform(put("/invoices/" + invoiceIdByNumber(INVOICE_2) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -546,7 +546,7 @@ class ThunxDemoApplicationTests {
                     // try to link with customer-2, but after update policies should fail
                     var customerInbev = customers.findByVat(ORG_INBEV_VAT).orElseThrow().getId();
                     mockMvc.perform(put("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept(MediaType.APPLICATION_JSON)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -573,7 +573,7 @@ class ThunxDemoApplicationTests {
 
                     // try to add order to invoice using PUT - should fail
                     mockMvc.perform(put("/invoices/%s/orders".formatted(invoiceNumber))
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_DRAFT))
+                                    .with(jwtEncode(POLICY_INVOICES_DRAFT))
                                     .accept(MediaType.APPLICATION_JSON)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -612,7 +612,7 @@ class ThunxDemoApplicationTests {
 
                     // try to add order to invoice using PUT - should fail
                     mockMvc.perform(put("/invoices/%s/orders".formatted(invoiceNumber))
-                                    .header("X-ABAC-Context", headerEncode(draftInvoicePolicy))
+                                    .with(jwtEncode(draftInvoicePolicy))
                                     .accept(MediaType.APPLICATION_JSON)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -653,7 +653,7 @@ class ThunxDemoApplicationTests {
 
                     var correctCustomerId = customers.findByVat(ORG_INBEV_VAT).orElseThrow().getId();
                     mockMvc.perform(post("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/counterparty")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_DRAFT))
+                                    .with(jwtEncode(POLICY_INVOICES_DRAFT))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -681,7 +681,7 @@ class ThunxDemoApplicationTests {
 
                     // add an order to an invoice
                     mockMvc.perform(post("/invoices/%s/orders".formatted(invoiceNumber))
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_DRAFT))
+                                    .with(jwtEncode(POLICY_INVOICES_DRAFT))
                                     .accept(MediaType.APPLICATION_JSON)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -715,7 +715,7 @@ class ThunxDemoApplicationTests {
 
                     // try to add order to invoice using POST - should fail
                     mockMvc.perform(post("/invoices/%s/orders".formatted(invoiceNumber))
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_DRAFT))
+                                    .with(jwtEncode(POLICY_INVOICES_DRAFT))
                                     .accept(MediaType.APPLICATION_JSON)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -741,7 +741,7 @@ class ThunxDemoApplicationTests {
                 void postJson_policyFail_postSave_shouldReturn_http403_forbidden() throws Exception {
                     // try to add promo 'GORILLA' to ORDER_1 from xenit
                     mockMvc.perform(post("/orders/%s/promos".formatted(ORDER_1))
-                                    .header("X-ABAC-Context", headerEncode(POLICY_CREATE_ORDER)) // ACC-554
+                                    .with(jwtEncode(POLICY_CREATE_ORDER)) // ACC-554
                                     .accept(MediaType.APPLICATION_JSON)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content("""
@@ -788,7 +788,7 @@ class ThunxDemoApplicationTests {
 
                     // unlink the shipping address from the order
                     mockMvc.perform(delete("/orders/" + ORDER_1 + "/shippingAddress")
-                                    .header("X-ABAC-Context", headerEncode(ordersWithoutInvoice))
+                                    .with(jwtEncode(ordersWithoutInvoice))
                                     .accept("application/json"))
                             .andExpect(status().isNoContent());
                 }
@@ -800,7 +800,7 @@ class ThunxDemoApplicationTests {
 
                     // user does not have access to order-3
                     mockMvc.perform(delete("/orders/" + ORDER_3 + "/customer")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_ORDERS_XENIT))
+                                    .with(jwtEncode(POLICY_ORDERS_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
@@ -810,7 +810,7 @@ class ThunxDemoApplicationTests {
                     // fictive example: dis-associate the customer from the order
                     // user has access to order-1 - as long as customer = xenit
                     mockMvc.perform(delete("/orders/" + ORDER_1 + "/customer")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_ORDERS_XENIT))
+                                    .with(jwtEncode(POLICY_ORDERS_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
@@ -825,7 +825,7 @@ class ThunxDemoApplicationTests {
                     // fictive example: dis-associate the customer from the invoice
                     // note that this would be classified as fraud in reality :grimacing:
                     mockMvc.perform(delete("/invoices/" + invoiceIdByNumber(INVOICE_1) + "/orders")
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isMethodNotAllowed());
                 }
@@ -853,7 +853,7 @@ class ThunxDemoApplicationTests {
                     var firstOrderId = result.get(0).getId();
 
                     mockMvc.perform(get("/invoices/{invoice}/orders/{order}", invoiceIdByNumber(INVOICE_1), firstOrderId)
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isFound())
                             .andExpect(header().string(HttpHeaders.LOCATION,
@@ -869,7 +869,7 @@ class ThunxDemoApplicationTests {
                     var orderId = result.get(0).getId();
 
                     mockMvc.perform(get("/invoices/{invoice}/orders/{order}", invoiceIdByNumber(INVOICE_2), orderId)
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
@@ -884,7 +884,7 @@ class ThunxDemoApplicationTests {
                     var counterPartyId = invoice.getCounterparty().getId();
 
                     mockMvc.perform(get("/invoices/" + invoice.getId() + "/counterparty/" + counterPartyId)
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isFound())
                             .andExpect(header().string(HttpHeaders.LOCATION,
@@ -897,7 +897,7 @@ class ThunxDemoApplicationTests {
                     var wrongCounterparty = customerIdByVat(ORG_INBEV_VAT);
 
                     mockMvc.perform(get("/invoices/" + invoice.getId() + "/counterparty/" + wrongCounterparty)
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
@@ -908,7 +908,7 @@ class ThunxDemoApplicationTests {
                     var counterPartyId = invoice.getCounterparty().getId();
 
                     mockMvc.perform(get("/invoices/" + invoice.getId() + "/counterparty/" + counterPartyId)
-                                    .header("X-ABAC-Context", headerEncode(POLICY_INVOICES_XENIT))
+                                    .with(jwtEncode(POLICY_INVOICES_XENIT))
                                     .accept("application/json"))
                             .andExpect(status().isNotFound());
                 }
@@ -916,9 +916,17 @@ class ThunxDemoApplicationTests {
         }
     }
 
-    private static String headerEncode(ThunkExpression<Boolean> expression) {
-        var bytes = new JsonThunkExpressionCoder().encode(expression);
-        return Base64.getEncoder().encodeToString(bytes);
+    private static String claimEncode(ThunkExpression<Boolean> expression) {
+        return new String(new JsonThunkExpressionCoder().encode(expression));
+    }
+    
+    private static JwtRequestPostProcessor jwtEncode(ThunkExpression<Boolean> expression) {
+        return jwt().jwt(jwt -> jwt
+                        .claim("name", "user")
+                        .claim("x-abac-context", claimEncode(expression))
+                        .issuer(JWT_ISSUER_NAMESPACE)
+                )
+                .authorities(new AbacJwtGrantedAuthoritiesConverter(new JsonThunkExpressionCoder()));
     }
 
     private UUID invoiceIdByNumber(String number) {
