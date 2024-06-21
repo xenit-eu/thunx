@@ -3,7 +3,7 @@ package com.contentgrid.thunx.api.autoconfigure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.security.JwtAbacConfiguration;
+import com.contentgrid.thunx.spring.security.JwtAbacConfiguration;
 import com.contentgrid.thunx.spring.data.rest.AbacExceptionHandler;
 import com.contentgrid.thunx.spring.data.rest.AbacRequestFilter;
 import org.junit.jupiter.api.Test;

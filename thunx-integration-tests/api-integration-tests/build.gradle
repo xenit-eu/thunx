@@ -10,9 +10,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-rest'
 
 	testImplementation project(":thunx-spring-api")
+	testImplementation project(':thunx-spring-security')
 	testImplementation project(':thunx-encoding-json')
 	testImplementation project(':thunx-model')
-	testImplementation project(':thunx-security')
 
 	testImplementation "com.querydsl:querydsl-core"
 

@@ -14,8 +14,8 @@ dependencies {
 
     // Spring data
     compileOnly project(':thunx-spring-api')
+    compileOnly project(':thunx-spring-security')
     compileOnly project(':spring-data-querydsl-predicate-injector')
-    compileOnly project(':thunx-security')
     compileOnly 'org.springframework.data:spring-data-rest-core'
     compileOnly 'org.springframework.data:spring-data-rest-webmvc'
     compileOnly 'org.springframework.security:spring-security-oauth2-jose'
@@ -34,7 +34,7 @@ dependencies {
 
     // Spring data
     testImplementation project(':thunx-spring-api')
-    testImplementation project(':thunx-security')
+    testImplementation project(':thunx-spring-security')
     testImplementation project(':thunx-predicates-querydsl')
     testImplementation project(':spring-data-querydsl-predicate-injector')
     testImplementation "org.springframework.boot:spring-boot-starter-data-jpa"

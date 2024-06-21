@@ -1,4 +1,4 @@
-package com.contentgrid.thunx.security;
+package com.contentgrid.thunx.spring.security;
 
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;

@@ -1,8 +1,8 @@
 package com.contentgrid.thunx.api.autoconfigure;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.security.JwtAbacConfiguration;
-import com.contentgrid.thunx.security.AbacJwtGrantedAuthoritiesConverter;
+import com.contentgrid.thunx.spring.security.JwtAbacConfiguration;
+import com.contentgrid.thunx.spring.security.AbacJwtGrantedAuthoritiesConverter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

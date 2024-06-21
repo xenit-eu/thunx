@@ -31,7 +31,7 @@ import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.contentgrid.thunx.security.AbacJwtGrantedAuthoritiesConverter;
+import com.contentgrid.thunx.spring.security.AbacJwtGrantedAuthoritiesConverter;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;

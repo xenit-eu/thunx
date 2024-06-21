@@ -1,4 +1,4 @@
-package com.contentgrid.thunx.security;
+package com.contentgrid.thunx.spring.security;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import java.nio.charset.StandardCharsets;

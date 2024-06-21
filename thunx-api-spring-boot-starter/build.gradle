@@ -9,6 +9,6 @@ dependencies {
 
     api project(':thunx-autoconfigure')
     api project(':thunx-spring-api')
+    api project(':thunx-spring-security')
     api project(':spring-data-querydsl-predicate-injector')
-    api project(':thunx-security')
 }

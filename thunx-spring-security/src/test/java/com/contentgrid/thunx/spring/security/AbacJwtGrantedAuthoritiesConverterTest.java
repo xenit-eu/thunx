@@ -1,4 +1,4 @@
-package com.contentgrid.thunx.security;
+package com.contentgrid.thunx.spring.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
