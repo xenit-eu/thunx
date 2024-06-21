@@ -35,7 +35,7 @@ public class AbacAutoConfiguration {
 
     @ConditionalOnProperty(value = "contentgrid.thunx.abac.source", havingValue = "none")
     public static class NoneAbacAutoConfiguration {
-        // Only when 'contentgrid.thunx.abac.source' equals 'none', the abac context checking is disabled
+        // Only when 'contentgrid.thunx.abac.source' equals 'none', a predicate resolver that does no checking is created
 
         @Bean
         public QuerydslPredicateResolver abacQuerydslPredicateResolver(QuerydslBindingsFactory querydslBindingsFactory) {

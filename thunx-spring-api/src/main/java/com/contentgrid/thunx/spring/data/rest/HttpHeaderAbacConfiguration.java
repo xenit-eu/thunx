@@ -22,8 +22,6 @@ public class HttpHeaderAbacConfiguration {
         FilterRegistrationBean<AbacRequestFilter> registrationBean = new FilterRegistrationBean<>();
 
         registrationBean.setFilter(filter);
-//        registrationBean.addUrlPatterns("/accountStates/*");
-//        registrationBean.addUrlPatterns("/content/*");
 
         return registrationBean;
     }
