@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    internalPlatform platform(project(':thunx-dependencies'))
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation project(':thunx-encoding-json')
+    implementation project(':thunx-predicates-querydsl')
+    implementation project(':thunx-spring-api')
+    implementation project(':spring-data-querydsl-predicate-injector')
+
+    implementation 'org.springframework.boot:spring-boot'
+    implementation 'org.springframework.data:spring-data-rest-webmvc'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}

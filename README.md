@@ -91,6 +91,7 @@ This repository has several modules:
 * `thunx-spring-gateway` provides an integration with Spring Cloud Gateway
 * `thunx-spring-querydsl-predicate-resolver` is a library to inject additional [QueryDSL] predicates to be processed
   together with the predicates from the [Spring Data QueryDSL Extension]
+* `thunx-spring-security` provides an integration with JWT Authentication Tokens from Spring Security
 
 ## Getting Started
 

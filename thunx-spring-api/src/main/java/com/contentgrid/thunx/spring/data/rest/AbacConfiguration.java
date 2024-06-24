@@ -4,16 +4,16 @@ import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
-import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
@@ -32,27 +32,6 @@ public class AbacConfiguration {
     @Bean
     public AbacExceptionHandler exceptionHandler() {
         return new AbacExceptionHandler();
-    }
-
-    @Bean
-    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder) {
-        return new AbacRequestFilter(thunkDecoder);
-    }
-
-    @Bean
-    public FilterRegistrationBean<AbacRequestFilter> abacFilterRegistration(AbacRequestFilter filter) {
-        FilterRegistrationBean<AbacRequestFilter> registrationBean = new FilterRegistrationBean<>();
-
-        registrationBean.setFilter(filter);
-//        registrationBean.addUrlPatterns("/accountStates/*");
-//        registrationBean.addUrlPatterns("/content/*");
-
-        return registrationBean;
-    }
-
-    @Bean
-    QuerydslPredicateResolver abacQuerydslPredicateResolver(QuerydslBindingsFactory querydslBindingsFactory) {
-        return new AbacQuerydslPredicateResolver(querydslBindingsFactory.getEntityPathResolver());
     }
 
     @Bean
@@ -82,14 +61,27 @@ public class AbacConfiguration {
                         if (AopUtils.isJdkDynamicProxy(bean)) {
                             Class<?>[] proxiedInterfaces = ((Advised)bean).getProxiedInterfaces();
                             if (proxiedInterfaces != null && proxiedInterfaces.length >= 1) {
-                                throw new IllegalStateException(String.format("%s must implement QueryDslPredicateExecutor when using @EnableAbac", proxiedInterfaces[0]));
+                                throw new IllegalStateException(String.format("%s must implement QueryDslPredicateExecutor when using AbacConfiguration", proxiedInterfaces[0]));
                             }
                         }
-                        throw new IllegalStateException("All repositories must implement QueryDslPredicateExecutor when using @EnableAbac");
+                        throw new IllegalStateException("All repositories must implement QueryDslPredicateExecutor when using AbacConfiguration");
                     }
                 }
 
                 return bean;
+            }
+        };
+    }
+
+    @Bean
+    public ApplicationListener<ContextRefreshedEvent> ensureAbacQueryDslResolverExist() {
+        return new ApplicationListener<ContextRefreshedEvent>() {
+            @Override
+            public void onApplicationEvent(ContextRefreshedEvent event) {
+                if (event.getApplicationContext().getBeanNamesForType(AbacQuerydslPredicateResolver.class).length == 0) {
+                    throw new IllegalArgumentException("Property 'contentgrid.thunx.abac.source' contains an unknown"
+                            + " value, supported values are 'header', 'jwt' or 'none'.");
+                }
             }
         };
     }
