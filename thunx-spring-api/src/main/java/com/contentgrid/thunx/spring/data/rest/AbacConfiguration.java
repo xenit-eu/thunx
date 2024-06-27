@@ -2,18 +2,18 @@ package com.contentgrid.thunx.spring.data.rest;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
+import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
+import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
@@ -50,6 +50,12 @@ public class AbacConfiguration {
     }
 
     @Bean
+    public QuerydslPredicateResolver abacQuerydslPredicateResolver(QuerydslBindingsFactory querydslBindingsFactory,
+            AbacContextSupplier abacContextSupplier) {
+        return new AbacQuerydslPredicateResolver(querydslBindingsFactory.getEntityPathResolver(), abacContextSupplier);
+    }
+
+    @Bean
     public BeanPostProcessor ensureQueryDslPredication(ApplicationContext applicationContext) {
         return new BeanPostProcessor() {
             @Override
@@ -69,19 +75,6 @@ public class AbacConfiguration {
                 }
 
                 return bean;
-            }
-        };
-    }
-
-    @Bean
-    public ApplicationListener<ContextRefreshedEvent> ensureAbacQueryDslResolverExist() {
-        return new ApplicationListener<ContextRefreshedEvent>() {
-            @Override
-            public void onApplicationEvent(ContextRefreshedEvent event) {
-                if (event.getApplicationContext().getBeanNamesForType(AbacQuerydslPredicateResolver.class).length == 0) {
-                    throw new IllegalArgumentException("Property 'contentgrid.thunx.abac.source' contains an unknown"
-                            + " value, supported values are 'header', 'jwt' or 'none'.");
-                }
             }
         };
     }

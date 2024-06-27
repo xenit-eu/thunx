@@ -2,12 +2,10 @@ package com.contentgrid.thunx.spring.data.rest;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.spring.data.context.AbacContext;
-import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
-import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
+import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 
 @Configuration
 public class HttpHeaderAbacConfiguration {
@@ -27,9 +25,8 @@ public class HttpHeaderAbacConfiguration {
     }
 
     @Bean
-    QuerydslPredicateResolver abacQuerydslPredicateResolver(QuerydslBindingsFactory querydslBindingsFactory) {
-        return new AbacQuerydslPredicateResolver(querydslBindingsFactory.getEntityPathResolver(),
-                AbacContext::getCurrentAbacContext);
+    public AbacContextSupplier headerAbacContextSupplier() {
+        return AbacContext::getCurrentAbacContext;
     }
 
 }

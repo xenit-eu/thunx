@@ -7,6 +7,7 @@ import com.contentgrid.thunx.spring.security.JwtAbacConfiguration;
 import com.contentgrid.thunx.spring.data.rest.AbacExceptionHandler;
 import com.contentgrid.thunx.spring.data.rest.AbacRequestFilter;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
@@ -40,7 +41,7 @@ class JwtAbacAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean("abacFilterRegistration");
                     assertThat(context).hasBean("interceptRepositoryRestMvcConfiguration");
                     assertThat(context).hasBean("ensureQueryDslPredication");
-                    assertThat(context).hasBean("ensureAbacQueryDslResolverExist");
+                    assertThat(context).hasBean("jwtAbacContextSupplier");
                     assertThat(context).getBean("abacJwtAuthenticationConverter", JwtAuthenticationConverter.class).isNotNull();
                 });
     }
@@ -52,8 +53,8 @@ class JwtAbacAutoConfigurationTest {
                 .withSystemProperties("contentgrid.thunx.abac.source=jwt")
                 .run(context -> {
                     assertThat(context).hasFailed();
-                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class)
-                            .hasMessageContaining("Property 'contentgrid.thunx.abac.source' contains an unknown value");
+                    assertThat(context).getFailure().isInstanceOf(UnsatisfiedDependencyException.class)
+                            .hasMessageContaining("No qualifying bean of type 'com.contentgrid.thunx.spring.data.context.AbacContextSupplier' available");
                 });
     }
 
@@ -64,8 +65,8 @@ class JwtAbacAutoConfigurationTest {
                 .withSystemProperties("contentgrid.thunx.abac.source=jwt")
                 .run(context -> {
                     assertThat(context).hasFailed();
-                    assertThat(context).getFailure().isInstanceOf(IllegalArgumentException.class)
-                            .hasMessageContaining("Property 'contentgrid.thunx.abac.source' contains an unknown value");
+                    assertThat(context).getFailure().isInstanceOf(UnsatisfiedDependencyException.class)
+                            .hasMessageContaining("No qualifying bean of type 'com.contentgrid.thunx.spring.data.context.AbacContextSupplier' available");
                 });
     }
 

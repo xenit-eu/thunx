@@ -1,7 +1,6 @@
 package com.contentgrid.thunx.api.autoconfigure;
 
-import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
-import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
+import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.rest.webmvc.SpringDataQuerydslPredicateInjectorAutoConfiguration;
 import com.contentgrid.thunx.spring.data.rest.AbacConfiguration;
 import com.contentgrid.thunx.spring.data.rest.HttpHeaderAbacConfiguration;
@@ -13,7 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @AutoConfiguration(
@@ -38,8 +36,8 @@ public class AbacAutoConfiguration {
         // Only when 'contentgrid.thunx.abac.source' equals 'none', a predicate resolver that does no checking is created
 
         @Bean
-        public QuerydslPredicateResolver abacQuerydslPredicateResolver(QuerydslBindingsFactory querydslBindingsFactory) {
-            return new AbacQuerydslPredicateResolver(querydslBindingsFactory.getEntityPathResolver(), () -> null);
+        public AbacContextSupplier noneAbacContextSupplier() {
+            return () -> null;
         }
     }
 }
