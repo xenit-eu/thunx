@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.spring.data.rest;
 
-import com.contentgrid.thunx.spring.data.context.AbacContext;
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import java.io.IOException;
