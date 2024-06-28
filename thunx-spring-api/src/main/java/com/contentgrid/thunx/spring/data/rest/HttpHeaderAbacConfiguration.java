@@ -1,7 +1,6 @@
 package com.contentgrid.thunx.spring.data.rest;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.spring.data.context.AbacContext;
 import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

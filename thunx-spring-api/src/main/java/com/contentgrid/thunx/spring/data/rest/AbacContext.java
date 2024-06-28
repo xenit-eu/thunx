@@ -1,8 +1,8 @@
-package com.contentgrid.thunx.spring.data.context;
+package com.contentgrid.thunx.spring.data.rest;
 
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 
-public class AbacContext {
+class AbacContext {
 
     private static ThreadLocal<ThunkExpression<Boolean>> currentAbacContext = new InheritableThreadLocal<ThunkExpression<Boolean>>();
 

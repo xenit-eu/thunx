@@ -2,7 +2,6 @@ package com.contentgrid.thunx.spring.data.querydsl;
 
 import com.contentgrid.thunx.predicates.querydsl.FieldByReflectionAccessStrategy;
 import com.contentgrid.thunx.predicates.querydsl.QueryDslConverter;
-import com.contentgrid.thunx.spring.data.context.AbacContext;
 import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
@@ -15,7 +14,7 @@ import org.springframework.data.querydsl.EntityPathResolver;
 import org.springframework.util.Assert;
 
 /**
- * Resolves the QueryDSL Predicate from the Thunx {@link AbacContext} that is sent with the request
+ * Resolves the QueryDSL Predicate from the Thunx {@link AbacContextSupplier}
  */
 @Slf4j
 public class AbacQuerydslPredicateResolver implements QuerydslPredicateResolver {
