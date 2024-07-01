@@ -20,6 +20,7 @@ dependencies {
     compileOnly 'org.springframework.data:spring-data-rest-webmvc'
     compileOnly 'org.springframework.security:spring-security-oauth2-jose'
     compileOnly 'org.springframework.security:spring-security-oauth2-resource-server'
+    compileOnly 'io.micrometer:micrometer-java11'
 
     // Spring gateway
     compileOnly project(':thunx-spring-gateway')

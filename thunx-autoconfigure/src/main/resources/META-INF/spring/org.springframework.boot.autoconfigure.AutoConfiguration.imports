@@ -1,3 +1,4 @@
 com.contentgrid.thunx.api.autoconfigure.AbacAutoConfiguration
 com.contentgrid.thunx.api.autoconfigure.JwtAbacAutoConfiguration
 com.contentgrid.thunx.gateway.autoconfigure.GatewayAutoConfiguration
+com.contentgrid.thunx.gateway.autoconfigure.OpaHttpClientInstrumentationAutoConfiguration
