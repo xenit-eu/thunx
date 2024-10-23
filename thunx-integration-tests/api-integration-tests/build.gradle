@@ -25,7 +25,7 @@ dependencies {
 	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.15.0'
 
 	runtimeOnly 'org.postgresql:postgresql'
-	runtimeOnly 'org.testcontainers:postgresql:1.20.2'
+	runtimeOnly 'org.testcontainers:postgresql:1.20.3'
 
 	runtimeOnly project(":thunx-api-spring-boot-starter")
 }
