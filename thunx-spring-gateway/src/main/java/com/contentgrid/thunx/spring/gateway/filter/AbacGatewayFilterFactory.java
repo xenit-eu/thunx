@@ -54,21 +54,26 @@ public class AbacGatewayFilterFactory extends AbstractGatewayFilterFactory<AbacG
     public GatewayFilter apply(Config config) {
         return new OrderedGatewayFilter((exchange, chain) -> {
 
-            addAbacContextHeader(exchange);
+            exchange = addAbacContextHeader(exchange);
 
             return chain.filter(exchange);
         }, 1);
     }
 
-    void addAbacContextHeader(ServerWebExchange exchange) {
+    ServerWebExchange addAbacContextHeader(ServerWebExchange exchange) {
         ThunkExpression<Boolean> thunkExpression = exchange.getAttribute(ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR);
         if (thunkExpression != null) {
             var data = this.encoder.encode(thunkExpression);
             var encoded = Base64.getEncoder().encodeToString(data);
-            exchange.getRequest()
+            var request = exchange.getRequest()
                     .mutate()
-                    .header(ABAC_CONTEXT_HEADER, encoded);
+                    .header(ABAC_CONTEXT_HEADER, encoded)
+                    .build();
+            return exchange.mutate()
+                    .request(request)
+                    .build();
         }
+        return exchange;
     }
 
     public static class Config {

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.web.server.ServerWebExchange;
 
 class AbacGatewayFilterFactoryTest {
 
@@ -25,12 +26,12 @@ class AbacGatewayFilterFactoryTest {
     @Test
     void addAbacContextHeader_whenPolicyPredicateIsPresent() {
         var request = MockServerHttpRequest.get("/documents");
-        var exchange = MockServerWebExchange.from(request);
+        ServerWebExchange exchange = MockServerWebExchange.from(request);
 
         var expression = Comparison.areEqual(Scalar.of(5), Variable.named("document.attribute"));
         exchange.getAttributes().put(ReactivePolicyAuthorizationManager.ABAC_POLICY_PREDICATE_ATTR, expression);
 
-        this.filterFactory.addAbacContextHeader(exchange);
+        exchange = this.filterFactory.addAbacContextHeader(exchange);
 
         assertThat(exchange.getRequest().getHeaders())
 
@@ -40,7 +41,7 @@ class AbacGatewayFilterFactoryTest {
                             .singleElement()
                             .asInstanceOf(STRING)
                             .isBase64()
-                            .decodedAsBase64().asString()
+                            .asBase64Decoded().asString()
                             .satisfies(json -> {
                                 // can we parse this as json ?
                                 assertThatJson(json).isObject()
