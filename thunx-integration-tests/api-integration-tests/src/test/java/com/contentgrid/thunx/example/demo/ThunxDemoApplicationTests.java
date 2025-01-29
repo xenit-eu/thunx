@@ -129,14 +129,19 @@ class ThunxDemoApplicationTests {
         inbev.setVat(ORG_INBEV_VAT);
         inbev = customers.save(inbev);
 
-        ORDER_1 = orders.save(new Order(xenit, address_northPole, Set.of())).getId();
+        var order1 = orders.save(new Order(xenit, address_northPole, Set.of()));
         var order2 = orders.save(new Order(xenit));
         var order3 = orders.save(new Order(inbev));
+
+        ORDER_1 = order1.getId();
         ORDER_3 = order3.getId();
 
+        // address_northPole is still referencing an unsaved order1,
+        // update address_northPole so that its order has an id
+        address_northPole.setOrder(order1);
+
         invoices.saveAll(List.of(
-                new Invoice(INVOICE_1, true, false, xenit,
-                        new HashSet<>(List.of(orders.getReferenceById(ORDER_1), order2))),
+                new Invoice(INVOICE_1, true, false, xenit, new HashSet<>(List.of(order1, order2))),
                 new Invoice(INVOICE_2, false, true, inbev, new HashSet<>(List.of(order3)))
         ));
     }

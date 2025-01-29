@@ -21,8 +21,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	testImplementation 'org.springframework.security:spring-security-test'
 
-	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.15.0')
-	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.15.0'
+	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.17.0')
+	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.17.0'
 
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'org.testcontainers:postgresql:1.20.4'
