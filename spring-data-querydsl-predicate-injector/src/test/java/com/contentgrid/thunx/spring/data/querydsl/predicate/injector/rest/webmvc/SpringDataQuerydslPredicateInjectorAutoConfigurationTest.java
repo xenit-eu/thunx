@@ -107,12 +107,12 @@ class SpringDataQuerydslPredicateInjectorAutoConfigurationTest {
     @BeforeEach
     void setup() {
         var entity1 = new TestEntity(
-                UUID.randomUUID(),
+                null,
                 "entity1"
         );
 
         var entity2 = new TestEntity(
-                UUID.randomUUID(),
+                null,
                 "entity2"
         );
 
