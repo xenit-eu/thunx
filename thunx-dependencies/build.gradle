@@ -10,7 +10,7 @@ dependencies {
     api platform(project(":thunx-bom"))
 
     api platform("org.springframework.boot:spring-boot-dependencies:3.3.4")
-    api platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.5")
+    api platform("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
 
     constraints {
         api 'net.javacrumbs.json-unit:json-unit-assertj:4.1.0'
