@@ -19,6 +19,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.support.Repositories;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -62,11 +63,18 @@ public class AbacConfiguration {
             public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
                 if (bean instanceof Repository) {
-                    if (bean instanceof QuerydslPredicateExecutor == false) {
+                    if (!(bean instanceof QuerydslPredicateExecutor)) {
 
                         if (AopUtils.isJdkDynamicProxy(bean)) {
                             Class<?>[] proxiedInterfaces = ((Advised)bean).getProxiedInterfaces();
                             if (proxiedInterfaces != null && proxiedInterfaces.length >= 1) {
+                                for (var proxiedInterface : proxiedInterfaces) {
+                                    var restResource = proxiedInterface.getAnnotation(RepositoryRestResource.class);
+                                    if (restResource != null && !restResource.exported()) {
+                                        // Repository not exported
+                                        return bean;
+                                    }
+                                }
                                 throw new IllegalStateException(String.format("%s must implement QueryDslPredicateExecutor when using AbacConfiguration", proxiedInterfaces[0]));
                             }
                         }
