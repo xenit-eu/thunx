@@ -22,7 +22,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 
 	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.18.1')
-	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.18.0'
+	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.18.1'
 
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'org.testcontainers:postgresql:1.20.5'
