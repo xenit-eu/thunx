@@ -50,6 +50,12 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         MODULUS("mod", Number.class, (FunctionExpressionFactory<Number>) NumericFunction::modulus),
 
         // Custom operator
+        /**
+         * Custom operator, to be used in classes that extend {@link FunctionExpression} outside the thunx project.
+         * <p>
+         * Note: it is not supported to serialize to and deserialize from
+         * {@see com.contentgrid.thunx.encoding.json.JsonFunctionDto}
+         */
         CUSTOM("custom", Object.class, terms -> {
             throw new IllegalArgumentException("Custom function expressions are not supported.");
         });
