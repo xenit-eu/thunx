@@ -13,7 +13,7 @@ public class LogicalOperation implements BooleanOperation {
     private final Operator operator;
     private List<ThunkExpression<Boolean>> terms;
 
-    private LogicalOperation(Operator operator, Stream<ThunkExpression<Boolean>> terms) {
+    protected LogicalOperation(Operator operator, Stream<ThunkExpression<Boolean>> terms) {
         this.operator = operator;
         this.terms = terms.collect(Collectors.toUnmodifiableList());
     }

@@ -47,7 +47,12 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         MINUS("minus", Number.class, (FunctionExpressionFactory<Number>) NumericFunction::minus),
         DIVIDE("div", Number.class, (FunctionExpressionFactory<Number>) NumericFunction::divide),
         MULTIPLY("mul", Number.class, (FunctionExpressionFactory<Number>) NumericFunction::multiply),
-        MODULUS("mod", Number.class, (FunctionExpressionFactory<Number>) NumericFunction::modulus);
+        MODULUS("mod", Number.class, (FunctionExpressionFactory<Number>) NumericFunction::modulus),
+
+        // Custom operator
+        CUSTOM("custom", Object.class, terms -> {
+            throw new IllegalArgumentException("Custom function expressions are not supported.");
+        });
 
         @Getter
         @NonNull
