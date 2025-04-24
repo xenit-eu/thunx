@@ -1,6 +1,8 @@
 package com.contentgrid.thunx.predicates.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 
 public interface Scalar<T> extends ThunkExpression<T> {
 
@@ -28,6 +30,14 @@ public interface Scalar<T> extends ThunkExpression<T> {
 
     static BooleanValue of(boolean value) {
         return new BooleanValue(value);
+    }
+
+    static InstantValue of(Instant value) {
+        return new InstantValue(value);
+    }
+
+    static UUIDValue of(UUID value) {
+        return new UUIDValue(value);
     }
 
     static NullValue nullValue() {
