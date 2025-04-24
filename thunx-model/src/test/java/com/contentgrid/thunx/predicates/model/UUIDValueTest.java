@@ -23,7 +23,7 @@ class UUIDValueTest {
 
     @Test
     void uuidValue_toString() {
-        assertThat(Scalar.of(UUID.fromString("4d88ab31-4456-4b92-a58d-50638cf2966a")).toString())
-                .isEqualTo("'4d88ab31-4456-4b92-a58d-50638cf2966a'");
+        assertThat(Scalar.of(UUID.fromString("4d88ab31-4456-4b92-a58d-50638cf2966a")))
+                .hasToString("'4d88ab31-4456-4b92-a58d-50638cf2966a'");
     }
 }

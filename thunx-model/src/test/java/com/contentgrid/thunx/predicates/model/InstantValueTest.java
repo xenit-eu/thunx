@@ -30,7 +30,6 @@ class InstantValueTest {
 
     @Test
     void instantValue_toString() {
-        assertThat(Scalar.of(Instant.parse("2025-01-01T00:00:00.000Z")).toString())
-                .isEqualTo("'2025-01-01T00:00:00Z'");
+        assertThat(Scalar.of(Instant.parse("2025-01-01T00:00:00.000Z"))).hasToString("'2025-01-01T00:00:00Z'");
     }
 }
