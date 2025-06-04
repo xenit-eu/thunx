@@ -14,7 +14,7 @@ dependencies {
 
     implementation "org.springframework.security:spring-security-core"
     implementation 'org.springframework.security:spring-security-web'
-    implementation 'org.springframework.cloud:spring-cloud-gateway-server'
+    implementation 'org.springframework.cloud:spring-cloud-gateway-server-webflux'
 
     // Used only for optional DefaultOpaInputProvider & AuthenticationContextMapper
     compileOnly 'org.springframework.security:spring-security-oauth2-core'
