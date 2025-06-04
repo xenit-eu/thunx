@@ -27,6 +27,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'net.javacrumbs.json-unit:json-unit-assertj'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
