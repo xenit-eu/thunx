@@ -20,6 +20,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	testImplementation testFixtures('com.contentgrid.spring:contentgrid-spring-data-rest:0.18.1')
 	testImplementation 'com.contentgrid.spring:contentgrid-spring-test:0.18.1'
