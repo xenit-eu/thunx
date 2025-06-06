@@ -23,6 +23,7 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.querydsl:querydsl-core'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {

@@ -24,13 +24,14 @@ dependencies {
     // Spring gateway
     compileOnly project(':thunx-spring-gateway')
     compileOnly project(':thunx-pdp-opa')
-    compileOnly 'org.springframework.cloud:spring-cloud-gateway-server'
+    compileOnly 'org.springframework.cloud:spring-cloud-gateway-server-webflux'
     compileOnly 'org.springframework.security:spring-security-web'
 
     // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // Spring data
     testImplementation project(':thunx-spring-api')
@@ -48,7 +49,7 @@ dependencies {
     testImplementation project(':thunx-spring-gateway')
     testImplementation project(':thunx-pdp-opa')
     testImplementation 'org.springframework.security:spring-security-web'
-    testImplementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
 }
 
 test {
