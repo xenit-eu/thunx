@@ -18,7 +18,7 @@ import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 public class AbacAutoConfigurationTest {
 
     WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
-            .withPropertyValues("spring.cloud.gateway.enabled=false")
+            .withPropertyValues("spring.cloud.gateway.server.webflux.enabled=false")
             .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
             .withConfiguration(AutoConfigurations.of(
                     AbacAutoConfiguration.class
