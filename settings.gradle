@@ -34,10 +34,3 @@ include 'thunx-predicates-querydsl'
 include 'thunx-bom'
 
 include 'thunx-integration-tests:api-integration-tests'
-
-//includeBuild('../opa-java-client') {
-//    dependencySubstitution {
-//        substitute module('com.contentgrid.opa-java-client:opa-async-java-client') with project(':opa-async-java-client')
-//        substitute module('com.contentgrid.opa-java-client:rego-java') with project(':rego-java')
-//    }
-//}
