@@ -1,6 +1,7 @@
 plugins {
     id 'eu.xenit.enterprise-conventions.oss' version '0.5.2'
     id 'org.ajoberstar.reckon.settings' version '0.19.2'
+    id 'org.jreleaser' version '1.19.0' apply false
 }
 
 rootProject.name = 'thunx'
@@ -33,10 +34,3 @@ include 'thunx-predicates-querydsl'
 include 'thunx-bom'
 
 include 'thunx-integration-tests:api-integration-tests'
-
-//includeBuild('../opa-java-client') {
-//    dependencySubstitution {
-//        substitute module('com.contentgrid.opa-java-client:opa-async-java-client') with project(':opa-async-java-client')
-//        substitute module('com.contentgrid.opa-java-client:rego-java') with project(':rego-java')
-//    }
-//}
