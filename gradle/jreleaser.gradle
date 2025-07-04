@@ -1,0 +1,43 @@
+apply plugin: 'base'
+apply plugin: 'org.jreleaser'
+
+jreleaser {
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'RELEASE'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    sign = false
+                    applyMavenCentralRules = true
+                    stagingRepository('build/staging-deploy')
+                    namespace = 'com.contentgrid'
+                }
+            }
+            nexus2 {
+                'sonatype-snapshot' {
+                    active = 'SNAPSHOT'
+                    snapshotUrl = 'https://central.sonatype.com/repository/maven-snapshots/'
+                    sign = false
+                    applyMavenCentralRules = true
+                    snapshotSupported = true
+                    closeRepository = true
+                    releaseRepository = true
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+        }
+    }
+    // It is required to configure at least one release provider.
+    // But you can provide any non-existing non-empty GitHub token and skip creating tags and releases.
+    // see https://github.com/jreleaser/jreleaser/discussions/1725
+    gitRootSearch = true
+    release {
+        github {
+            enabled = true
+            skipTag = true
+            skipRelease = true
+            token = '__UNUSED__'
+        }
+    }
+}

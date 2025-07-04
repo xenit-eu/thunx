@@ -1,3 +1,5 @@
+apply from: 'gradle/jreleaser.gradle'
+
 allprojects {
     pluginManager.withPlugin('java-library') {
 

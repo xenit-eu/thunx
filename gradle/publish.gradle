@@ -32,22 +32,8 @@ publishing {
     }
 
     repositories {
-        if ("${project.version}".endsWith('-SNAPSHOT')) {
-            sonatypeSnapshots {
-                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                credentials {
-                    username = project.findProperty('sonatype_username')
-                    password = project.findProperty('sonatype_password')
-                }
-            }
-        } else {
-            sonatypeMavenCentral {
-                url = "https://s01.oss.sonatype.org/service/local/"
-                credentials {
-                    username = project.findProperty('sonatype_username')
-                    password = project.findProperty('sonatype_password')
-                }
-            }
+        maven {
+            url = uri("${rootDir}/build/staging-deploy")
         }
     }
 }

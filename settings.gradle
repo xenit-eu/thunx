@@ -1,6 +1,7 @@
 plugins {
     id 'eu.xenit.enterprise-conventions.oss' version '0.5.2'
     id 'org.ajoberstar.reckon.settings' version '0.19.2'
+    id 'org.jreleaser' version '1.19.0' apply false
 }
 
 rootProject.name = 'thunx'
