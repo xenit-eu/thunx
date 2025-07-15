@@ -32,6 +32,7 @@ dependencies {
 
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
     testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
