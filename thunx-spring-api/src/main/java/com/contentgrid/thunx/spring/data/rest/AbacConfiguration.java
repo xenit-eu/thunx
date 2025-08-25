@@ -30,11 +30,6 @@ public class AbacConfiguration {
     }
 
     @Bean
-    public AbacExceptionHandler exceptionHandler() {
-        return new AbacExceptionHandler();
-    }
-
-    @Bean
     RepositoryInvokerAdapterFactory abacRepositoryInvokerAdapterFactory(
             Repositories repositories,
             PlatformTransactionManager transactionManager,
