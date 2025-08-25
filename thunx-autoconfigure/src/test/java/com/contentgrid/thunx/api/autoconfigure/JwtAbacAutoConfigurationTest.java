@@ -3,9 +3,8 @@ package com.contentgrid.thunx.api.autoconfigure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
+import com.contentgrid.thunx.spring.data.context.AbacRequestFilter;
 import com.contentgrid.thunx.spring.security.JwtAbacConfiguration;
-import com.contentgrid.thunx.spring.data.rest.AbacExceptionHandler;
-import com.contentgrid.thunx.spring.data.rest.AbacRequestFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -25,7 +24,7 @@ class JwtAbacAutoConfigurationTest {
             .withPropertyValues("spring.cloud.gateway.server.webflux.enabled=false")
             .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
             .withConfiguration(AutoConfigurations.of(
-                    AbacAutoConfiguration.class, JwtAbacAutoConfiguration.class
+                    AbacAutoConfiguration.class, AbacContextAutoConfiguration.class, JwtAbacAutoConfiguration.class
             ));
 
     @Test
@@ -36,7 +35,6 @@ class JwtAbacAutoConfigurationTest {
                 .run((context) -> {
                     assertThat(context).hasSingleBean(QuerydslBindingsFactory.class);
                     assertThat(context).hasSingleBean(ThunkExpressionDecoder.class);
-                    assertThat(context).hasSingleBean(AbacExceptionHandler.class);
                     assertThat(context).doesNotHaveBean(AbacRequestFilter.class);
                     assertThat(context).doesNotHaveBean("abacFilterRegistration");
                     assertThat(context).hasBean("interceptRepositoryRestMvcConfiguration");

@@ -1,4 +1,4 @@
-package com.contentgrid.thunx.spring.data.rest;
+package com.contentgrid.thunx.spring.data.context;
 
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 

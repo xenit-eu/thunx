@@ -1,12 +1,11 @@
-package com.contentgrid.thunx.spring.data.rest;
+package com.contentgrid.thunx.spring.data.context;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class HttpHeaderAbacConfiguration {
 
     @Bean

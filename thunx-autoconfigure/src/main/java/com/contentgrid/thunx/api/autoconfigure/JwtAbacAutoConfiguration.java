@@ -18,7 +18,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
 @AutoConfiguration(before = {OAuth2ResourceServerAutoConfiguration.class, SecurityAutoConfiguration.class},
-        after = {AbacAutoConfiguration.class})
+        after = {AbacContextAutoConfiguration.class})
 @ConditionalOnClass({Jwt.class, GrantedAuthority.class, ThunkExpressionDecoder.class, JwtAbacConfiguration.class,
         AbacJwtGrantedAuthoritiesConverter.class, JwtAuthenticationConverter.class})
 @ConditionalOnProperty(value = "contentgrid.thunx.abac.source", havingValue = "jwt")
