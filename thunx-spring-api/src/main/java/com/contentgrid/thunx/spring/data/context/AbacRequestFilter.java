@@ -1,15 +1,15 @@
-package com.contentgrid.thunx.spring.data.rest;
+package com.contentgrid.thunx.spring.data.context;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import java.io.IOException;
-import java.util.Base64;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

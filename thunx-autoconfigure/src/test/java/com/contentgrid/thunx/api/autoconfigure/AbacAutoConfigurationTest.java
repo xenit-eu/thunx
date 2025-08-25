@@ -3,7 +3,7 @@ package com.contentgrid.thunx.api.autoconfigure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.spring.data.rest.AbacRequestFilter;
+import com.contentgrid.thunx.spring.data.context.AbacRequestFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;

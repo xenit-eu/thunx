@@ -1,7 +1,5 @@
 package com.contentgrid.thunx.spring.data.rest;
 
-import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
 import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
@@ -22,12 +20,7 @@ import org.springframework.data.repository.support.Repositories;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-public class AbacConfiguration {
-
-    @Bean
-    public ThunkExpressionDecoder thunkDecoder() {
-        return new JsonThunkExpressionCoder();
-    }
+public class AbacRestConfiguration {
 
     @Bean
     RepositoryInvokerAdapterFactory abacRepositoryInvokerAdapterFactory(
