@@ -1,5 +1,6 @@
 package com.contentgrid.thunx.predicates.querydsl;
 
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
@@ -70,6 +71,9 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
             case LESS_THAN:
                 assertTwoTerms(terms);
                 return Expressions.booleanOperation(Ops.LT, terms.toArray(new Expression[0]));
+            case IN:
+                assertTwoTerms(terms);
+                return ExpressionUtils.predicate(Ops.IN, terms.get(0), terms.get(1));
             case OR:
                 return ExpressionUtils.anyOf(terms.stream().map(term -> (Predicate) term).collect(Collectors.toList()));
             case AND:
@@ -172,5 +176,15 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
     public Expression<?> visit(Variable variable, QueryDslConversionContext context) {
         // TODO could there be more variables available, than just the subject-path-builder ?
         throw new UnsupportedOperationException("converting variable to querydsl is not yet implemented");
+    }
+
+    @Override
+    public Expression<?> visit(CollectionValue collectionValue, QueryDslConversionContext context) {
+        if (List.class.isAssignableFrom(collectionValue.getResultType())) {
+            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toList()));
+        } else if (Set.class.isAssignableFrom(collectionValue.getResultType())) {
+            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toSet()));
+        }
+        throw new UnsupportedOperationException("Visit for CollectionValue of other type than List or Set is not implemented.");
     }
 }

@@ -2,6 +2,7 @@ package com.contentgrid.thunx.encoding.json;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.encoding.ThunkExpressionEncoder;
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.Scalar;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
@@ -71,15 +73,7 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
 
         @Override
         public JsonExpressionDto visit(Scalar<?> scalar) {
-            var resultType = scalar.getResultType();
-
-            var typeName = JsonScalarDto.SCALAR_TYPES.get(resultType);
-            if (typeName == null) {
-                String exMessage = String.format("Scalar of type <%s> is not supported", resultType.getName());
-                throw new IllegalArgumentException(exMessage);
-            }
-
-            return JsonScalarDto.of(typeName, scalar.getValue());
+            return processScalar(scalar);
         }
 
         @Override
@@ -102,6 +96,74 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
             return new JsonVariableDto(variable.getName());
         }
 
+        @Override
+        protected JsonExpressionDto visit(CollectionValue collectionValue) {
+            return processCollectionDto(collectionValue);
+        }
 
+
+    }
+
+    private static class JsonScalarEncoderVisitor extends ContextFreeThunkExpressionVisitor<JsonScalarDto<?>> {
+
+        @Override
+        protected JsonScalarDto<?> visit(Scalar<?> scalar) {
+            return processScalar(scalar);
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(FunctionExpression<?> functionExpression) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(SymbolicReference symbolicReference) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(Variable variable) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
+        }
+
+        @Override
+        protected JsonScalarDto<?> visit(CollectionValue collectionValue) {
+            return processCollectionDto(collectionValue);
+        }
+    }
+
+    private static JsonScalarDto<?> processScalar(Scalar<?> scalar) {
+        var resultType = scalar.getResultType();
+
+        var typeName = JsonScalarDto.SCALAR_TYPES.get(resultType);
+        if (typeName == null) {
+            String exMessage = String.format("Scalar of type <%s> is not supported", resultType.getName());
+            throw new IllegalArgumentException(exMessage);
+        }
+
+        return JsonScalarDto.of(typeName, scalar.getValue());
+    }
+
+    private static JsonScalarDto<?> processCollectionDto(CollectionValue collectionValue) {
+        var resultType = collectionValue.getResultType();
+
+        Collection<JsonExpressionDto> result;
+        if (JsonCollectionValueDto.SET_PROPERTY
+                .equals(JsonCollectionValueDto.getTypeClass(collectionValue.getResultType()))) {
+            result = collectionValue.getValue()
+                    .stream()
+                    .map(scalar -> scalar.accept(new JsonScalarEncoderVisitor(), null))
+                    .collect(Collectors.toSet());
+        } else if (JsonCollectionValueDto.ARRAY_PROPERTY
+                .equals(JsonCollectionValueDto.getTypeClass(collectionValue.getResultType()))) {
+            result = collectionValue.getValue()
+                    .stream()
+                    .map(scalar -> scalar.accept(new JsonScalarEncoderVisitor(), null))
+                    .collect(Collectors.toList());
+        } else {
+            throw new UnsupportedOperationException("Unsupported collection type: " + resultType);
+        }
+
+        return JsonCollectionValueDto.of(JsonCollectionValueDto.getTypeClass(resultType), result);
     }
 }
