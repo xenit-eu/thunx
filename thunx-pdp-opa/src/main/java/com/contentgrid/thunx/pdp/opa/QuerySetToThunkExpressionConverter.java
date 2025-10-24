@@ -14,6 +14,7 @@ import com.contentgrid.opa.rego.ast.Term.Ref;
 import com.contentgrid.opa.rego.ast.Term.SetTerm;
 import com.contentgrid.opa.rego.ast.Term.Text;
 import com.contentgrid.opa.rego.ast.Term.Var;
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.NumericFunction;
@@ -24,6 +25,7 @@ import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -93,7 +95,8 @@ public class QuerySetToThunkExpressionConverter {
                 Map.entry("gt", Comparison::greater),
                 Map.entry("gte", Comparison::greaterOrEquals),
                 Map.entry("lt", Comparison::less),
-                Map.entry("lte", Comparison::lessOrEquals)
+                Map.entry("lte", Comparison::lessOrEquals),
+                Map.entry("internal.member_2", Comparison::in)
         );
 
         @Override
@@ -280,12 +283,22 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            throw new UnsupportedOperationException();
+            return new CollectionValue(
+                    (List) arrayTerm.getValue()
+                            .stream()
+                            .map(scalarTerm -> scalarTerm.accept(this))
+                            .collect(Collectors.toList())
+            );
         }
 
         @Override
         public ThunkExpression<?> visit(SetTerm setTerm) {
-            throw new UnsupportedOperationException();
+            return new CollectionValue(
+                    (Set) setTerm.getValue()
+                            .stream()
+                            .map(scalarTerm -> scalarTerm.accept(this))
+                            .collect(Collectors.toSet())
+            );
         }
     }
 

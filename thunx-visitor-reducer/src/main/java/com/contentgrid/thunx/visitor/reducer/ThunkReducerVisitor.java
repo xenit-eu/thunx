@@ -1,5 +1,6 @@
 package com.contentgrid.thunx.visitor.reducer;
 
+import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.FunctionExpression.Operator;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
@@ -53,5 +54,10 @@ public class ThunkReducerVisitor extends ContextFreeThunkExpressionVisitor<Thunk
     @Override
     public ThunkExpression<?> visit(Variable variable) {
         return variable;
+    }
+
+    @Override
+    public ThunkExpression<?> visit(CollectionValue  collectionValue) {
+        return collectionValue;
     }
 }
