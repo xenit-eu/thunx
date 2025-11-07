@@ -23,8 +23,13 @@ public abstract class ContextFreeThunkExpressionVisitor<T> implements ThunkExpre
     }
     
     @Override
-    public T visit(CollectionValue collectionValue, Void context) {
-        return this.visit(collectionValue);
+    public T visit(SetValue setValue, Void context) {
+        return this.visit(setValue);
+    }
+
+    @Override
+    public T visit(ListValue listValue, Void context) {
+        return this.visit(listValue);
     }
 
 
@@ -32,6 +37,7 @@ public abstract class ContextFreeThunkExpressionVisitor<T> implements ThunkExpre
     protected abstract T visit(FunctionExpression<?> functionExpression);
     protected abstract T visit(SymbolicReference symbolicReference);
     protected abstract T visit(Variable variable);
-    protected abstract T visit(CollectionValue collectionValue);
+    protected abstract T visit(SetValue setValue);
+    protected abstract T visit(ListValue listValue);
 
 }

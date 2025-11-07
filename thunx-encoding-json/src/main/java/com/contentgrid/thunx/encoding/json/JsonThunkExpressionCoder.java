@@ -5,7 +5,9 @@ import com.contentgrid.thunx.encoding.ThunkExpressionEncoder;
 import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
+import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
@@ -97,8 +99,13 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
         }
 
         @Override
-        protected JsonExpressionDto visit(CollectionValue collectionValue) {
-            return processCollectionDto(collectionValue);
+        protected JsonExpressionDto visit(SetValue setValue) {
+            return processSetValueDto(setValue);
+        }
+
+        @Override
+        protected JsonExpressionDto visit(ListValue listValue) {
+            return processListValueDto(listValue);
         }
 
 
@@ -127,9 +134,15 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
         }
 
         @Override
-        protected JsonScalarDto<?> visit(CollectionValue collectionValue) {
-            return processCollectionDto(collectionValue);
+        protected JsonScalarDto<?> visit(SetValue setValue) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
         }
+
+        @Override
+        protected JsonScalarDto<?> visit(ListValue listValue) {
+            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
+        }
+
     }
 
     private static JsonScalarDto<?> processScalar(Scalar<?> scalar) {
@@ -144,25 +157,24 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
         return JsonScalarDto.of(typeName, scalar.getValue());
     }
 
-    private static JsonScalarDto<?> processCollectionDto(CollectionValue collectionValue) {
-        var resultType = collectionValue.getResultType();
+    private static JsonExpressionDto processSetValueDto(SetValue setValue) {
+        var resultType = setValue.getResultType();
 
-        Collection<JsonExpressionDto> result;
-        if (JsonCollectionValueDto.SET_PROPERTY
-                .equals(JsonCollectionValueDto.getTypeClass(collectionValue.getResultType()))) {
-            result = collectionValue.getValue()
+        Collection<JsonExpressionDto> result = setValue.getValue()
                     .stream()
-                    .map(scalar -> scalar.accept(new JsonScalarEncoderVisitor(), null))
+                    .map(expression -> expression.accept(new JsonEncoderVisitor(), null))
                     .collect(Collectors.toSet());
-        } else if (JsonCollectionValueDto.ARRAY_PROPERTY
-                .equals(JsonCollectionValueDto.getTypeClass(collectionValue.getResultType()))) {
-            result = collectionValue.getValue()
+
+        return JsonCollectionValueDto.of(JsonCollectionValueDto.getTypeClass(resultType), result);
+    }
+
+    private static JsonExpressionDto processListValueDto(ListValue listValue) {
+        var resultType = listValue.getResultType();
+
+        Collection<JsonExpressionDto> result = listValue.getValue()
                     .stream()
-                    .map(scalar -> scalar.accept(new JsonScalarEncoderVisitor(), null))
+                    .map(scalar -> scalar.accept(new JsonEncoderVisitor(), null))
                     .collect(Collectors.toList());
-        } else {
-            throw new UnsupportedOperationException("Unsupported collection type: " + resultType);
-        }
 
         return JsonCollectionValueDto.of(JsonCollectionValueDto.getTypeClass(resultType), result);
     }

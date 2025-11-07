@@ -7,8 +7,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.contentgrid.thunx.encoding.json.InvalidExpressionDataException.InvalidExpressionValueException;
 import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
+import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.Variable;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -76,8 +78,8 @@ class JsonThunkExpressionCoderTest {
         class Collection {
             @Test
             void collection_set_toJson() {
-                var expr = new CollectionValue(Set.of(Scalar.of(1),Scalar.of(2),
-                        new CollectionValue(Set.of(Scalar.of(3), Scalar.of(4)))));
+                var expr = new SetValue(Set.of(Scalar.of(1),Scalar.of(2),
+                        new SetValue(Set.of(Scalar.of(3), Scalar.of(4)))));
                 var result = converter.encodeToJson(expr);
 
                 assertThatJson(result).isEqualTo("{type: 'set', value: [" +
@@ -91,8 +93,8 @@ class JsonThunkExpressionCoderTest {
 
             @Test
             void collection_array_toJson() {
-                var expr = new CollectionValue(List.of(Scalar.of(1),Scalar.of(2),
-                        new CollectionValue(List.of(Scalar.of(3), Scalar.of(4)))));
+                var expr = new ListValue(List.of(Scalar.of(1),Scalar.of(2),
+                        new ListValue(List.of(Scalar.of(3), Scalar.of(4)))));
                 var result = converter.encodeToJson(expr);
 
                 assertThatJson(result).isEqualTo("{type: 'array', value: [" +
@@ -191,7 +193,7 @@ class JsonThunkExpressionCoderTest {
                 // input.entity.security in {4, 5}
                 var expr = Comparison.in(
                         SymbolicReference.of("entity", path -> path.string("security")),
-                        new CollectionValue(Set.of(Scalar.of(4), Scalar.of(5)))
+                        new SetValue(Set.of(Scalar.of(4), Scalar.of(5)))
                 );
 
                 var result = converter.encodeToJson(expr);
@@ -404,8 +406,8 @@ class JsonThunkExpressionCoderTest {
                         "}";
                 var result = converter.decodeFromJson(mapper.readTree(expr));
 
-                CollectionValue expected = new CollectionValue(Set.of(Scalar.of(1),
-                        Scalar.of(2), new CollectionValue(Set.of(Scalar.of(3), Scalar.of(4)))));
+                SetValue expected = new SetValue(Set.of(Scalar.of(1),
+                        Scalar.of(2), new SetValue(Set.of(Scalar.of(3), Scalar.of(4)))));
                 assertThat(result).isEqualTo(expected);
             }
 
@@ -421,8 +423,8 @@ class JsonThunkExpressionCoderTest {
                         "}";
                 var result = converter.decodeFromJson(mapper.readTree(expr));
 
-                CollectionValue expected = new CollectionValue(List.of(Scalar.of(1),
-                        Scalar.of(2), new CollectionValue(List.of(Scalar.of(3), Scalar.of(4)))));
+                ListValue expected = new ListValue(List.of(Scalar.of(1),
+                        Scalar.of(2), new ListValue(List.of(Scalar.of(3), Scalar.of(4)))));
 
                 assertThat(result).isEqualTo(expected);
             }
@@ -519,7 +521,7 @@ class JsonThunkExpressionCoderTest {
             void in() throws InvalidExpressionDataException {
                 // input.entity.security in {4, 5}
                 Comparison comparison = Comparison.in(Variable.named("answer"),
-                        new CollectionValue(Set.of(Scalar.of(4), Scalar.of(5))));
+                        new SetValue(Set.of(Scalar.of(4), Scalar.of(5))));
                 var json = converter.encode(comparison);
                 var expr = converter.decode(json);
 

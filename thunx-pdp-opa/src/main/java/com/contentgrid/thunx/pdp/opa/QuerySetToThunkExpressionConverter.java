@@ -16,9 +16,11 @@ import com.contentgrid.opa.rego.ast.Term.Text;
 import com.contentgrid.opa.rego.ast.Term.Var;
 import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
+import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.NumericFunction;
 import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.StringPathElement;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
@@ -283,7 +285,7 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(ArrayTerm arrayTerm) {
-            return new CollectionValue(
+            return new ListValue(
                     (List) arrayTerm.getValue()
                             .stream()
                             .map(scalarTerm -> scalarTerm.accept(this))
@@ -293,7 +295,7 @@ public class QuerySetToThunkExpressionConverter {
 
         @Override
         public ThunkExpression<?> visit(SetTerm setTerm) {
-            return new CollectionValue(
+            return new SetValue(
                     (Set) setTerm.getValue()
                             .stream()
                             .map(scalarTerm -> scalarTerm.accept(this))

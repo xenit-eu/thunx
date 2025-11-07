@@ -2,10 +2,13 @@ package com.contentgrid.thunx.predicates.querydsl;
 
 import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
+import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.PathElement;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.PathElementVisitor;
+import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.ThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.Variable;
 import com.querydsl.core.types.Expression;
@@ -178,13 +181,23 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
         throw new UnsupportedOperationException("converting variable to querydsl is not yet implemented");
     }
 
+//    @Override
+//    public Expression<?> visit(CollectionValue collectionValue, QueryDslConversionContext context) {
+//        if (List.class.isAssignableFrom(collectionValue.getResultType())) {
+//            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toList()));
+//        } else if (Set.class.isAssignableFrom(collectionValue.getResultType())) {
+//            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toSet()));
+//        }
+//        throw new UnsupportedOperationException("Visit for CollectionValue of other type than List or Set is not implemented.");
+//    }
+
     @Override
-    public Expression<?> visit(CollectionValue collectionValue, QueryDslConversionContext context) {
-        if (List.class.isAssignableFrom(collectionValue.getResultType())) {
-            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toList()));
-        } else if (Set.class.isAssignableFrom(collectionValue.getResultType())) {
-            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toSet()));
-        }
-        throw new UnsupportedOperationException("Visit for CollectionValue of other type than List or Set is not implemented.");
+    public Expression<?> visit(SetValue setValue, QueryDslConversionContext context) {
+        return Expressions.constant(setValue.getValue().stream().map(CollectionValue::maybeValue).collect(Collectors.toSet()));
+    }
+
+    @Override
+    public Expression<?> visit(ListValue listValue,  QueryDslConversionContext context) {
+        return Expressions.constant(listValue.getValue().stream().map(CollectionValue::maybeValue).collect(Collectors.toList()));
     }
 }
