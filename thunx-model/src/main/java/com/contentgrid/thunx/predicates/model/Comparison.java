@@ -83,6 +83,15 @@ public class Comparison implements BooleanOperation {
         return new Comparison(Operator.LESS_THEN_OR_EQUAL_TO, left, right);
     }
 
+    public static Comparison in(@NonNull List<ThunkExpression<?>> terms) {
+        assertTermSizeIsTwo(terms);
+        return in(terms.get(0), terms.get(1));
+    }
+
+    public static Comparison in(ThunkExpression<?> left, ThunkExpression<?> right) {
+        return new Comparison(Operator.IN, left, right);
+    }
+
     private static void assertTermSizeIsTwo(List<ThunkExpression<?>> terms) {
         if (terms.size() == 2) {
             return;

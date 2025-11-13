@@ -4,17 +4,21 @@ import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.encoding.ThunkExpressionEncoder;
 import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
+import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collection;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 
 /**
  * JSON encoder and decoder for thunx expressions
@@ -71,15 +75,7 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
 
         @Override
         public JsonExpressionDto visit(Scalar<?> scalar) {
-            var resultType = scalar.getResultType();
-
-            var typeName = JsonScalarDto.SCALAR_TYPES.get(resultType);
-            if (typeName == null) {
-                String exMessage = String.format("Scalar of type <%s> is not supported", resultType.getName());
-                throw new IllegalArgumentException(exMessage);
-            }
-
-            return JsonScalarDto.of(typeName, scalar.getValue());
+            return processScalar(scalar);
         }
 
         @Override
@@ -102,6 +98,39 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
             return new JsonVariableDto(variable.getName());
         }
 
+        @Override
+        protected JsonExpressionDto visit(SetValue setValue) {
+            Collection<JsonExpressionDto> result = setValue.getValue()
+                    .stream()
+                    .map(expression -> expression.accept(new JsonEncoderVisitor(), null))
+                    .collect(Collectors.toSet());
+
+            return JsonSetValueDto.of(result);
+        }
+
+        @Override
+        protected JsonExpressionDto visit(ListValue listValue) {
+            Collection<JsonExpressionDto> result = listValue.getValue()
+                    .stream()
+                    .map(scalar -> scalar.accept(new JsonEncoderVisitor(), null))
+                    .collect(Collectors.toList());
+
+            return JsonListValueDto.of(result);
+        }
+
 
     }
+
+    private static JsonScalarDto<?> processScalar(Scalar<?> scalar) {
+        var resultType = scalar.getResultType();
+
+        var typeName = JsonScalarDto.SCALAR_TYPES.get(resultType);
+        if (typeName == null) {
+            String exMessage = String.format("Scalar of type <%s> is not supported", resultType.getName());
+            throw new IllegalArgumentException(exMessage);
+        }
+
+        return JsonScalarDto.of(typeName, scalar.getValue());
+    }
+
 }

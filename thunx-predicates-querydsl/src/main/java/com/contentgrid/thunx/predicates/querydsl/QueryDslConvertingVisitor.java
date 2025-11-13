@@ -1,10 +1,13 @@
 package com.contentgrid.thunx.predicates.querydsl;
 
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
+import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.PathElement;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.PathElementVisitor;
+import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.ThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.Variable;
 import com.querydsl.core.types.Expression;
@@ -13,10 +16,6 @@ import com.querydsl.core.types.Ops;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -25,6 +24,11 @@ import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>, QueryDslConversionContext> {
@@ -70,6 +74,9 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
             case LESS_THAN:
                 assertTwoTerms(terms);
                 return Expressions.booleanOperation(Ops.LT, terms.toArray(new Expression[0]));
+            case IN:
+                assertTwoTerms(terms);
+                return ExpressionUtils.predicate(Ops.IN, terms.get(0), terms.get(1));
             case OR:
                 return ExpressionUtils.anyOf(terms.stream().map(term -> (Predicate) term).collect(Collectors.toList()));
             case AND:
@@ -172,5 +179,15 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
     public Expression<?> visit(Variable variable, QueryDslConversionContext context) {
         // TODO could there be more variables available, than just the subject-path-builder ?
         throw new UnsupportedOperationException("converting variable to querydsl is not yet implemented");
+    }
+
+    @Override
+    public Expression<?> visit(SetValue setValue, QueryDslConversionContext context) {
+        return Expressions.constant(setValue.getValue().stream().map(ThunkExpression::maybeValue).collect(Collectors.toSet()));
+    }
+
+    @Override
+    public Expression<?> visit(ListValue listValue,  QueryDslConversionContext context) {
+        return Expressions.constant(listValue.getValue().stream().map(ThunkExpression::maybeValue).collect(Collectors.toList()));
     }
 }

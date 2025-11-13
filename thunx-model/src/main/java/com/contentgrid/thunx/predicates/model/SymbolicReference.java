@@ -142,6 +142,16 @@ public class SymbolicReference implements ThunkExpression<Object> {
         public final T visit(SymbolicReference symbolicReference) {
             return null;
         }
+
+        @Override
+        protected final T visit(SetValue setValue) {
+            return null;
+        };
+
+        @Override
+        protected final T visit(ListValue listValue) {
+            return null;
+        }
     }
 
     @Data
