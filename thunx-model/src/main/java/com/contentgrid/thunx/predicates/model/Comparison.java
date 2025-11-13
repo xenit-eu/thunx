@@ -89,9 +89,6 @@ public class Comparison implements BooleanOperation {
     }
 
     public static Comparison in(ThunkExpression<?> left, ThunkExpression<?> right) {
-//        if (right == null || ((CollectionValue)right).getValue().isEmpty()) {
-//            return null;
-//        }
         return new Comparison(Operator.IN, left, right);
     }
 

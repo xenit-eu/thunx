@@ -14,7 +14,6 @@ import com.contentgrid.opa.rego.ast.Term.Ref;
 import com.contentgrid.opa.rego.ast.Term.SetTerm;
 import com.contentgrid.opa.rego.ast.Term.Text;
 import com.contentgrid.opa.rego.ast.Term.Var;
-import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
@@ -25,6 +24,7 @@ import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.SymbolicReference.StringPathElement;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,7 +98,7 @@ public class QuerySetToThunkExpressionConverter {
                 Map.entry("gte", Comparison::greaterOrEquals),
                 Map.entry("lt", Comparison::less),
                 Map.entry("lte", Comparison::lessOrEquals),
-                Map.entry("internal.member_2", Comparison::in)
+                Map.entry("internal.member_2", Comparison::in) // See https://github.com/open-policy-agent/opa/blob/4c31c81a0fea2cb648f6c1f6b6ecd7a5e867e3f7/v1/ast/builtins.go#L368-L380
         );
 
         @Override

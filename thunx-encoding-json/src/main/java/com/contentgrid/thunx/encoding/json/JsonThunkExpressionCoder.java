@@ -2,7 +2,6 @@ package com.contentgrid.thunx.encoding.json;
 
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.encoding.ThunkExpressionEncoder;
-import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.ContextFreeThunkExpressionVisitor;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.ListValue;
@@ -14,11 +13,12 @@ import com.contentgrid.thunx.predicates.model.Variable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 
 /**
  * JSON encoder and decoder for thunx expressions
@@ -100,48 +100,24 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
 
         @Override
         protected JsonExpressionDto visit(SetValue setValue) {
-            return processSetValueDto(setValue);
+            Collection<JsonExpressionDto> result = setValue.getValue()
+                    .stream()
+                    .map(expression -> expression.accept(new JsonEncoderVisitor(), null))
+                    .collect(Collectors.toSet());
+
+            return JsonSetValueDto.of(result);
         }
 
         @Override
         protected JsonExpressionDto visit(ListValue listValue) {
-            return processListValueDto(listValue);
+            Collection<JsonExpressionDto> result = listValue.getValue()
+                    .stream()
+                    .map(scalar -> scalar.accept(new JsonEncoderVisitor(), null))
+                    .collect(Collectors.toList());
+
+            return JsonListValueDto.of(result);
         }
 
-
-    }
-
-    private static class JsonScalarEncoderVisitor extends ContextFreeThunkExpressionVisitor<JsonScalarDto<?>> {
-
-        @Override
-        protected JsonScalarDto<?> visit(Scalar<?> scalar) {
-            return processScalar(scalar);
-        }
-
-        @Override
-        protected JsonScalarDto<?> visit(FunctionExpression<?> functionExpression) {
-            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
-        }
-
-        @Override
-        protected JsonScalarDto<?> visit(SymbolicReference symbolicReference) {
-            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
-        }
-
-        @Override
-        protected JsonScalarDto<?> visit(Variable variable) {
-            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
-        }
-
-        @Override
-        protected JsonScalarDto<?> visit(SetValue setValue) {
-            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
-        }
-
-        @Override
-        protected JsonScalarDto<?> visit(ListValue listValue) {
-            throw new UnsupportedOperationException("Only Scalars are supported in Collection.");
-        }
 
     }
 
@@ -157,25 +133,4 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
         return JsonScalarDto.of(typeName, scalar.getValue());
     }
 
-    private static JsonExpressionDto processSetValueDto(SetValue setValue) {
-        var resultType = setValue.getResultType();
-
-        Collection<JsonExpressionDto> result = setValue.getValue()
-                    .stream()
-                    .map(expression -> expression.accept(new JsonEncoderVisitor(), null))
-                    .collect(Collectors.toSet());
-
-        return JsonCollectionValueDto.of(JsonCollectionValueDto.getTypeClass(resultType), result);
-    }
-
-    private static JsonExpressionDto processListValueDto(ListValue listValue) {
-        var resultType = listValue.getResultType();
-
-        Collection<JsonExpressionDto> result = listValue.getValue()
-                    .stream()
-                    .map(scalar -> scalar.accept(new JsonEncoderVisitor(), null))
-                    .collect(Collectors.toList());
-
-        return JsonCollectionValueDto.of(JsonCollectionValueDto.getTypeClass(resultType), result);
-    }
 }

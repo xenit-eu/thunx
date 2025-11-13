@@ -4,17 +4,18 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
-@EqualsAndHashCode(exclude = "type")
-public class ListValue implements CollectionValue<List> {
+@EqualsAndHashCode
+public class ListValue implements CollectionValue<List<? extends ThunkExpression<?>>> {
 
     private final List<? extends ThunkExpression<?>> value;
 
     public ListValue(List<? extends ThunkExpression<?>> value) {
         this.value = value;
     }
+
     @Override
     public Class<? extends List<ThunkExpression<?>>> getResultType() {
-        return (Class<? extends List<ThunkExpression<?>>>) value.getClass();
+        return (Class) List.class;
     }
 
     @Override

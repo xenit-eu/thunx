@@ -1,6 +1,5 @@
 package com.contentgrid.thunx.predicates.querydsl;
 
-import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.FunctionExpression;
 import com.contentgrid.thunx.predicates.model.ListValue;
 import com.contentgrid.thunx.predicates.model.Scalar;
@@ -17,10 +16,6 @@ import com.querydsl.core.types.Ops;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -29,6 +24,11 @@ import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>, QueryDslConversionContext> {
@@ -181,23 +181,13 @@ class QueryDslConvertingVisitor implements ThunkExpressionVisitor<Expression<?>,
         throw new UnsupportedOperationException("converting variable to querydsl is not yet implemented");
     }
 
-//    @Override
-//    public Expression<?> visit(CollectionValue collectionValue, QueryDslConversionContext context) {
-//        if (List.class.isAssignableFrom(collectionValue.getResultType())) {
-//            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toList()));
-//        } else if (Set.class.isAssignableFrom(collectionValue.getResultType())) {
-//            return Expressions.constant(collectionValue.getValue().stream().map(Scalar::getValue).collect(Collectors.toSet()));
-//        }
-//        throw new UnsupportedOperationException("Visit for CollectionValue of other type than List or Set is not implemented.");
-//    }
-
     @Override
     public Expression<?> visit(SetValue setValue, QueryDslConversionContext context) {
-        return Expressions.constant(setValue.getValue().stream().map(CollectionValue::maybeValue).collect(Collectors.toSet()));
+        return Expressions.constant(setValue.getValue().stream().map(ThunkExpression::maybeValue).collect(Collectors.toSet()));
     }
 
     @Override
     public Expression<?> visit(ListValue listValue,  QueryDslConversionContext context) {
-        return Expressions.constant(listValue.getValue().stream().map(CollectionValue::maybeValue).collect(Collectors.toList()));
+        return Expressions.constant(listValue.getValue().stream().map(ThunkExpression::maybeValue).collect(Collectors.toList()));
     }
 }

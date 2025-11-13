@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
         @Type(value = JsonScalarDto.class, name = "null"),
         @Type(value = JsonVariableDto.class, name = "var"),
         @Type(value = JsonSymbolicReferenceDto.class, name = "ref"),
-        @Type(value = JsonCollectionValueDto.class, name = "array"),
-        @Type(value = JsonCollectionValueDto.class, name = "set")
+        @Type(value = JsonListValueDto.class, name = "array"),
+        @Type(value = JsonSetValueDto.class, name = "set")
 })
 public interface JsonExpressionDto {
 

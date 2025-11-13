@@ -36,7 +36,7 @@ public interface FunctionExpression<T> extends ThunkExpression<T> {
         GREATER_THAN_OR_EQUAL_TO("gte", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::greaterOrEquals),
         LESS_THAN("lt", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::less),
         LESS_THEN_OR_EQUAL_TO("lte", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::lessOrEquals),
-        IN("in", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::in ),
+        IN("in", Boolean.class, (FunctionExpressionFactory<Boolean>) Comparison::in),
 
         // Logical operator
         AND("and", Boolean.class, (FunctionExpressionFactory<Boolean>) LogicalOperation::uncheckedConjunction),

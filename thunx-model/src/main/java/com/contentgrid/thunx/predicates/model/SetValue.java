@@ -4,8 +4,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Set;
 
-@EqualsAndHashCode(exclude = "type")
-public class SetValue implements CollectionValue<Set> {
+@EqualsAndHashCode
+public class SetValue implements CollectionValue<Set<? extends ThunkExpression<?>>> {
 
     private final Set<? extends ThunkExpression<?>> value;
 
@@ -14,8 +14,8 @@ public class SetValue implements CollectionValue<Set> {
     }
 
     @Override
-    public Class<Set<ThunkExpression<?>>> getResultType() {
-        return (Class<Set<ThunkExpression<?>>>) value.getClass();
+    public Class<? extends Set<ThunkExpression<?>>> getResultType() {
+        return (Class) Set.class;
     }
 
 
