@@ -34,7 +34,7 @@ public class GatewayAutoConfigurationTest {
             ));
 
     @Test
-    public void conditionalOnPropertyOpaServiceUrl() {
+    void conditionalOnPropertyOpaServiceUrl() {
 
         contextRunner.withUserConfiguration(TestContext.class)
                 .run((context) -> {
@@ -48,7 +48,7 @@ public class GatewayAutoConfigurationTest {
     }
 
     @Test
-    public void shouldEnableGatewayBeans() {
+    void shouldEnableGatewayBeans() {
 
         var OPA_SERVICE_URL = "https://some/opa/service";
         contextRunner.withUserConfiguration(TestContext.class)
@@ -68,7 +68,7 @@ public class GatewayAutoConfigurationTest {
     }
 
     @Test
-    public void shouldUseProvidedGatewayBeans() {
+    void shouldUseProvidedGatewayBeans() {
 
         contextRunner.withUserConfiguration(TestContextWithBeans.class)
                 .run((context) -> {
@@ -81,7 +81,7 @@ public class GatewayAutoConfigurationTest {
     }
 
     @Test
-    public void shouldNotFailWithApiAutoconfiguations() {
+    void shouldNotFailWithApiAutoconfiguations() {
         contextRunner.withUserConfiguration(TestContext.class)
                 .withConfiguration(AutoConfigurations.of(AbacContextAutoConfiguration.class, AbacAutoConfiguration.class, JwtAbacAutoConfiguration.class))
                 .withClassLoader(new FilteredClassLoader(
