@@ -4,11 +4,13 @@ import com.contentgrid.thunx.spring.data.context.AbacConfiguration;
 import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import com.contentgrid.thunx.spring.data.context.HttpHeaderAbacConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
+@ConditionalOnClass(AbacConfiguration.class)
 @Import(AbacConfiguration.class)
 public class AbacContextAutoConfiguration {
 
