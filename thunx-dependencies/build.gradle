@@ -9,7 +9,7 @@ javaPlatform {
 dependencies {
     api platform(project(":thunx-bom"))
 
-    api platform("org.springframework.boot:spring-boot-dependencies:3.5.8")
+    api platform("org.springframework.boot:spring-boot-dependencies:3.5.9")
     api platform("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
 
     constraints {
