@@ -2,6 +2,7 @@ package com.contentgrid.thunx.predicates.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public interface Scalar<T> extends ThunkExpression<T> {
@@ -34,6 +35,10 @@ public interface Scalar<T> extends ThunkExpression<T> {
 
     static InstantValue of(Instant value) {
         return new InstantValue(value);
+    }
+
+    static LocalDateValue of(LocalDate value) {
+        return new LocalDateValue(value);
     }
 
     static UUIDValue of(UUID value) {
