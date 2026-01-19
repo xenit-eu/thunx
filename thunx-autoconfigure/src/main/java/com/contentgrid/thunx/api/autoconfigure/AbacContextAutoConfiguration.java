@@ -1,8 +1,8 @@
 package com.contentgrid.thunx.api.autoconfigure;
 
-import com.contentgrid.thunx.spring.data.context.AbacConfiguration;
-import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
-import com.contentgrid.thunx.spring.data.context.HttpHeaderAbacConfiguration;
+import com.contentgrid.thunx.spring.security.AbacConfiguration;
+import com.contentgrid.thunx.spring.security.AbacContextSupplier;
+import com.contentgrid.thunx.spring.security.HttpHeaderAbacConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,7 +15,10 @@ import org.springframework.context.annotation.Import;
 public class AbacContextAutoConfiguration {
 
     @ConditionalOnProperty(value = "contentgrid.thunx.abac.source", havingValue = "header", matchIfMissing = true)
-    @Import(HttpHeaderAbacConfiguration.class)
+    @Import({
+            HttpHeaderAbacConfiguration.class,
+            com.contentgrid.thunx.spring.data.context.HttpHeaderAbacConfiguration.class
+    })
     public static class HttpHeaderAbacAutoConfiguration {
     }
 
@@ -27,5 +30,11 @@ public class AbacContextAutoConfiguration {
         public AbacContextSupplier noneAbacContextSupplier() {
             return () -> null;
         }
+    }
+
+    @Bean
+    @Deprecated
+    public com.contentgrid.thunx.spring.data.context.AbacContextSupplier deprecatedAbacContextSupplier(AbacContextSupplier supplier) {
+        return supplier::getAbacContext;
     }
 }

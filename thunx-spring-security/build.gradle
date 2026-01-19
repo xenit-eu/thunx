@@ -9,16 +9,16 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation project(':thunx-spring-api')
+    implementation project(':thunx-encoding-json')
     implementation project(':thunx-model')
 
+    implementation 'jakarta.servlet:jakarta.servlet-api'
+    implementation 'org.apache.logging.log4j:log4j-to-slf4j'
     implementation 'org.springframework.boot:spring-boot'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    testImplementation project(':thunx-encoding-json')
 }
 
 test {

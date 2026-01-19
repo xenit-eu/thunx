@@ -1,30 +1,19 @@
 package com.contentgrid.thunx.spring.data.context;
 
-import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
+/**
+ * @deprecated Use {@link com.contentgrid.thunx.spring.security.HttpHeaderAbacConfiguration} instead
+ */
 @Configuration(proxyBeanMethods = false)
+@Deprecated(since = "0.14.1")
+@Import(com.contentgrid.thunx.spring.security.HttpHeaderAbacConfiguration.class)
 public class HttpHeaderAbacConfiguration {
 
     @Bean
-    public AbacRequestFilter abacFilter(ThunkExpressionDecoder thunkDecoder) {
-        return new AbacRequestFilter(thunkDecoder);
+    public AbacRequestFilter deprecatedAbacFilter(com.contentgrid.thunx.spring.security.AbacRequestFilter filter) {
+        return new AbacRequestFilter(filter);
     }
-
-    @Bean
-    public FilterRegistrationBean<AbacRequestFilter> abacFilterRegistration(AbacRequestFilter filter) {
-        FilterRegistrationBean<AbacRequestFilter> registrationBean = new FilterRegistrationBean<>();
-
-        registrationBean.setFilter(filter);
-
-        return registrationBean;
-    }
-
-    @Bean
-    public AbacContextSupplier headerAbacContextSupplier() {
-        return AbacContext::getCurrentAbacContext;
-    }
-
 }

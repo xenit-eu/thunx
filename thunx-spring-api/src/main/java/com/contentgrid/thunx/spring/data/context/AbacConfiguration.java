@@ -1,15 +1,13 @@
 package com.contentgrid.thunx.spring.data.context;
 
-import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
-import com.contentgrid.thunx.encoding.json.JsonThunkExpressionCoder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
+/**
+ * @deprecated Use {@link com.contentgrid.thunx.spring.security.AbacConfiguration} instead
+ */
 @Configuration(proxyBeanMethods = false)
+@Deprecated(since = "0.14.1")
+@Import(com.contentgrid.thunx.spring.security.AbacConfiguration.class)
 public class AbacConfiguration {
-
-    @Bean
-    public ThunkExpressionDecoder thunkDecoder() {
-        return new JsonThunkExpressionCoder();
-    }
 }

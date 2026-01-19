@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.gateway.autoconfigure.GatewayAutoConfiguration;
 import com.contentgrid.thunx.gateway.autoconfigure.OpaProperties;
-import com.contentgrid.thunx.spring.data.context.AbacRequestFilter;
+import com.contentgrid.thunx.spring.security.AbacRequestFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -83,7 +83,7 @@ public class AbacAutoConfigurationTest {
                 .run(context -> {
                     assertThat(context).hasFailed();
                     assertThat(context).getFailure().isInstanceOf(UnsatisfiedDependencyException.class)
-                            .hasMessageContaining("No qualifying bean of type 'com.contentgrid.thunx.spring.data.context.AbacContextSupplier' available");
+                            .hasMessageContaining("No qualifying bean of type 'com.contentgrid.thunx.spring.security.AbacContextSupplier' available");
                 });
     }
 
