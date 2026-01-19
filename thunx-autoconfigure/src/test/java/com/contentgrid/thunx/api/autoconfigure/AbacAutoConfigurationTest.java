@@ -103,6 +103,29 @@ public class AbacAutoConfigurationTest {
                 });
     }
 
+    @Test
+    void shouldNotFailWithoutSpringData() {
+        contextRunner.withUserConfiguration(TestContext.class)
+                .withConfiguration(AutoConfigurations.of(GatewayAutoConfiguration.class))
+                .withClassLoader(new FilteredClassLoader(
+                        "com.contentgrid.thunx.spring.gateway",
+                        "com.contentgrid.thunx.pdp.opa",
+                        "org.springframework.data"
+                ))
+                .run(context -> {
+                    assertThat(context).hasNotFailed();
+                    assertThat(context).hasSingleBean(AbacRequestFilter.class);
+                    assertThat(context).hasBean("headerAbacContextSupplier");
+
+                    // Bean for gateway
+                    assertThat(context).doesNotHaveBean(OpaProperties.class);
+                    // Beans for thunx-predicates-querydsl (rely on spring-data-querydsl)
+                    assertThat(context).doesNotHaveBean(QuerydslBindingsFactory.class);
+                    assertThat(context).doesNotHaveBean("interceptRepositoryRestMvcConfiguration");
+                    assertThat(context).doesNotHaveBean("ensureQueryDslPredication");
+                });
+    }
+
     @Configuration
     @EnableAutoConfiguration
     public static class TestContext {
