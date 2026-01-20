@@ -1,8 +1,8 @@
 package com.contentgrid.thunx.api.autoconfigure;
 
-import com.contentgrid.thunx.spring.data.context.AbacConfiguration;
-import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
-import com.contentgrid.thunx.spring.data.context.HttpHeaderAbacConfiguration;
+import com.contentgrid.thunx.spring.security.AbacConfiguration;
+import com.contentgrid.thunx.spring.security.AbacContextSupplier;
+import com.contentgrid.thunx.spring.security.HttpHeaderAbacConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

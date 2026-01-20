@@ -13,6 +13,7 @@ dependencies {
     implementation project(":thunx-pdp-opa")
     implementation project(':thunx-predicates-querydsl')
     implementation project(':spring-data-querydsl-predicate-injector')
+    implementation project(':thunx-spring-security')
 
     implementation 'org.springframework.boot:spring-boot'
     implementation 'org.springframework.data:spring-data-rest-webmvc'

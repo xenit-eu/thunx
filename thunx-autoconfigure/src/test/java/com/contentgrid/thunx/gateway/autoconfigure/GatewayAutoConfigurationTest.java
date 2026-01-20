@@ -9,8 +9,9 @@ import com.contentgrid.thunx.api.autoconfigure.AbacContextAutoConfiguration;
 import com.contentgrid.thunx.api.autoconfigure.JwtAbacAutoConfiguration;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.opa.OpaQueryProvider;
-import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
+import com.contentgrid.thunx.spring.security.AbacConfiguration;
+import com.contentgrid.thunx.spring.security.AbacContextSupplier;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -84,10 +85,10 @@ public class GatewayAutoConfigurationTest {
     void shouldNotFailWithApiAutoconfiguations() {
         contextRunner.withUserConfiguration(TestContext.class)
                 .withConfiguration(AutoConfigurations.of(AbacContextAutoConfiguration.class, AbacAutoConfiguration.class, JwtAbacAutoConfiguration.class))
-                .withClassLoader(new FilteredClassLoader(
+                .withClassLoader(new FilteredClassLoader(new FilteredClassLoader(
                         "com.contentgrid.thunx.spring.data",
                         "com.contentgrid.thunx.predicates.querydsl"
-                ))
+                ), AbacContextSupplier.class, AbacConfiguration.class))
                 .run(context -> {
                     assertThat(context).hasNotFailed();
                     assertThat(context).hasSingleBean(OpaProperties.class);

@@ -2,9 +2,9 @@ package com.contentgrid.thunx.spring.data.querydsl;
 
 import com.contentgrid.thunx.predicates.querydsl.FieldByReflectionAccessStrategy;
 import com.contentgrid.thunx.predicates.querydsl.QueryDslConverter;
-import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.OperationPredicates;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
+import com.contentgrid.thunx.spring.security.AbacContextSupplier;
 import com.querydsl.core.types.Predicate;
 import java.util.Map;
 import java.util.Optional;

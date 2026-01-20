@@ -1,6 +1,6 @@
 package com.contentgrid.thunx.spring.data.rest;
 
-import com.contentgrid.thunx.spring.data.context.AbacContextSupplier;
+import com.contentgrid.thunx.spring.security.AbacContextSupplier;
 import com.contentgrid.thunx.spring.data.querydsl.AbacQuerydslPredicateResolver;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.gateway.autoconfigure.GatewayAutoConfiguration;
 import com.contentgrid.thunx.gateway.autoconfigure.OpaProperties;
-import com.contentgrid.thunx.spring.data.context.AbacRequestFilter;
+import com.contentgrid.thunx.spring.security.AbacRequestFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -83,7 +83,7 @@ public class AbacAutoConfigurationTest {
                 .run(context -> {
                     assertThat(context).hasFailed();
                     assertThat(context).getFailure().isInstanceOf(UnsatisfiedDependencyException.class)
-                            .hasMessageContaining("No qualifying bean of type 'com.contentgrid.thunx.spring.data.context.AbacContextSupplier' available");
+                            .hasMessageContaining("No qualifying bean of type 'com.contentgrid.thunx.spring.security.AbacContextSupplier' available");
                 });
     }
 
@@ -100,6 +100,29 @@ public class AbacAutoConfigurationTest {
                     assertThat(context).hasSingleBean(AbacRequestFilter.class);
 
                     assertThat(context).doesNotHaveBean(OpaProperties.class);
+                });
+    }
+
+    @Test
+    void shouldNotFailWithoutSpringData() {
+        contextRunner.withUserConfiguration(TestContext.class)
+                .withConfiguration(AutoConfigurations.of(GatewayAutoConfiguration.class))
+                .withClassLoader(new FilteredClassLoader(
+                        "com.contentgrid.thunx.spring.gateway",
+                        "com.contentgrid.thunx.pdp.opa",
+                        "org.springframework.data"
+                ))
+                .run(context -> {
+                    assertThat(context).hasNotFailed();
+                    assertThat(context).hasSingleBean(AbacRequestFilter.class);
+                    assertThat(context).hasBean("headerAbacContextSupplier");
+
+                    // Bean for gateway
+                    assertThat(context).doesNotHaveBean(OpaProperties.class);
+                    // Beans for thunx-predicates-querydsl (rely on spring-data-querydsl)
+                    assertThat(context).doesNotHaveBean(QuerydslBindingsFactory.class);
+                    assertThat(context).doesNotHaveBean("interceptRepositoryRestMvcConfiguration");
+                    assertThat(context).doesNotHaveBean("ensureQueryDslPredication");
                 });
     }
 
