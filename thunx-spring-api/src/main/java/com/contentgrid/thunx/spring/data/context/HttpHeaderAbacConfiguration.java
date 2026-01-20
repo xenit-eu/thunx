@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
  * @deprecated Use {@link com.contentgrid.thunx.spring.security.HttpHeaderAbacConfiguration} instead
  */
 @Configuration(proxyBeanMethods = false)
-@Deprecated(since = "0.14.1")
+@Deprecated(since = "0.15.0")
 @Import(com.contentgrid.thunx.spring.security.HttpHeaderAbacConfiguration.class)
 public class HttpHeaderAbacConfiguration {
 

@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * @deprecated Use {@link com.contentgrid.thunx.spring.security.AbacRequestFilter} instead
  */
 @Slf4j
-@Deprecated(since = "0.14.1")
+@Deprecated(since = "0.15.0")
 @RequiredArgsConstructor
 public class AbacRequestFilter implements Filter {
 
