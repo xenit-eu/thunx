@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.ConditionalOnDefaultWebSecurity;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,8 +26,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 public class JwtAbacAutoConfiguration {
 
     @Bean
-    @ConditionalOnDefaultWebSecurity
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean({SecurityFilterChain.class, JwtAuthenticationConverter.class})
     @ConditionalOnBean(ThunkExpressionDecoder.class)
     public JwtAuthenticationConverter abacJwtAuthenticationConverter(ThunkExpressionDecoder decoder) {
         var grantedAuthoritiesConverter = new AbacJwtGrantedAuthoritiesConverter(decoder);

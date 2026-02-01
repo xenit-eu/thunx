@@ -11,6 +11,9 @@ dependencies {
     compileOnly "org.projectlombok:lombok"
 
     implementation "org.springframework.boot:spring-boot-autoconfigure"
+    compileOnly "org.springframework.boot:spring-boot-data-rest"
+    compileOnly "org.springframework.boot:spring-boot-security"
+    compileOnly "org.springframework.boot:spring-boot-security-oauth2-resource-server"
 
     // Spring data
     compileOnly project(':thunx-spring-api')
