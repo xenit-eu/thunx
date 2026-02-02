@@ -7,6 +7,7 @@ dependencies {
     internalPlatform platform(project(':thunx-dependencies'))
 
     compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.jspecify:jspecify'
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation project(':thunx-encoding-json')

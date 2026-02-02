@@ -2,6 +2,7 @@ package com.contentgrid.thunx.spring.data.querydsl.predicate.injector.rest.webmv
 
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.repository.RepositoryInvokerAdapterFactory;
 import com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver.QuerydslPredicateResolver;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -10,11 +11,9 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
+import org.springframework.boot.data.rest.autoconfigure.DataRestAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.repository.support.Repositories;
@@ -24,7 +23,7 @@ import org.springframework.data.rest.webmvc.config.ResourceMetadataHandlerMethod
 import org.springframework.data.rest.webmvc.config.RootResourceInformationHandlerMethodArgumentResolver;
 
 @AutoConfiguration
-@AutoConfigureAfter(RepositoryRestMvcAutoConfiguration.class)
+@AutoConfigureAfter(DataRestAutoConfiguration.class)
 @ConditionalOnClass(RepositoryRestMvcConfiguration.class)
 @ConditionalOnBean(RepositoryRestMvcConfiguration.class)
 public class SpringDataQuerydslPredicateInjectorAutoConfiguration {
@@ -33,7 +32,7 @@ public class SpringDataQuerydslPredicateInjectorAutoConfiguration {
     BeanPostProcessor interceptRepositoryRestMvcConfiguration(ApplicationContext applicationContext) {
         return new BeanPostProcessor() {
             @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+            public @Nullable Object postProcessAfterInitialization(@Nullable Object bean, @Nullable String beanName) throws BeansException {
 
                 if (bean instanceof RootResourceInformationHandlerMethodArgumentResolver) {
                     var repositories = applicationContext.getBean(Repositories.class);

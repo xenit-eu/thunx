@@ -7,12 +7,13 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.data.querydsl.binding.QuerydslPredicateBuilder;
-import org.springframework.data.util.TypeInformation;
+import org.springframework.data.core.TypeInformation;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -22,6 +23,7 @@ import org.springframework.util.MultiValueMap;
  * <p>
  * This is equivalent to the built-in functionality of Spring DATA REST with QueryDSL integration
  */
+@NullMarked
 public class QuerydslBindingsPredicateResolver implements QuerydslPredicateResolver {
 
     private final QuerydslPredicateBuilder predicateBuilder;

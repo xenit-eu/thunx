@@ -16,12 +16,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +48,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @AutoConfigureMockMvc
 @Transactional
 @Testcontainers
+@NullMarked
 class SpringDataQuerydslPredicateInjectorAutoConfigurationTest {
 
     @Configuration(proxyBeanMethods = false)
@@ -78,7 +81,7 @@ class SpringDataQuerydslPredicateInjectorAutoConfigurationTest {
     static class TestEntity {
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
-        private UUID id;
+        private @Nullable UUID id;
 
         @Basic
         private String value;
@@ -89,14 +92,14 @@ class SpringDataQuerydslPredicateInjectorAutoConfigurationTest {
             QuerydslBinderCustomizer<EntityPath<?>> {
 
         @Override
-        default void customize(QuerydslBindings bindings, EntityPath<?> root) {
+        default void customize(QuerydslBindings bindings, @Nullable EntityPath<?> root) {
 
         }
     }
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer();
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     TestEntityRepository testEntityRepository;
