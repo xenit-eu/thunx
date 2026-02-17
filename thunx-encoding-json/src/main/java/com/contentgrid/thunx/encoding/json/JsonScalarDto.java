@@ -15,8 +15,12 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
@@ -33,6 +37,9 @@ class JsonScalarDto<T> implements JsonExpressionDto {
             String.class, "string",
             Number.class, "number",
             Boolean.class, "bool",
+            LocalDate.class, "date",
+            Instant.class, "instant",
+            UUID.class, "uuid",
             Void.class, "null");
 
     private String type;
@@ -50,6 +57,18 @@ class JsonScalarDto<T> implements JsonExpressionDto {
 
     public static JsonScalarDto of(@NonNull Boolean bool) {
         return new JsonScalarDto(SCALAR_TYPES.get(Boolean.class), bool);
+    }
+
+    public static JsonScalarDto of(@NonNull LocalDate localDate) {
+        return new JsonScalarDto(SCALAR_TYPES.get(LocalDate.class), localDate.toString());
+    }
+
+    public static JsonScalarDto of(@NonNull Instant instant) {
+        return new JsonScalarDto(SCALAR_TYPES.get(Instant.class), instant.toString());
+    }
+
+    public static JsonScalarDto of(@NonNull UUID uuid) {
+        return new JsonScalarDto(SCALAR_TYPES.get(UUID.class), uuid.toString());
     }
 
     public static JsonScalarDto nullValue() {
@@ -91,6 +110,33 @@ class JsonScalarDto<T> implements JsonExpressionDto {
                     return Scalar.of(Boolean.TRUE.equals(this.value));
                 }
                 throw new InvalidExpressionValueException(this.value, Boolean.class);
+            case "date":
+                if (this.value instanceof String stringValue) {
+                    try {
+                        return Scalar.of(LocalDate.parse(stringValue));
+                    } catch (DateTimeParseException e) {
+                        throw new InvalidExpressionValueException(this.value, LocalDate.class);
+                    }
+                }
+                throw new InvalidExpressionValueException(this.value, LocalDate.class);
+            case "instant":
+                if (this.value instanceof String stringValue) {
+                    try {
+                        return Scalar.of(Instant.parse(stringValue));
+                    } catch (DateTimeParseException e) {
+                        throw new InvalidExpressionValueException(this.value, Instant.class);
+                    }
+                }
+                throw new InvalidExpressionValueException(this.value, Instant.class);
+            case "uuid":
+                if (this.value instanceof String stringValue) {
+                    try {
+                        return Scalar.of(UUID.fromString(stringValue));
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidExpressionValueException(this.value, UUID.class);
+                    }
+                }
+                throw new InvalidExpressionValueException(this.value, UUID.class);
             case "null":
                 if (this.value != null) {
                     throw new InvalidExpressionValueException(this.value, Void.class);
