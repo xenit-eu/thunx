@@ -84,25 +84,25 @@ class JsonScalarDto<T> implements JsonExpressionDto {
     public ThunkExpression<?> toExpression() throws InvalidExpressionDataException {
         switch (this.getType()) {
             case "string":
-                if (this.value instanceof String) {
-                    return Scalar.of((String) this.value);
+                if (this.value instanceof String stringValue) {
+                    return Scalar.of(stringValue);
                 }
                 throw new InvalidExpressionValueException(this.value, String.class);
             case "number":
-                if (this.value instanceof BigDecimal) {
-                    return Scalar.of((BigDecimal) this.value);
+                if (this.value instanceof BigDecimal bigDecimalValue) {
+                    return Scalar.of(bigDecimalValue);
                 }
-                if (this.value instanceof Integer) {
-                    return Scalar.of((Integer) this.value);
+                if (this.value instanceof Integer intValue) {
+                    return Scalar.of(intValue);
                 }
-                if (this.value instanceof Long) {
-                    return Scalar.of((Long) this.value);
+                if (this.value instanceof Long longValue) {
+                    return Scalar.of(longValue);
                 }
-                if (this.value instanceof Float) {
-                    return Scalar.of((Float) this.value);
+                if (this.value instanceof Float floatValue) {
+                    return Scalar.of(floatValue);
                 }
-                if (this.value instanceof Double) {
-                    return Scalar.of((Double) this.value);
+                if (this.value instanceof Double doubleValue) {
+                    return Scalar.of(doubleValue);
                 }
                 throw new InvalidExpressionValueException(this.value, Number.class);
             case "bool":
