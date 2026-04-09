@@ -9,8 +9,8 @@ javaPlatform {
 dependencies {
     api platform(project(":thunx-bom"))
 
-    api platform("org.springframework.boot:spring-boot-dependencies:3.5.13")
-    api platform("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
+    api platform("org.springframework.boot:spring-boot-dependencies:4.0.5")
+    api platform("org.springframework.cloud:spring-cloud-dependencies:2025.1.1")
 
     constraints {
         api 'net.javacrumbs.json-unit:json-unit-assertj:5.1.1'
