@@ -3,3 +3,23 @@
 
 # Ignore Gradle build output directory
 build
+
+# Ignore intellij
+/.idea
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+**/bin/**
+**/target/**
+.idea/
+
+.vscode/
+/.claude/
+/.opencode/
