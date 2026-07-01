@@ -1,0 +1,53 @@
+package com.contentgrid.thunx.spring.webmvc;
+
+import com.contentgrid.thunx.pdp.PolicyDecisionComponent;
+import com.contentgrid.thunx.predicates.model.Comparison;
+import com.contentgrid.thunx.predicates.model.Scalar;
+import com.contentgrid.thunx.spring.security.AbacContext;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+
+@RequiredArgsConstructor
+public class PolicyAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
+
+    private final PolicyDecisionComponent<Authentication, HttpServletRequest> policyDecisionComponent;
+
+    // Spring Security 6.x dispatches via check() (abstract); 7.x removed check() and dispatches via
+    // authorize() instead. Implementing both keeps this correct regardless of which major version is
+    // actually on the runtime classpath of the consuming application.
+    @Override
+    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+        return authorize(authentication, context);
+    }
+
+    @Override
+    public AuthorizationDecision authorize(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+        try {
+            var policyDecision = policyDecisionComponent
+                    .authorize(authentication.get(), context.getRequest())
+                    .get();
+
+            if (policyDecision.isAllowed()) {
+                if (policyDecision.hasPredicate()) {
+                    AbacContext.setCurrentAbacContext(policyDecision.getPredicate());
+                } else {
+                    AbacContext.setCurrentAbacContext(Comparison.areEqual(Scalar.of(true), Scalar.of(true)));
+                }
+                return new AuthorizationDecision(true);
+            } else {
+                return new AuthorizationDecision(false);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new AuthorizationDecision(false);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Failed to obtain policy decision from OPA", e.getCause());
+        }
+    }
+}
