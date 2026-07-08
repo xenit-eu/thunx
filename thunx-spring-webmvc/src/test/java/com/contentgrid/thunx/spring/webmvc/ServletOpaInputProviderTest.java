@@ -81,11 +81,11 @@ class ServletOpaInputProviderTest {
 
         var input = provider.createInput(authentication, request);
 
-        assertThat(input).containsEntry("path", new String[]{"api", "foo"});
-        assertThat(input).containsEntry("method", "GET");
-        assertThat(input).containsEntry("queryParams", Map.of("hello", List.of("world")));
-        assertThat(input).containsKey("auth");
-        assertThat(input).containsEntry("user", Map.of(
+        assertThat(input).containsEntry("path", new String[]{"api", "foo"})
+                .containsEntry("method", "GET")
+                .containsEntry("queryParams", Map.of("hello", List.of("world")))
+                .containsKey("auth")
+                .containsEntry("user", Map.of(
                 "sub", "04c2cbec-faad-4dc8-ba6f-edb3d5b902e9",
                 "preferred_username", "alice"
         ));

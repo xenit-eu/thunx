@@ -130,10 +130,11 @@ class PolicyAuthorizationManagerTest {
     void authorize_executionException_wrapsAndRethrowsCause() {
         var manager = new PolicyAuthorizationManager(policyDecisionComponent);
         var cause = new RuntimeException("opa down");
+        var authentication = authentication();
         when(policyDecisionComponent.authorize(any(), any()))
                 .thenReturn(CompletableFuture.failedFuture(cause));
 
-        assertThatThrownBy(() -> manager.authorize(authentication(), context))
+        assertThatThrownBy(() -> manager.authorize(authentication, context))
                 .isInstanceOf(RuntimeException.class)
                 .hasCause(cause);
     }
