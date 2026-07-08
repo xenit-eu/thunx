@@ -14,9 +14,9 @@ import java.util.Objects;
 import org.springframework.security.core.Authentication;
 
 /**
- * Default OpaInputProvider for servlet applications, mirroring {@code DefaultOpaInputProvider}
- * (thunx-spring-gateway) field-for-field. Applications whose Rego policy expects a different input
- * shape must supply their own {@code OpaInputProvider<Authentication, HttpServletRequest>} bean.
+ * Default OpaInputProvider for servlet applications, mirroring {@code DefaultOpaInputProvider} (thunx-spring-gateway)
+ * field-for-field. Applications whose Rego policy expects a different input shape must supply their own
+ * {@code OpaInputProvider<Authentication, HttpServletRequest>} bean.
  */
 public class ServletOpaInputProvider implements OpaInputProvider<Authentication, HttpServletRequest> {
 
