@@ -1,6 +1,7 @@
 package com.contentgrid.thunx.webmvc.autoconfigure;
 
 import com.contentgrid.opa.client.OpaClient;
+import com.contentgrid.thunx.opa.autoconfigure.OpaClientAutoConfiguration;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponent;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponentImpl;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
@@ -12,9 +13,10 @@ import com.contentgrid.thunx.spring.security.AbacContextSupplier;
 import com.contentgrid.thunx.spring.webmvc.AbacContextClearingFilter;
 import com.contentgrid.thunx.spring.webmvc.PolicyAuthorizationManager;
 import com.contentgrid.thunx.spring.webmvc.ServletOpaInputProvider;
-import com.contentgrid.thunx.gateway.autoconfigure.OpaProperties;
+import com.contentgrid.thunx.opa.autoconfigure.OpaProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -29,6 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
 @AutoConfiguration
+@AutoConfigureAfter(OpaClientAutoConfiguration.class)
 @ConditionalOnClass({OpaClient.class, PolicyAuthorizationManager.class})
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @ConditionalOnProperty(value = "contentgrid.thunx.abac.source", havingValue = "opa")

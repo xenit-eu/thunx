@@ -2,9 +2,9 @@ package com.contentgrid.thunx.api.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.thunx.encoding.ThunkExpressionDecoder;
 import com.contentgrid.thunx.gateway.autoconfigure.GatewayAutoConfiguration;
-import com.contentgrid.thunx.gateway.autoconfigure.OpaProperties;
 import com.contentgrid.thunx.spring.security.AbacRequestFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
@@ -99,7 +99,8 @@ public class AbacAutoConfigurationTest {
                     assertThat(context).hasNotFailed();
                     assertThat(context).hasSingleBean(AbacRequestFilter.class);
 
-                    assertThat(context).doesNotHaveBean(OpaProperties.class);
+                    // No opa.service.url configured, so no OpaClient is created
+                    assertThat(context).doesNotHaveBean(OpaClient.class);
                 });
     }
 
@@ -117,8 +118,8 @@ public class AbacAutoConfigurationTest {
                     assertThat(context).hasSingleBean(AbacRequestFilter.class);
                     assertThat(context).hasBean("headerAbacContextSupplier");
 
-                    // Bean for gateway
-                    assertThat(context).doesNotHaveBean(OpaProperties.class);
+                    // No opa.service.url configured, so no OpaClient is created
+                    assertThat(context).doesNotHaveBean(OpaClient.class);
                     // Beans for thunx-predicates-querydsl (rely on spring-data-querydsl)
                     assertThat(context).doesNotHaveBean(QuerydslBindingsFactory.class);
                     assertThat(context).doesNotHaveBean("interceptRepositoryRestMvcConfiguration");

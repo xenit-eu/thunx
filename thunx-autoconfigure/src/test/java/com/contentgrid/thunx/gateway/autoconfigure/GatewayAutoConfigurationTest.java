@@ -7,6 +7,8 @@ import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.thunx.api.autoconfigure.AbacAutoConfiguration;
 import com.contentgrid.thunx.api.autoconfigure.AbacContextAutoConfiguration;
 import com.contentgrid.thunx.api.autoconfigure.JwtAbacAutoConfiguration;
+import com.contentgrid.thunx.opa.autoconfigure.OpaClientAutoConfiguration;
+import com.contentgrid.thunx.opa.autoconfigure.OpaProperties;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.opa.OpaQueryProvider;
 import com.contentgrid.thunx.spring.gateway.filter.AbacGatewayFilterFactory;
@@ -31,6 +33,7 @@ public class GatewayAutoConfigurationTest {
 
     ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
+                    OpaClientAutoConfiguration.class,
                     GatewayAutoConfiguration.class
             ));
 
