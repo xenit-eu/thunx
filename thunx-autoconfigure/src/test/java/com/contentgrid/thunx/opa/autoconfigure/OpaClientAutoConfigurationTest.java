@@ -11,7 +11,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 
 @ExtendWith(OutputCaptureExtension.class)
-public class OpaClientAutoConfigurationTest {
+class OpaClientAutoConfigurationTest {
 
     ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(OpaClientAutoConfiguration.class));

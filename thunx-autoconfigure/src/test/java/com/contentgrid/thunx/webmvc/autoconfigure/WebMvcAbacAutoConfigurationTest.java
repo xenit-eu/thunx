@@ -14,7 +14,7 @@ import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.security.authorization.AuthorizationManager;
 
-public class WebMvcAbacAutoConfigurationTest {
+class WebMvcAbacAutoConfigurationTest {
 
     WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
             .withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))

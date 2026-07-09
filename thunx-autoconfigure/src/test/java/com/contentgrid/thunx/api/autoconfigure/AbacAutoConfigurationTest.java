@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.querydsl.binding.QuerydslBindingsFactory;
 
-public class AbacAutoConfigurationTest {
+class AbacAutoConfigurationTest {
 
     WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
             .withPropertyValues("spring.cloud.gateway.server.webflux.enabled=false")
@@ -27,7 +27,7 @@ public class AbacAutoConfigurationTest {
             ));
 
     @Test
-    public void shouldEnableAbacByDefault() {
+    void shouldEnableAbacByDefault() {
 
         contextRunner.withUserConfiguration(TestContext.class)
                 .run((context) -> {
@@ -43,7 +43,7 @@ public class AbacAutoConfigurationTest {
     }
 
     @Test
-    public void shouldEnableAbacWhenPropertyEqualsHeader() {
+    void shouldEnableAbacWhenPropertyEqualsHeader() {
 
         contextRunner.withUserConfiguration(TestContext.class)
                 .withSystemProperties("contentgrid.thunx.abac.source=header")
@@ -60,7 +60,7 @@ public class AbacAutoConfigurationTest {
     }
 
     @Test
-    public void shouldDisableAbacWhenPropertyEqualsNone() {
+    void shouldDisableAbacWhenPropertyEqualsNone() {
 
         contextRunner.withUserConfiguration(TestContext.class)
                 .withSystemProperties("contentgrid.thunx.abac.source=none")
@@ -77,7 +77,7 @@ public class AbacAutoConfigurationTest {
     }
 
     @Test
-    public void shouldFailWhenPropertyIsInvalid() {
+    void shouldFailWhenPropertyIsInvalid() {
         contextRunner.withUserConfiguration(TestContext.class)
                 .withSystemProperties("contentgrid.thunx.abac.source=invalid")
                 .run(context -> {
