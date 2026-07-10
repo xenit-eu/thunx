@@ -52,7 +52,6 @@ public class WebMvcAbacAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnBean(OpaClient.class)
     public PolicyDecisionPointClient<Authentication, HttpServletRequest> servletPdpClient(
             OpaClient opaClient,
             OpaQueryProvider<HttpServletRequest> queryProvider,

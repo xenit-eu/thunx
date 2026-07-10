@@ -3,11 +3,11 @@ package com.contentgrid.thunx.webmvc.autoconfigure;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.contentgrid.opa.client.OpaClient;
-import com.contentgrid.thunx.opa.autoconfigure.OpaProperties;
 import com.contentgrid.thunx.opa.autoconfigure.OpaClientAutoConfiguration;
 import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.spring.webmvc.PolicyAuthorizationManager;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
 import org.springframework.boot.logging.LogLevel;
@@ -32,14 +32,13 @@ class WebMvcAbacAutoConfigurationTest {
     }
 
     @Test
-    void backsOffWithoutOpaServiceUrl() {
+    void failsFastWithoutOpaServiceUrl() {
         contextRunner
                 .withPropertyValues("contentgrid.thunx.abac.source=opa")
                 .run((context) -> {
-                    assertThat(context).hasSingleBean(OpaProperties.class);
-                    assertThat(context).doesNotHaveBean(OpaClient.class);
-                    assertThat(context).doesNotHaveBean(PolicyDecisionPointClient.class);
-                    assertThat(context).doesNotHaveBean(AuthorizationManager.class);
+                    assertThat(context).hasFailed();
+                    assertThat(context).getFailure().isInstanceOf(UnsatisfiedDependencyException.class)
+                            .hasMessageContaining("com.contentgrid.opa.client.OpaClient");
                 });
     }
 
