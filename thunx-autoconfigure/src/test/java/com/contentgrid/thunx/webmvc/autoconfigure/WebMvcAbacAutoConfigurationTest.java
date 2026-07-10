@@ -1,6 +1,7 @@
 package com.contentgrid.thunx.webmvc.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import com.contentgrid.opa.client.OpaClient;
 import com.contentgrid.thunx.opa.autoconfigure.OpaClientAutoConfiguration;
@@ -12,6 +13,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.AuthorizationManager;
 
 class WebMvcAbacAutoConfigurationTest {
@@ -49,6 +52,19 @@ class WebMvcAbacAutoConfigurationTest {
                 .withPropertyValues(
                         "contentgrid.thunx.abac.source=opa",
                         "opa.service.url=" + opaServiceUrl)
+                .run((context) -> {
+                    assertThat(context).hasSingleBean(OpaClient.class);
+                    assertThat(context).hasSingleBean(PolicyDecisionPointClient.class);
+                    assertThat(context).getBean(AuthorizationManager.class)
+                            .isInstanceOf(PolicyAuthorizationManager.class);
+                });
+    }
+
+    @Test
+    void shouldEnableOpaAbacWithCustomOpaClientAndNoServiceUrl() {
+        contextRunner
+                .withBean(OpaClient.class, () -> mock(OpaClient.class))
+                .withPropertyValues("contentgrid.thunx.abac.source=opa")
                 .run((context) -> {
                     assertThat(context).hasSingleBean(OpaClient.class);
                     assertThat(context).hasSingleBean(PolicyDecisionPointClient.class);
