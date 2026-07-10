@@ -100,7 +100,8 @@ class PolicyAuthorizationManagerTest {
 
         var context = new RequestAuthorizationContext(new MockHttpServletRequest());
 
-        assertThatThrownBy(() -> authorizationManager.authorize(authentication(), context))
+        var authentication = authentication();
+        assertThatThrownBy(() -> authorizationManager.authorize(authentication, context))
                 .isInstanceOf(RuntimeException.class)
                 .hasCause(cause);
         assertThat(AbacContext.getCurrentAbacContext()).isNull();
