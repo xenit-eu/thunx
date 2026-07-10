@@ -32,11 +32,18 @@ public class PolicyAuthorizationManager implements AuthorizationManager<RequestA
             var policyDecision = policyDecisionComponent
                     .authorize(authentication.get(), context.getRequest())
                     .get();
+            // policyDecision outcome has 3 cases:
+            // - true
+            // - false
+            // - conditions
 
             if (policyDecision.isAllowed()) {
+
                 if (policyDecision.hasPredicate()) {
+                    // partial evaluation!
                     AbacContext.setCurrentAbacContext(policyDecision.getPredicate());
                 } else {
+                    // Put default: true = true
                     AbacContext.setCurrentAbacContext(Comparison.areEqual(Scalar.of(true), Scalar.of(true)));
                 }
                 return new AuthorizationDecision(true);
