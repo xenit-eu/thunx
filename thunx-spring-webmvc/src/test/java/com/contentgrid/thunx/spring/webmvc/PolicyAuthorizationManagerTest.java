@@ -2,12 +2,10 @@ package com.contentgrid.thunx.spring.webmvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 import com.contentgrid.thunx.pdp.PolicyDecision;
-import com.contentgrid.thunx.pdp.PolicyDecisionComponent;
 import com.contentgrid.thunx.pdp.PolicyDecisionComponentImpl;
+import com.contentgrid.thunx.pdp.PolicyDecisionPointClient;
 import com.contentgrid.thunx.pdp.PolicyDecisions;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.Scalar;
@@ -19,84 +17,75 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
-@ExtendWith(MockitoExtension.class)
 class PolicyAuthorizationManagerTest {
-
-    private final MockHttpServletRequest request = new MockHttpServletRequest();
-    private final RequestAuthorizationContext context = new RequestAuthorizationContext(request);
-
-    @Mock
-    private PolicyDecisionComponent<Authentication, HttpServletRequest> policyDecisionComponent;
 
     @AfterEach
     void clearAbacContext() {
         AbacContext.clear();
     }
 
-    private static Supplier<Authentication> authentication() {
-        return () -> new TestingAuthenticationToken("mario", null);
-    }
-
-    private static PolicyAuthorizationManager managerReturning(PolicyDecision decision) {
-        PolicyDecisionComponentImpl<Authentication, HttpServletRequest> component =
-                new PolicyDecisionComponentImpl<>((auth, req) -> CompletableFuture.completedFuture(decision));
-        return new PolicyAuthorizationManager(component);
-    }
-
     @Test
-    void authorize_allowedWithoutPredicate_grantsAndSetsDefaultAbacContext() {
-        var manager = managerReturning(PolicyDecisions.allowed());
+    void accessGranted() {
+        var authorizationManager = new PolicyAuthorizationManager(
+                new PolicyDecisionComponentImpl<>(policySaysYes()));
 
-        var decision = manager.authorize(authentication(), context);
+        var context = new RequestAuthorizationContext(new MockHttpServletRequest());
+
+        var decision = authorizationManager.authorize(authentication(), context);
 
         assertThat(decision.isGranted()).isTrue();
+        // context should be updated with the default ABAC predicate
         assertThat(AbacContext.getCurrentAbacContext())
                 .isEqualTo(Comparison.areEqual(Scalar.of(true), Scalar.of(true)));
     }
 
     @Test
-    void authorize_allowedWithPredicate_grantsAndSetsAbacContextToPredicate() {
-        ThunkExpression<Boolean> predicate = Comparison.areEqual(Scalar.of(42), Variable.named("foo"));
-        var manager = managerReturning(PolicyDecisions.conditional(predicate));
+    void accessDenied() {
+        var authorizationManager = new PolicyAuthorizationManager(
+                new PolicyDecisionComponentImpl<>(policySaysNo()));
 
-        var decision = manager.authorize(authentication(), context);
+        var context = new RequestAuthorizationContext(new MockHttpServletRequest());
 
-        assertThat(decision.isGranted()).isTrue();
-        assertThat(AbacContext.getCurrentAbacContext()).isEqualTo(predicate);
+        var decision = authorizationManager.authorize(authentication(), context);
+
+        assertThat(decision.isGranted()).isFalse();
+        assertThat(AbacContext.getCurrentAbacContext()).isNull();
     }
 
     @Test
-    void authorize_denied_doesNotGrant() {
-        var manager = managerReturning(PolicyDecisions.denied());
+    void conditionalAccess() {
+        var thunk = Comparison.areEqual(Scalar.of(42), Variable.named("foo"));
+        var authorizationManager = new PolicyAuthorizationManager(
+                new PolicyDecisionComponentImpl<>(policySaysMaybe(thunk)));
 
-        var decision = manager.authorize(authentication(), context);
+        var context = new RequestAuthorizationContext(new MockHttpServletRequest());
 
-        assertThat(decision.isGranted()).isFalse();
+        // access is conditional:
+        // - decision should be granted
+        // - context should be updated with the ABAC predicate
+        var decision = authorizationManager.authorize(authentication(), context);
+
+        assertThat(decision.isGranted()).isTrue();
+        assertThat(AbacContext.getCurrentAbacContext()).isEqualTo(thunk);
     }
 
     @Test
     void authorize_interruptedException_deniesAndRestoresInterruptStatus() {
-        var manager = new PolicyAuthorizationManager(policyDecisionComponent);
-        var future = new CompletableFuture<PolicyDecision>() {
-            @Override
-            public PolicyDecision get() throws InterruptedException {
-                throw new InterruptedException("interrupted while waiting for policy decision");
-            }
-        };
-        when(policyDecisionComponent.authorize(any(), any())).thenReturn(future);
+        var authorizationManager = new PolicyAuthorizationManager(
+                new PolicyDecisionComponentImpl<>(policySaysInterrupted()));
+
+        var context = new RequestAuthorizationContext(new MockHttpServletRequest());
 
         try {
-            var decision = manager.authorize(authentication(), context);
+            var decision = authorizationManager.authorize(authentication(), context);
 
             assertThat(decision.isGranted()).isFalse();
+            assertThat(AbacContext.getCurrentAbacContext()).isNull();
             assertThat(Thread.currentThread().isInterrupted()).isTrue();
         } finally {
             Thread.interrupted(); // clear the flag so it doesn't leak into other tests
@@ -105,14 +94,45 @@ class PolicyAuthorizationManagerTest {
 
     @Test
     void authorize_executionException_wrapsAndRethrowsCause() {
-        var manager = new PolicyAuthorizationManager(policyDecisionComponent);
         var cause = new RuntimeException("opa down");
-        var authentication = authentication();
-        when(policyDecisionComponent.authorize(any(), any()))
-                .thenReturn(CompletableFuture.failedFuture(cause));
+        var authorizationManager = new PolicyAuthorizationManager(
+                new PolicyDecisionComponentImpl<>(policySaysFailed(cause)));
 
-        assertThatThrownBy(() -> manager.authorize(authentication, context))
+        var context = new RequestAuthorizationContext(new MockHttpServletRequest());
+
+        assertThatThrownBy(() -> authorizationManager.authorize(authentication(), context))
                 .isInstanceOf(RuntimeException.class)
                 .hasCause(cause);
+        assertThat(AbacContext.getCurrentAbacContext()).isNull();
+    }
+
+    private static Supplier<Authentication> authentication() {
+        return () -> new TestingAuthenticationToken("mario", null);
+    }
+
+    private static PolicyDecisionPointClient<Authentication, HttpServletRequest> policySaysYes() {
+        return (authentication, request) -> CompletableFuture.completedFuture(PolicyDecisions.allowed());
+    }
+
+    private static PolicyDecisionPointClient<Authentication, HttpServletRequest> policySaysNo() {
+        return (authentication, request) -> CompletableFuture.completedFuture(PolicyDecisions.denied());
+    }
+
+    private static PolicyDecisionPointClient<Authentication, HttpServletRequest> policySaysMaybe(
+            ThunkExpression<Boolean> expression) {
+        return (authentication, request) -> CompletableFuture.completedFuture(PolicyDecisions.conditional(expression));
+    }
+
+    private static PolicyDecisionPointClient<Authentication, HttpServletRequest> policySaysInterrupted() {
+        return (authentication, request) -> new CompletableFuture<>() {
+            @Override
+            public PolicyDecision get() throws InterruptedException {
+                throw new InterruptedException("interrupted while waiting for policy decision");
+            }
+        };
+    }
+
+    private static PolicyDecisionPointClient<Authentication, HttpServletRequest> policySaysFailed(Throwable cause) {
+        return (authentication, request) -> CompletableFuture.failedFuture(cause);
     }
 }
