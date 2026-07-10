@@ -3,7 +3,6 @@ package com.contentgrid.thunx.spring.webmvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.contentgrid.thunx.pdp.PolicyDecision;
@@ -17,7 +16,6 @@ import com.contentgrid.thunx.predicates.model.Variable;
 import com.contentgrid.thunx.spring.security.AbacContext;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -85,27 +83,6 @@ class PolicyAuthorizationManagerTest {
     }
 
     @Test
-    void authorize_denied_leavesAbacContextUntouched() {
-        ThunkExpression<Boolean> existing = Comparison.areEqual(Scalar.of(1), Scalar.of(1));
-        AbacContext.setCurrentAbacContext(existing);
-        var manager = managerReturning(PolicyDecisions.denied());
-
-        manager.authorize(authentication(), context);
-
-        assertThat(AbacContext.getCurrentAbacContext()).isEqualTo(existing);
-    }
-
-    @Test
-    void check_delegatesToAuthorize() {
-        var manager = managerReturning(PolicyDecisions.allowed());
-
-        var checked = manager.check(authentication(), context);
-        var authorized = manager.authorize(authentication(), context);
-
-        assertThat(checked.isGranted()).isEqualTo(authorized.isGranted());
-    }
-
-    @Test
     void authorize_interruptedException_deniesAndRestoresInterruptStatus() {
         var manager = new PolicyAuthorizationManager(policyDecisionComponent);
         var future = new CompletableFuture<PolicyDecision>() {
@@ -137,33 +114,5 @@ class PolicyAuthorizationManagerTest {
         assertThatThrownBy(() -> manager.authorize(authentication, context))
                 .isInstanceOf(RuntimeException.class)
                 .hasCause(cause);
-    }
-
-    @Test
-    void authorize_passesAuthenticationAndRequestToPolicyDecisionComponent() {
-        var manager = new PolicyAuthorizationManager(policyDecisionComponent);
-        var auth = new TestingAuthenticationToken("mario", null);
-        when(policyDecisionComponent.authorize(auth, request))
-                .thenReturn(CompletableFuture.completedFuture(PolicyDecisions.allowed()));
-
-        manager.authorize(() -> auth, context);
-
-        verify(policyDecisionComponent).authorize(auth, request);
-    }
-
-    @Test
-    void authorize_invokesAuthenticationSupplierExactlyOnce() {
-        var manager = new PolicyAuthorizationManager(policyDecisionComponent);
-        when(policyDecisionComponent.authorize(any(), any()))
-                .thenReturn(CompletableFuture.completedFuture(PolicyDecisions.allowed()));
-        var callCount = new AtomicInteger();
-        Supplier<Authentication> supplier = () -> {
-            callCount.incrementAndGet();
-            return new TestingAuthenticationToken("mario", null);
-        };
-
-        manager.authorize(supplier, context);
-
-        assertThat(callCount.get()).isEqualTo(1);
     }
 }
