@@ -1,6 +1,7 @@
 package com.contentgrid.thunx.opa.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import com.contentgrid.opa.client.OpaClient;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @ExtendWith(OutputCaptureExtension.class)
 class OpaClientAutoConfigurationTest {
@@ -35,5 +38,25 @@ class OpaClientAutoConfigurationTest {
 
                     assertThat(output).doesNotContain("opa.service.url' is not configured");
                 });
+    }
+
+    @Test
+    void doesNotWarnWhenCustomOpaClientIsConfigured(CapturedOutput output) {
+        contextRunner
+                .withUserConfiguration(CustomOpaClientConfiguration.class)
+                .run((context) -> {
+                    assertThat(context).hasSingleBean(OpaClient.class);
+
+                    assertThat(output).doesNotContain("opa.service.url' is not configured");
+                });
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    static class CustomOpaClientConfiguration {
+
+        @Bean
+        OpaClient opaClient() {
+            return mock(OpaClient.class);
+        }
     }
 }
