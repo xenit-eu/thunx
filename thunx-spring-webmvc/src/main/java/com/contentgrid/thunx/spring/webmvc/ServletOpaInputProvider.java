@@ -41,7 +41,8 @@ public class ServletOpaInputProvider implements OpaInputProvider<Authentication,
     }
 
     // request.getQueryString() is used instead of request.getParameterMap(), which would consume
-    // the body for application/x-www-form-urlencoded requests.
+    // the body for application/x-www-form-urlencoded requests. This is Servlet spec behavior, not
+    // a Spring issue: https://jakarta.ee/specifications/servlet/6.0/apidocs/jakarta.servlet/jakarta/servlet/servletrequest#getParameter(java.lang.String)
     static Map<String, List<String>> queryParams(String queryString) {
         if (queryString == null || queryString.isBlank()) {
             return Map.of();
