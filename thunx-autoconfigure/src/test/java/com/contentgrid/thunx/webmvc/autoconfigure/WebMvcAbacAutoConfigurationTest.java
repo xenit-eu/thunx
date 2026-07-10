@@ -45,11 +45,11 @@ class WebMvcAbacAutoConfigurationTest {
 
     @Test
     void shouldEnableOpaAbacInServletApp() {
-        var OPA_SERVICE_URL = "https://some/opa/service";
+        var opaServiceUrl = "https://some/opa/service";
         contextRunner
                 .withPropertyValues(
                         "contentgrid.thunx.abac.source=opa",
-                        "opa.service.url=" + OPA_SERVICE_URL)
+                        "opa.service.url=" + opaServiceUrl)
                 .run((context) -> {
                     assertThat(context).hasSingleBean(OpaClient.class);
                     assertThat(context).hasSingleBean(PolicyDecisionPointClient.class);
