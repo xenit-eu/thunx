@@ -43,20 +43,11 @@ class OpaClientAutoConfigurationTest {
     @Test
     void doesNotWarnWhenCustomOpaClientIsConfigured(CapturedOutput output) {
         contextRunner
-                .withUserConfiguration(CustomOpaClientConfiguration.class)
+                .withBean(OpaClient.class, () -> mock(OpaClient.class))
                 .run((context) -> {
                     assertThat(context).hasSingleBean(OpaClient.class);
 
                     assertThat(output).doesNotContain("opa.service.url' is not configured");
                 });
-    }
-
-    @Configuration(proxyBeanMethods = false)
-    static class CustomOpaClientConfiguration {
-
-        @Bean
-        OpaClient opaClient() {
-            return mock(OpaClient.class);
-        }
     }
 }
