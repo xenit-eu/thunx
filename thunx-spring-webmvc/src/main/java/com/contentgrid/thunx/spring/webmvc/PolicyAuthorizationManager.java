@@ -8,11 +8,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
+@Slf4j
 @RequiredArgsConstructor
 public class PolicyAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
@@ -28,6 +30,11 @@ public class PolicyAuthorizationManager implements AuthorizationManager<RequestA
 
     @Override
     public AuthorizationDecision authorize(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+        var currentAbacContext = AbacContext.getCurrentAbacContext();
+        if (currentAbacContext != null) {
+            log.warn("Abac Context was not clear before running the OPA authorize, clearing it.");
+            AbacContext.clear();
+        }
         try {
             var policyDecision = policyDecisionComponent
                     .authorize(authentication.get(), context.getRequest())
@@ -38,7 +45,6 @@ public class PolicyAuthorizationManager implements AuthorizationManager<RequestA
             // - conditions
 
             if (policyDecision.isAllowed()) {
-
                 if (policyDecision.hasPredicate()) {
                     // partial evaluation!
                     AbacContext.setCurrentAbacContext(policyDecision.getPredicate());
