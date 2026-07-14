@@ -2,7 +2,7 @@ package com.contentgrid.thunx.spring.security;
 
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 
-class AbacContext {
+public class AbacContext {
 
     private static ThreadLocal<ThunkExpression<Boolean>> currentAbacContext = new InheritableThreadLocal<ThunkExpression<Boolean>>();
 

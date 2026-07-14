@@ -66,6 +66,10 @@ The `thunk-expression` from the `thunk-context` can be converted into a [QueryDS
 uses a JPA Repository, the [Spring Data QueryDSL Extension] can be used to include the QueryDSL predicate, and with
 that fulfill the conditional authorization predicate.
 
+In a newer architecture, the API Gateway is no longer responsible for contacting the OPA agent. It still does the authentication.
+Instead, the _API Service_ contacts the OPA agent for authorization. This mode is activated by setting 
+`contentgrid.thunx.abac.source=opa`.
+
 ![overview](./resources/diagrams/container-diagram-overview.png)
 
 [C4 model]: https://c4model.com/
@@ -92,6 +96,7 @@ This repository has several modules:
 * `thunx-spring-querydsl-predicate-resolver` is a library to inject additional [QueryDSL] predicates to be processed
   together with the predicates from the [Spring Data QueryDSL Extension]
 * `thunx-spring-security` provides an integration with JWT Authentication Tokens from Spring Security
+* `thunx-spring-webmvc` provides an integration with a Spring web mvc application
 
 ## Getting Started
 

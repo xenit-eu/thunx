@@ -9,19 +9,23 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation project(':thunx-encoding-json')
-    implementation project(':thunx-model')
+    implementation project(':thunx-pdp')
+    implementation project(':thunx-pdp-opa')
+    implementation project(':thunx-spring-security')
 
     implementation 'jakarta.servlet:jakarta.servlet-api'
-    implementation 'org.apache.logging.log4j:log4j-to-slf4j'
     implementation 'org.springframework.boot:spring-boot'
-    implementation 'org.springframework.security:spring-security-oauth2-jose'
+    implementation 'org.springframework.security:spring-security-core'
+    implementation 'org.springframework.security:spring-security-web'
 
-    // Used only for optional AuthenticationContextMapper
+    // Used only for optional ServletOpaInputProvider
     compileOnly 'org.springframework.security:spring-security-oauth2-core'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.security:spring-security-oauth2-core'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

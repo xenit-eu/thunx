@@ -44,7 +44,7 @@ class AuthenticationContextMapperTest {
         var context = AuthenticationContextMapper.fromAuthentication(auth);
 
         assertThat(context.getName()).isEqualTo("alice");
-        assertThat(context.isAuthenticated()).isEqualTo(true);
+        assertThat(context.isAuthenticated()).isTrue();
 
         assertThat(context.getUser()).containsExactlyInAnyOrderEntriesOf(Map.of(
                 "com.contentgrid:custom", List.of("blue", "green"),
@@ -82,7 +82,7 @@ class AuthenticationContextMapperTest {
 
         var context = AuthenticationContextMapper.fromAuthentication(auth);
 
-        assertThat(context.isAuthenticated()).isEqualTo(true);
+        assertThat(context.isAuthenticated()).isTrue();
         assertThat(context.getUser()).containsAllEntriesOf(Map.of(
                 "iat", instant,
                 "preferred_username", "alice",

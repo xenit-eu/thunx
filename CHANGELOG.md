@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+* Add `thunx-spring-webmvc` module and `contentgrid.thunx.abac.source=opa` mode for direct OPA-based
+  authorization in servlet applications (OPA deployed as a sidecar to the app server) by @AndreasVAmexio
+  in https://github.com/xenit-eu/thunx/pull/295
+
 ## [0.4.2] (2022-10-10)
 
 ### Fixed
