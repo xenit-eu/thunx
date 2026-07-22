@@ -37,6 +37,14 @@ allprojects {
     }
 
     pluginManager.withPlugin('maven-publish') {
+        // The nmcp plugin (applied together with maven-publish) resolves its
+        // 'nmcpTasks' configuration from the project repositories. Non-java-library
+        // publishing projects (e.g. the java-platform bom) don't get repositories
+        // from the java-library block above, so declare one here.
+        repositories {
+            mavenCentral()
+        }
+
         apply from: "${rootDir}/gradle/publish.gradle"
     }
 }
