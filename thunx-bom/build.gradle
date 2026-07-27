@@ -16,6 +16,7 @@ dependencies {
         api project(':thunx-spring-api')
         api project(':thunx-spring-gateway')
         api project(':thunx-spring-security')
+        api project(':thunx-spring-webmvc')
         api project(':thunx-visitor-reducer')
 
         api project(':spring-data-querydsl-predicate-injector')
