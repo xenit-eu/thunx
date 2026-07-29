@@ -1,5 +1,5 @@
 plugins {
-    id 'eu.xenit.enterprise-conventions.oss' version '0.7.0'
+    id 'eu.xenit.enterprise-conventions.oss' version '0.8.0'
     id 'org.ajoberstar.reckon.settings' version '2.0.0'
 }
 
