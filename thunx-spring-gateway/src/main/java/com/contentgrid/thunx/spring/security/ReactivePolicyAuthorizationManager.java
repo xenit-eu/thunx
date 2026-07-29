@@ -5,6 +5,7 @@ import com.contentgrid.thunx.pdp.PolicyDecisionComponent;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.Scalar;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
@@ -22,7 +23,7 @@ public class ReactivePolicyAuthorizationManager implements ReactiveAuthorization
     }
 
     @Override
-    public Mono<AuthorizationDecision> check(
+    public Mono<AuthorizationResult> authorize(
             Mono<Authentication> authentication, AuthorizationContext authzContext) {
         return authentication.flatMap(authContext ->
                 {

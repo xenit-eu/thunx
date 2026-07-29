@@ -33,22 +33,18 @@ class AbacGatewayFilterFactoryTest {
 
         exchange = this.filterFactory.addAbacContextHeader(exchange);
 
-        assertThat(exchange.getRequest().getHeaders())
-
-                // get the request header named 'X-ABAC-Context'
-                .hasEntrySatisfying("X-ABAC-Context", abacContextHeader -> {
-                    assertThat(abacContextHeader)
-                            .singleElement()
-                            .asInstanceOf(STRING)
-                            .isBase64()
-                            .asBase64Decoded().asString()
-                            .satisfies(json -> {
-                                // can we parse this as json ?
-                                assertThatJson(json).isObject()
-                                        .containsEntry("type", "function")
-                                        .containsEntry("operator", "eq")
-                                        .hasEntrySatisfying("terms", terms -> assertThatJson(terms).isArray());
-                            });
+        // get the request header named 'X-ABAC-Context'
+        assertThat(exchange.getRequest().getHeaders().get("X-ABAC-Context"))
+                .singleElement()
+                .asInstanceOf(STRING)
+                .isBase64()
+                .asBase64Decoded().asString()
+                .satisfies(json -> {
+                    // can we parse this as json ?
+                    assertThatJson(json).isObject()
+                            .containsEntry("type", "function")
+                            .containsEntry("operator", "eq")
+                            .hasEntrySatisfying("terms", terms -> assertThatJson(terms).isArray());
                 });
     }
 }

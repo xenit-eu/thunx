@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
@@ -20,16 +21,8 @@ public class PolicyAuthorizationManager implements AuthorizationManager<RequestA
 
     private final PolicyDecisionComponent<Authentication, HttpServletRequest> policyDecisionComponent;
 
-    // Spring Security 6.x dispatches via check() (abstract); 7.x removed check() and dispatches via
-    // authorize() instead. Implementing both keeps this correct regardless of which major version is
-    // actually on the runtime classpath of the consuming application.
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
-        return authorize(authentication, context);
-    }
-
-    @Override
-    public AuthorizationDecision authorize(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+    public AuthorizationResult authorize(Supplier<? extends Authentication> authentication, RequestAuthorizationContext context) {
         var currentAbacContext = AbacContext.getCurrentAbacContext();
         if (currentAbacContext != null) {
             log.warn("Abac Context was not clear before running the OPA authorize, clearing it.");
