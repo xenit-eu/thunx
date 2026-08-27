@@ -13,7 +13,7 @@ dependencies {
     api platform("org.springframework.cloud:spring-cloud-dependencies:2025.1.2")
 
     constraints {
-        api 'net.javacrumbs.json-unit:json-unit-assertj:6.1.0'
+        api 'net.javacrumbs.json-unit:json-unit-assertj:6.2.0'
     }
 }
 
