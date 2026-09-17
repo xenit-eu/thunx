@@ -13,39 +13,39 @@ public interface Scalar<T> extends ThunkExpression<T> {
         return visitor.visit(this, context);
     }
 
-    static NumberValue of(BigDecimal number) {
+    static Scalar<Number> of(BigDecimal number) {
         return new NumberValue(number);
     }
 
-    static NumberValue of(double number) {
+    static Scalar<Number> of(double number) {
         return of(BigDecimal.valueOf(number));
     }
 
-    static NumberValue of(long number) {
+    static Scalar<Number> of(long number) {
         return of(BigDecimal.valueOf(number));
     }
 
-    static StringValue of(String value) {
+    static Scalar<String> of(String value) {
         return new StringValue(value);
     }
 
-    static BooleanValue of(boolean value) {
+    static Scalar<Boolean> of(boolean value) {
         return new BooleanValue(value);
     }
 
-    static InstantValue of(Instant value) {
+    static Scalar<Instant> of(Instant value) {
         return new InstantValue(value);
     }
 
-    static LocalDateValue of(LocalDate value) {
+    static Scalar<LocalDate> of(LocalDate value) {
         return new LocalDateValue(value);
     }
 
-    static UUIDValue of(UUID value) {
+    static Scalar<UUID> of(UUID value) {
         return new UUIDValue(value);
     }
 
-    static NullValue nullValue() {
+    static Scalar<Void> nullValue() {
         return NullValue.INSTANCE;
     }
 }
