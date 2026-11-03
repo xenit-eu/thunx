@@ -6,7 +6,6 @@ import com.contentgrid.opa.rego.ast.Expression;
 import com.contentgrid.opa.rego.ast.Query;
 import com.contentgrid.opa.rego.ast.QuerySet;
 import com.contentgrid.opa.rego.ast.Term;
-import com.contentgrid.thunx.predicates.model.CollectionValue;
 import com.contentgrid.thunx.predicates.model.Comparison;
 import com.contentgrid.thunx.predicates.model.LogicalOperation;
 import com.contentgrid.thunx.predicates.model.Scalar;

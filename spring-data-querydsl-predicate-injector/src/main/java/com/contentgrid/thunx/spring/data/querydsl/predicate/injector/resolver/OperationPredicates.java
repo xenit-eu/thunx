@@ -3,7 +3,6 @@ package com.contentgrid.thunx.spring.data.querydsl.predicate.injector.resolver;
 import com.querydsl.core.types.Predicate;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.lang.Nullable;
 
 /**
  * A set of QueryDSL predicates that apply to different operations that can be executed on an entity

@@ -1,5 +1,7 @@
 allprojects {
     pluginManager.withPlugin('java-library') {
+        // Opts in to the conventions plugin's Spotless defaults (removeUnusedImports()).
+        apply plugin: 'com.diffplug.spotless'
 
         configurations {
             // See https://github.com/gradle/gradle/issues/10861

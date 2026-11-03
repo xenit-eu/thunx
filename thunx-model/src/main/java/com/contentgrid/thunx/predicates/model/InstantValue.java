@@ -1,7 +1,6 @@
 package com.contentgrid.thunx.predicates.model;
 
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
