@@ -1,28 +1,29 @@
 package com.contentgrid.thunx.encoding.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.javacrumbs.jsonunit.providers.Jackson2ObjectMapperProvider;
+import net.javacrumbs.jsonunit.providers.Jackson3ObjectMapperProvider;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Register a customized Jackson2 ObjectMapper with jsonunit:
+ * Register a customized Jackson3 {@link JsonMapper} with jsonunit:
  * - fail when detecting duplicate fields
  */
-public class CustomObjectMapperProvider implements Jackson2ObjectMapperProvider {
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static final ObjectMapper lenientMapper = new ObjectMapper();
+public class CustomObjectMapperProvider implements Jackson3ObjectMapperProvider {
 
-    static {
-        mapper.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+    private static final JsonMapper mapper = JsonMapper.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+            .build();
 
-        lenientMapper.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
-        lenientMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        lenientMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        lenientMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+    private static final JsonMapper lenientMapper = JsonMapper.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+            .enable(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)
+            .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+            .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+            .build();
 
-    }
     @Override
-    public ObjectMapper getObjectMapper(boolean lenient) {
+    public JsonMapper getObjectMapper(boolean lenient) {
         return lenient ? lenientMapper : mapper;
     }
 }

@@ -10,15 +10,12 @@ import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
 import com.contentgrid.thunx.predicates.model.Variable;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * JSON encoder and decoder for thunx expressions
@@ -26,15 +23,15 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkExpressionDecoder {
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
     private static final JsonEncoderVisitor visitor = new JsonEncoderVisitor();
 
     public JsonThunkExpressionCoder() {
-        this(new ObjectMapper());
+        this(JsonMapper.builder().build());
     }
 
-    public ThunkExpression<?> decodeFromJson(JsonNode node) throws JsonProcessingException {
-        return this.objectMapper.treeToValue(node, JsonExpressionDto.class)
+    public ThunkExpression<?> decodeFromJson(JsonNode node) {
+        return this.jsonMapper.treeToValue(node, JsonExpressionDto.class)
                 .toExpression();
     }
 
@@ -49,26 +46,18 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
 
     @Override
     public ThunkExpression<Boolean> decode(byte[] data) {
-        try {
-            return decodeFromJson(this.objectMapper.readTree(data))
-                    .assertResultType(Boolean.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return decodeFromJson(this.jsonMapper.readTree(data))
+                .assertResultType(Boolean.class);
     }
 
     public JsonNode encodeToJson(ThunkExpression<?> expression) {
         var jsonDto = expression.accept(visitor, null);
-        return this.objectMapper.valueToTree(jsonDto);
+        return this.jsonMapper.valueToTree(jsonDto);
     }
 
     @Override
     public byte[] encode(ThunkExpression<Boolean> expression) {
-        try {
-            return this.objectMapper.writeValueAsBytes(encodeToJson(expression));
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
+        return this.jsonMapper.writeValueAsBytes(encodeToJson(expression));
     }
 
     private static class JsonEncoderVisitor extends ContextFreeThunkExpressionVisitor<JsonExpressionDto> {

@@ -3,18 +3,17 @@ package com.contentgrid.thunx.encoding.json;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 class JsonFunctionDtoTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = JsonMapper.builder().build();
 
     @Test
-    void serialize() throws JsonProcessingException {
+    void serialize() {
         // answer == 42
         var dto = JsonFunctionDto.of("eq", JsonVariableDto.named("answer"), JsonScalarDto.of(42));
         var json = mapper.writeValueAsString(dto);
@@ -27,7 +26,7 @@ class JsonFunctionDtoTest {
     }
 
     @Test
-    void deserialize() throws JsonProcessingException {
+    void deserialize() {
         var json = mapper.writeValueAsString(Map.of(
                 "type", "function",
                 "operator", "eq",

@@ -1,21 +1,20 @@
 package com.contentgrid.thunx.encoding.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import tools.jackson.databind.json.JsonMapper;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonListValueDtoTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = JsonMapper.builder().build();
 
     @Test
-    void serialize() throws JsonProcessingException {
+    void serialize() {
         List<JsonExpressionDto> scalarDtos = List.of(JsonScalarDto.of(1));
         var dto = JsonListValueDto.of(scalarDtos);
         var json = mapper.writeValueAsString(dto);
@@ -24,7 +23,7 @@ class JsonListValueDtoTest {
     }
 
     @Test
-    void deserialize() throws JsonProcessingException {
+    void deserialize() {
         var json = mapper.writeValueAsString(Map.of(
                 "type", "array",
                 "value", List.of(Map.of("type", "number", "value", 1))

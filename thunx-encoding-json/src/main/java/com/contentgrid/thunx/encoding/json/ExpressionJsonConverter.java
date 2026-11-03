@@ -1,8 +1,8 @@
 package com.contentgrid.thunx.encoding.json;
 
 import com.contentgrid.thunx.predicates.model.ThunkExpression;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @deprecated use the {@link JsonThunkExpressionCoder} instead
@@ -14,11 +14,11 @@ public class ExpressionJsonConverter {
 
 
     public ExpressionJsonConverter() {
-        this(new ObjectMapper());
+        this(JsonMapper.builder().build());
     }
 
-    public ExpressionJsonConverter(ObjectMapper objectMapper) {
-        this.coder = new JsonThunkExpressionCoder(objectMapper);
+    public ExpressionJsonConverter(JsonMapper jsonMapper) {
+        this.coder = new JsonThunkExpressionCoder(jsonMapper);
     }
 
     public String encode(ThunkExpression<?> expression) {

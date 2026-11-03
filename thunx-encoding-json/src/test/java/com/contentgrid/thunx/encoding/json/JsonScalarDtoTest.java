@@ -3,21 +3,20 @@ package com.contentgrid.thunx.encoding.json;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 class JsonScalarDtoTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = JsonMapper.builder().build();
 
     @Nested
     class TypeString {
 
         @Test
-        void serialize() throws JsonProcessingException {
+        void serialize() {
             var dto = JsonScalarDto.of("foobar");
             var json = mapper.writeValueAsString(dto);
 
@@ -25,7 +24,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize() throws JsonProcessingException {
+        void deserialize() {
             var json = mapper.writeValueAsString(Map.of(
                     "type", "string",
                     "value", "foobar"
@@ -36,7 +35,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize_nullValue() throws JsonProcessingException {
+        void deserialize_nullValue() {
             var json = "{ \"type\": \"string\", \"value\": null }";
 
             JsonExpressionDto scalar = mapper.readValue(json, JsonExpressionDto.class);
@@ -48,7 +47,7 @@ class JsonScalarDtoTest {
     class TypeNumber {
 
         @Test
-        void serialize() throws JsonProcessingException {
+        void serialize() {
             var dto = JsonScalarDto.of(42);
             var json = mapper.writeValueAsString(dto);
 
@@ -56,7 +55,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize() throws JsonProcessingException {
+        void deserialize() {
             var json = mapper.writeValueAsString(Map.of(
                     "type", "number",
                     "value", 42
@@ -67,7 +66,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize_nullValue() throws JsonProcessingException {
+        void deserialize_nullValue() {
             var json = "{ \"type\": \"number\", \"value\": null }";
 
             JsonExpressionDto scalar = mapper.readValue(json, JsonExpressionDto.class);
@@ -76,7 +75,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize_stringValue() throws JsonProcessingException {
+        void deserialize_stringValue() {
             var json = "{ \"type\": \"number\", \"value\": \"invalid\" }";
 
             JsonExpressionDto scalar = mapper.readValue(json, JsonExpressionDto.class);
@@ -90,7 +89,7 @@ class JsonScalarDtoTest {
     class TypeBoolean {
 
         @Test
-        void serialize() throws JsonProcessingException {
+        void serialize() {
             var dto = JsonScalarDto.of(true);
             var json = mapper.writeValueAsString(dto);
 
@@ -98,7 +97,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize() throws JsonProcessingException {
+        void deserialize() {
             var json = mapper.writeValueAsString(Map.of(
                     "type", "bool",
                     "value", true
@@ -109,7 +108,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize_invalidValue_shouldStillSucceed() throws JsonProcessingException {
+        void deserialize_invalidValue_shouldStillSucceed() {
             var json = mapper.writeValueAsString(Map.of(
                     "type", "bool",
                     "value", "invalid"
@@ -126,7 +125,7 @@ class JsonScalarDtoTest {
     class TypeNull {
 
         @Test
-        void serialize() throws JsonProcessingException {
+        void serialize() {
             var dto = JsonScalarDto.nullValue();
             var json = mapper.writeValueAsString(dto);
 
@@ -134,7 +133,7 @@ class JsonScalarDtoTest {
         }
 
         @Test
-        void deserialize() throws JsonProcessingException {
+        void deserialize() {
             var json = mapper.writeValueAsString(Map.of(
                     "type", "null"
             ));
@@ -149,7 +148,7 @@ class JsonScalarDtoTest {
     class InvalidType {
 
         @Test
-        void deserialize() throws JsonProcessingException {
+        void deserialize() {
             var json = mapper.writeValueAsString(Map.of(
                     "type", "invalid",
                     "custom", "unknown"

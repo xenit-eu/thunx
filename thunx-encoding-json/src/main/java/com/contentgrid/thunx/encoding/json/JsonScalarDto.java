@@ -8,10 +8,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
@@ -23,6 +19,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 @Data
 @NoArgsConstructor
@@ -174,7 +174,7 @@ class JsonScalarDto<T> implements JsonExpressionDto {
     private static class EitherSerializer extends StdSerializer<Either<String, Number, Boolean, Void>> {
 
         /**
-         * Empty constructor required by Jackons' {@link JsonSerialize} annotation.
+         * Empty constructor required by Jackons' {@link tools.jackson.databind.annotation.JsonSerialize} annotation.
          */
         public EitherSerializer(){
             this(null);
@@ -185,13 +185,13 @@ class JsonScalarDto<T> implements JsonExpressionDto {
         }
 
         @Override
-        public void serialize(Either<String, Number, Boolean, Void> value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+        public void serialize(Either<String, Number, Boolean, Void> value, JsonGenerator gen, SerializationContext ctxt)
+                throws JacksonException {
             value.accept(
                     string -> unchecked(() -> gen.writeString(string)),
                     number -> unchecked(() -> gen.writeNumber(String.valueOf(number))),
                     bool -> unchecked(() -> gen.writeBoolean(bool)),
-                    nothing -> unchecked(() -> gen.writeNull())
+                    nothing -> unchecked(gen::writeNull)
             );
         }
 
