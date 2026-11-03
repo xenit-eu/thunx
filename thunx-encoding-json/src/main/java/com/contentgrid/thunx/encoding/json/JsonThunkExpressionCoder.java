@@ -35,15 +35,6 @@ public class JsonThunkExpressionCoder implements ThunkExpressionEncoder, ThunkEx
                 .toExpression();
     }
 
-    /**
-     * @deprecated use {@link #decode(byte[])} instead
-     */
-    @Override
-    @Deprecated(forRemoval = true, since = "0.10.1")
-    public ThunkExpression<Boolean> decoder(byte[] data) {
-        return decode(data);
-    }
-
     @Override
     public ThunkExpression<Boolean> decode(byte[] data) {
         return decodeFromJson(this.jsonMapper.readTree(data))
