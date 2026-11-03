@@ -8,14 +8,13 @@ import com.contentgrid.thunx.predicates.model.Scalar;
 import com.contentgrid.thunx.predicates.model.SetValue;
 import com.contentgrid.thunx.predicates.model.SymbolicReference;
 import com.contentgrid.thunx.predicates.model.Variable;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import tools.jackson.databind.json.JsonMapper;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -238,7 +237,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void logical_negation() throws InvalidExpressionDataException, JsonProcessingException {
+            void logical_negation() throws InvalidExpressionDataException {
                 // not(answer)
                 var expression = LogicalOperation.uncheckedNegation(List.of(Variable.named("answer")));
                 var json = converter.encodeToJson(expression);
@@ -285,13 +284,13 @@ class JsonThunkExpressionCoderTest {
     @Nested
     class Decoder {
 
-        private final ObjectMapper mapper = new ObjectMapper();
+        private final JsonMapper mapper = JsonMapper.builder().build();
 
         @Nested
         class Scalars {
 
             @Test
-            void string() throws JsonProcessingException, InvalidExpressionDataException {
+            void string() throws InvalidExpressionDataException {
                 var json = mapper.valueToTree(Map.of(
                         "type", "string",
                         "value", "foobar"
@@ -313,7 +312,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void string_nullValue() throws JsonProcessingException {
+            void string_nullValue() {
                 var json = mapper.readTree("{ \"type\": \"string\", \"value\": null }");
 
                 assertThatThrownBy(() -> converter.decodeFromJson(json))
@@ -321,7 +320,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void number_intValue() throws JsonProcessingException, InvalidExpressionDataException {
+            void number_intValue() throws InvalidExpressionDataException {
                 var json = mapper.valueToTree(Map.of(
                         "type", "number",
                         "value", 42
@@ -332,7 +331,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void number_doubleValue() throws JsonProcessingException, InvalidExpressionDataException {
+            void number_doubleValue() throws InvalidExpressionDataException {
                 var json = mapper.valueToTree(Map.of(
                         "type", "number",
                         "value", Math.PI
@@ -343,7 +342,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void number_nullValue_shouldFail() throws JsonProcessingException {
+            void number_nullValue_shouldFail() {
                 var json = mapper.readTree("{ \"type\": \"number\", \"value\": null }");
 
                 assertThatThrownBy(() -> converter.decodeFromJson(json))
@@ -351,7 +350,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void number_stringValue_shouldFail() throws JsonProcessingException {
+            void number_stringValue_shouldFail() {
                 var json = mapper.readTree("{ \"type\": \"number\", \"value\": \"5\" }");
 
                 assertThatThrownBy(() -> converter.decodeFromJson(json))
@@ -359,7 +358,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void booleanValue_true() throws JsonProcessingException, InvalidExpressionDataException {
+            void booleanValue_true() throws InvalidExpressionDataException {
                 var json = mapper.valueToTree(Map.of(
                         "type", "bool",
                         "value", true
@@ -369,7 +368,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void booleanValue_false() throws JsonProcessingException, InvalidExpressionDataException {
+            void booleanValue_false() throws InvalidExpressionDataException {
                 var json = mapper.valueToTree(Map.of(
                         "type", "bool",
                         "value", false
@@ -379,7 +378,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void nullValue() throws JsonProcessingException, InvalidExpressionDataException {
+            void nullValue() throws InvalidExpressionDataException {
                 var json = mapper.valueToTree(Map.of(
                         "type", "null"
                 ));
@@ -392,7 +391,7 @@ class JsonThunkExpressionCoderTest {
         class Collection {
 
             @Test
-            void collection_set_fromJson() throws JsonProcessingException {
+            void collection_set_fromJson() {
                 var expr = """
                         {"type": "set","value":[
                             {"type": "number", "value": 2},
@@ -410,7 +409,7 @@ class JsonThunkExpressionCoderTest {
             }
 
             @Test
-            void collection_array_fromJson() throws JsonProcessingException {
+            void collection_array_fromJson() {
                 var expr = """
                         {"type": "array","value":[
                             {"type": "number", "value": 1},
@@ -433,7 +432,7 @@ class JsonThunkExpressionCoderTest {
         class Variables {
 
             @Test
-            void variable() throws JsonProcessingException {
+            void variable() {
                 var json = mapper.readTree("{ \"type\": \"var\", \"name\": \"foo\" }");
                 var actual = converter.decodeFromJson(json);
 
@@ -445,7 +444,7 @@ class JsonThunkExpressionCoderTest {
         class SymbolicReferences {
 
             @Test
-            void references() throws JsonProcessingException {
+            void references() {
                 // answers.life
                 var json = mapper.valueToTree(Map.of(
                     "type", "ref",

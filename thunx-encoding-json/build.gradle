@@ -11,7 +11,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok"
 
     implementation project(":thunx-model")
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'tools.jackson.core:jackson-databind'
 
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
